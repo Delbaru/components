@@ -483,4 +483,3 @@ export function LexicalText({ content, variant = 'default', w, h, animation, row
   );
 }
 
-LexicalText.displayName = 'LexicalText';

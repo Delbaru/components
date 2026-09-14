@@ -25,10 +25,11 @@ import {
   type SizeValue,
 } from '../core';
 import type React from 'react';
-import { forwardRef, useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
 import styles from './Video.module.scss';
+import type { WithRef } from '../core';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 
@@ -76,191 +77,185 @@ export interface VideoProps extends VideoBaseProps, SizeInput, RadiusInput, Vide
   showPlayButton?: boolean;
 }
 
-export const Video = forwardRef<HTMLVideoElement, VideoProps>(
-  (
-    {
-      className = '',
-      style,
-      'data-point-events': dataPointEvents,
-      src,
-      poster,
-      w,
-      minW,
-      maxW,
-      h,
-      minH,
-      maxH,
-      rootW,
-      rootH,
-      grow,
-      r,
-      tlr,
-      trr,
-      brr,
-      blr,
-      borderTLR,
-      borderTRR,
-      borderBRR,
-      borderBLR,
-      aspectRatio,
-      objectFit,
-      objectPosition,
-      bg,
-      linkState,
-      perspective3d,
-      parallax,
-      showPlayButton = false,
-      controls = false,
-      autoPlay = false,
-      muted = false,
-      playsInline = true,
-      loop,
-      preload,
-      onPlay,
-      onPause,
-      onEnded,
-      ...props
-    },
-    ref
-  ) => {
-    const videoRef = useRef<HTMLVideoElement | null>(null);
-    const [isPlaying, setIsPlaying] = useState(autoPlay);
-    const bgClasses = c.literal('bg', bg);
-    const hasBgClass = Boolean(bgClasses[0]);
-    const sizeProps = {
-      w,
-      minW,
-      maxW,
-      h,
-      minH,
-      maxH,
-    };
-    const wrapperSizeProps = {
-      w: rootW ?? sizeProps.w,
-      minW: sizeProps.minW,
-      maxW: sizeProps.maxW,
-      h: rootH ?? sizeProps.h,
-      minH: sizeProps.minH,
-      maxH: sizeProps.maxH,
-    };
-    const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-    const { rootProps, elementProps } = splitRootDomProps(props as VideoElementProps);
-    const resolvedSrc = resolveMediaSource(src);
-    const resolvedPoster = resolveMediaSource(poster);
-    const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
+export function Video({
+  ref,
+  className = '',
+  style,
+  'data-point-events': dataPointEvents,
+  src,
+  poster,
+  w,
+  minW,
+  maxW,
+  h,
+  minH,
+  maxH,
+  rootW,
+  rootH,
+  grow,
+  r,
+  tlr,
+  trr,
+  brr,
+  blr,
+  borderTLR,
+  borderTRR,
+  borderBRR,
+  borderBLR,
+  aspectRatio,
+  objectFit,
+  objectPosition,
+  bg,
+  linkState,
+  perspective3d,
+  parallax,
+  showPlayButton = false,
+  controls = false,
+  autoPlay = false,
+  muted = false,
+  playsInline = true,
+  loop,
+  preload,
+  onPlay,
+  onPause,
+  onEnded,
+  ...props
+}: WithRef<VideoProps, HTMLVideoElement>) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const bgClasses = c.literal('bg', bg);
+  const hasBgClass = Boolean(bgClasses[0]);
+  const sizeProps = {
+    w,
+    minW,
+    maxW,
+    h,
+    minH,
+    maxH,
+  };
+  const wrapperSizeProps = {
+    w: rootW ?? sizeProps.w,
+    minW: sizeProps.minW,
+    maxW: sizeProps.maxW,
+    h: rootH ?? sizeProps.h,
+    minH: sizeProps.minH,
+    maxH: sizeProps.maxH,
+  };
+  const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
+  const { rootProps, elementProps } = splitRootDomProps(props as VideoElementProps);
+  const resolvedSrc = resolveMediaSource(src);
+  const resolvedPoster = resolveMediaSource(poster);
+  const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
 
-    const [objectFitResolved] = resolveResponsive(objectFit ?? 'cover');
-    const [objectPositionResolved] = resolveResponsive(objectPosition ?? 'center');
+  const [objectFitResolved] = resolveResponsive(objectFit ?? 'cover');
+  const [objectPositionResolved] = resolveResponsive(objectPosition ?? 'center');
 
-    useEffect(() => {
-      const node = videoRef.current;
+  useEffect(() => {
+    const node = videoRef.current;
 
-      setIsPlaying(node ? !node.paused && !node.ended : autoPlay && Boolean(resolvedSrc));
-    }, [autoPlay, resolvedSrc]);
+    setIsPlaying(node ? !node.paused && !node.ended : autoPlay && Boolean(resolvedSrc));
+  }, [autoPlay, resolvedSrc]);
 
-    const setVideoRef = (node: HTMLVideoElement | null) => {
-      videoRef.current = node;
+  const setVideoRef = (node: HTMLVideoElement | null) => {
+    videoRef.current = node;
 
-      if (typeof ref === 'function') {
-        ref(node);
-        return;
-      }
+    if (typeof ref === 'function') {
+      ref(node);
+      return;
+    }
 
-      if (ref) {
-        ref.current = node;
-      }
-    };
+    if (ref) {
+      ref.current = node;
+    }
+  };
 
-    const setRootRef = useCallback((node: HTMLSpanElement | null) => {
-      setMotionNode(node);
-    }, [setMotionNode]);
+  const setRootRef = useCallback((node: HTMLSpanElement | null) => {
+    setMotionNode(node);
+  }, [setMotionNode]);
 
-    const handlePlayButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.preventDefault();
-      event.stopPropagation();
+  const handlePlayButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
 
-      if (!resolvedSrc) return;
+    if (!resolvedSrc) return;
 
-      videoRef.current?.play().catch(() => null);
-    };
+    videoRef.current?.play().catch(() => null);
+  };
 
-    const handlePlay = (event: React.SyntheticEvent<HTMLVideoElement>) => {
-      setIsPlaying(true);
-      onPlay?.(event);
-    };
+  const handlePlay = (event: React.SyntheticEvent<HTMLVideoElement>) => {
+    setIsPlaying(true);
+    onPlay?.(event);
+  };
 
-    const handlePause = (event: React.SyntheticEvent<HTMLVideoElement>) => {
-      setIsPlaying(false);
-      onPause?.(event);
-    };
+  const handlePause = (event: React.SyntheticEvent<HTMLVideoElement>) => {
+    setIsPlaying(false);
+    onPause?.(event);
+  };
 
-    const handleEnded = (event: React.SyntheticEvent<HTMLVideoElement>) => {
-      setIsPlaying(false);
-      onEnded?.(event);
-    };
+  const handleEnded = (event: React.SyntheticEvent<HTMLVideoElement>) => {
+    setIsPlaying(false);
+    onEnded?.(event);
+  };
 
-    return (
-      <span
-        ref={setRootRef}
-        data-point-events={dataPointEvents}
-        {...(rootProps as React.HTMLAttributes<HTMLSpanElement>)}
-        {...stateLinkProps(linkState, { ...motionHandlers })}
-        className={cx(
-          styles.VideoRoot,
-          ...sizeClasses(c, wrapperSizeProps),
-          ...radiusClasses(c, radiusProps),
-          ...bgClasses,
-          needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
-          needsInlineGrow(grow) && inlineGrowClassName(),
-          className
-        )}
-        style={{
-          ...(bg && !hasBgClass ? { background: bg } : null),
-          ...sizeInlineStyle({
-            ...wrapperSizeProps,
-            w: wrapperSizeProps.w ?? '100%',
-            h: wrapperSizeProps.h ?? '100%',
-          }),
-          ...aspectRatioStyle(aspectRatio),
-          ...growStyle(grow),
-          ...(motionStyle ?? null),
-          ...(objectFitResolved ? ({ '--video-fit': objectFitResolved } as CSSProperties) : null),
-          ...(objectPositionResolved ? ({ '--video-position': objectPositionResolved } as CSSProperties) : null),
-          ...style,
-        }}
-      >
-        {showPlayButton && resolvedSrc && !isPlaying ? (
-          <button
-            type="button"
-            className={styles.VideoPlayButton}
-            aria-label="Запустить видео"
-            onClick={handlePlayButtonClick}
-          >
-            <span className={styles.VideoPlayButtonIcon} aria-hidden="true">▶</span>
-          </button>
-        ) : null}
+  return (
+    <span
+      ref={setRootRef}
+      data-point-events={dataPointEvents}
+      {...(rootProps as React.HTMLAttributes<HTMLSpanElement>)}
+      {...stateLinkProps(linkState, { ...motionHandlers })}
+      className={cx(
+        styles.VideoRoot,
+        ...sizeClasses(c, wrapperSizeProps),
+        ...radiusClasses(c, radiusProps),
+        ...bgClasses,
+        needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
+        needsInlineGrow(grow) && inlineGrowClassName(),
+        className
+      )}
+      style={{
+        ...(bg && !hasBgClass ? { background: bg } : null),
+        ...sizeInlineStyle({
+          ...wrapperSizeProps,
+          w: wrapperSizeProps.w ?? '100%',
+          h: wrapperSizeProps.h ?? '100%',
+        }),
+        ...aspectRatioStyle(aspectRatio),
+        ...growStyle(grow),
+        ...(motionStyle ?? null),
+        ...(objectFitResolved ? ({ '--video-fit': objectFitResolved } as CSSProperties) : null),
+        ...(objectPositionResolved ? ({ '--video-position': objectPositionResolved } as CSSProperties) : null),
+        ...style,
+      }}
+    >
+      {showPlayButton && resolvedSrc && !isPlaying ? (
+        <button
+          type="button"
+          className={styles.VideoPlayButton}
+          aria-label="Запустить видео"
+          onClick={handlePlayButtonClick}
+        >
+          <span className={styles.VideoPlayButtonIcon} aria-hidden="true">▶</span>
+        </button>
+      ) : null}
 
-        <video
-          ref={setVideoRef}
-          className={styles.Video}
-          src={resolvedSrc}
-          poster={resolvedPoster}
-          controls={controls}
-          autoPlay={autoPlay}
-          muted={muted}
-          playsInline={playsInline}
-          loop={loop}
-          preload={preload}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onEnded={handleEnded}
-          {...elementProps}
-        />
-      </span>
-    );
-  }
-);
-
-Video.displayName = 'Video';
+      <video
+        ref={setVideoRef}
+        className={styles.Video}
+        src={resolvedSrc}
+        poster={resolvedPoster}
+        controls={controls}
+        autoPlay={autoPlay}
+        muted={muted}
+        playsInline={playsInline}
+        loop={loop}
+        preload={preload}
+        onPlay={handlePlay}
+        onPause={handlePause}
+        onEnded={handleEnded}
+        {...elementProps}
+      />
+    </span>
+  );
+}
 
 export default Video;

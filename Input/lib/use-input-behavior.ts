@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type ForwardedRef, type MouseEvent } from 'react';
+import { useCallback, useMemo, useRef, useState, type ChangeEvent, type FocusEvent, type MouseEvent, type Ref } from 'react';
 import type React from 'react';
 
 import { useFieldControl } from '../../core';
@@ -113,7 +113,7 @@ function normalizeTimeValue(raw: string, cursor: number | null, selectionEnd: nu
 }
 
 interface UseInputBehaviorOptions {
-  ref: ForwardedRef<HTMLInputElement>;
+  ref: Ref<HTMLInputElement> | undefined;
   typeProp?: React.HTMLInputTypeAttribute;
   valueProp?: React.InputHTMLAttributes<HTMLInputElement>['value'];
   defaultValueProp?: React.InputHTMLAttributes<HTMLInputElement>['defaultValue'];

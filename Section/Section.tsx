@@ -4,9 +4,10 @@ import type React from 'react';
 
 import styles from './Section.module.scss';
 
-import { forwardRef, useCallback, type CSSProperties } from 'react';
+import { useCallback, type CSSProperties } from 'react';
 import { aspectRatioStyle, cx, createLayoutClasses, inlineAspectRatioClassName, inlineGrowClassName, inlineSpaceStyle, needsInlineAspectRatio, needsInlineGrow, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, growStyle, type StateLinkInput, type ResponsiveValue, type SpaceValue, type SizePropsShort, type AspectRatioProps, type GrowProps } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
+import type { WithRef } from '../core';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 
@@ -25,56 +26,52 @@ export interface SectionProps extends React.HTMLAttributes<HTMLElement>, SizePro
   linkState?: StateLinkInput;
 }
 
-export const Section = forwardRef<HTMLElement, SectionProps>(
-  ({ children, className = '', style, bg, mt, mb, pt, pb, w, minW, maxW, h, minH, maxH, aspectRatio, grow, perspective3d, parallax, linkState, onMouseEnter, onMouseLeave, ...props }, ref) => {
-    const bgClasses = c.literal('bg', bg);
-    const hasBgClass = Boolean(bgClasses[0]);
-    const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
-    const setRefs = useCallback((node: HTMLElement | null) => {
-      setMotionNode(node);
+export function Section({ ref, children, className = '', style, bg, mt, mb, pt, pb, w, minW, maxW, h, minH, maxH, aspectRatio, grow, perspective3d, parallax, linkState, onMouseEnter, onMouseLeave, ...props }: WithRef<SectionProps, HTMLElement>) {
+  const bgClasses = c.literal('bg', bg);
+  const hasBgClass = Boolean(bgClasses[0]);
+  const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
+  const setRefs = useCallback((node: HTMLElement | null) => {
+    setMotionNode(node);
 
-      if (typeof ref === 'function') {
-        ref(node);
-        return;
-      }
+    if (typeof ref === 'function') {
+      ref(node);
+      return;
+    }
 
-      if (ref) {
-        ref.current = node;
-      }
-    }, [ref, setMotionNode]);
+    if (ref) {
+      ref.current = node;
+    }
+  }, [ref, setMotionNode]);
 
-    return (
-      <section
-        ref={setRefs}
-        {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
-        className={cx(
-          styles.Section,
-          ...c.space('mt', mt),
-          ...c.space('mb', mb),
-          ...c.space('pt', pt),
-          ...c.space('pb', pb),
-          ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
-          ...bgClasses,
-          needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
-          needsInlineGrow(grow) && inlineGrowClassName(),
-          className
-        )}
-        style={{
-          ...(bg && !hasBgClass ? { background: bg } : null),
-          ...inlineSpaceStyle({ mt, mb, pt, pb }),
-          ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
-          ...aspectRatioStyle(aspectRatio),
-          ...growStyle(grow),
-          ...(motionStyle ?? null),
-          ...style,
-        }}
-        {...props}
-      >
-        {children}
-      </section>
-    );
-  }
-);
-
-Section.displayName = 'Section';
+  return (
+    <section
+      ref={setRefs}
+      {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
+      className={cx(
+        styles.Section,
+        ...c.space('mt', mt),
+        ...c.space('mb', mb),
+        ...c.space('pt', pt),
+        ...c.space('pb', pb),
+        ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
+        ...bgClasses,
+        needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
+        needsInlineGrow(grow) && inlineGrowClassName(),
+        className
+      )}
+      style={{
+        ...(bg && !hasBgClass ? { background: bg } : null),
+        ...inlineSpaceStyle({ mt, mb, pt, pb }),
+        ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
+        ...aspectRatioStyle(aspectRatio),
+        ...growStyle(grow),
+        ...(motionStyle ?? null),
+        ...style,
+      }}
+      {...props}
+    >
+      {children}
+    </section>
+  );
+}
 

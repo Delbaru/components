@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  forwardRef,
   useRef,
   useEffect,
   useCallback,
@@ -34,6 +33,7 @@ import {
 import { Flex } from '../Flex';
 import { useModalRuntime } from './ModalProvider';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
+import type { WithRef } from '../core';
 
 type PresetKey = 'default' | 'fullWidth';
 
@@ -92,202 +92,194 @@ type ModalSurfaceProps = LayoutSpaceProps & RadiusPropsShort & SizePropsShort & 
 
 export type ModalProps = Omit<ModalSurfaceProps, 'open' | 'onClose'>;
 
-const ModalSurface = forwardRef<HTMLDivElement, ModalSurfaceProps>(
-  (
-    {
-      id,
-      open,
-      onClose,
-      children,
-      className = '',
-      rootClassName,
-      overlayClassName,
-      style: panelStyle,
-      rootStyle,
-      overlayStyle,
-      preset = 'default',
-      animation,
-      closeOnOverlayClick = true,
-      overflowVisible = false,
-      p,
-      pt,
-      pr,
-      pb,
-      pl,
-      m,
-      mt,
-      mr,
-      mb,
-      ml,
-      rootP,
-      rootPt,
-      rootPr,
-      rootPb,
-      rootPl,
-      rootM,
-      rootMt,
-      rootMr,
-      rootMb,
-      rootMl,
-      r,
-      tlr,
-      trr,
-      brr,
-      blr,
-      borderTLR,
-      borderTRR,
-      borderBRR,
-      borderBLR,
-      w,
-      minW,
-      maxW,
-      h,
-      minH,
-      maxH,
-      grow,
-      perspective3d,
-      parallax,
-      alignItems,
-      justifyContent,
-      bg,
-      color,
-      'aria-label': ariaLabel,
-      'aria-labelledby': ariaLabelledby,
-      'data-point-events': dataPointEvents,
-      linkState,
-    },
-    ref
-  ) => {
-    const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-    const bgClasses = c.literal('bg', bg);
-    const colorClasses = c.literal('color', color);
-    const hasBgClass = Boolean(bgClasses[0]);
-    const hasColorClass = Boolean(colorClasses[0]);
-    const panelRef = useRef<HTMLDivElement>(null);
-    const previousActiveElement = useRef<HTMLElement | null>(null);
-    const [entered, setEntered] = useState(false);
-    const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
+function ModalSurface({
+  ref,
+  id,
+  open,
+  onClose,
+  children,
+  className = '',
+  rootClassName,
+  overlayClassName,
+  style: panelStyle,
+  rootStyle,
+  overlayStyle,
+  preset = 'default',
+  animation,
+  closeOnOverlayClick = true,
+  overflowVisible = false,
+  p,
+  pt,
+  pr,
+  pb,
+  pl,
+  m,
+  mt,
+  mr,
+  mb,
+  ml,
+  rootP,
+  rootPt,
+  rootPr,
+  rootPb,
+  rootPl,
+  rootM,
+  rootMt,
+  rootMr,
+  rootMb,
+  rootMl,
+  r,
+  tlr,
+  trr,
+  brr,
+  blr,
+  borderTLR,
+  borderTRR,
+  borderBRR,
+  borderBLR,
+  w,
+  minW,
+  maxW,
+  h,
+  minH,
+  maxH,
+  grow,
+  perspective3d,
+  parallax,
+  alignItems,
+  justifyContent,
+  bg,
+  color,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledby,
+  'data-point-events': dataPointEvents,
+  linkState,
+}: WithRef<ModalSurfaceProps, HTMLDivElement>) {
+  const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
+  const bgClasses = c.literal('bg', bg);
+  const colorClasses = c.literal('color', color);
+  const hasBgClass = Boolean(bgClasses[0]);
+  const hasColorClass = Boolean(colorClasses[0]);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+  const [entered, setEntered] = useState(false);
+  const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
 
-    useEffect(() => {
-      if (open) {
-        const t = requestAnimationFrame(() => setEntered(true));
-        return () => cancelAnimationFrame(t);
-      }
-      const t = requestAnimationFrame(() => setEntered(false));
+  useEffect(() => {
+    if (open) {
+      const t = requestAnimationFrame(() => setEntered(true));
       return () => cancelAnimationFrame(t);
-    }, [open]);
+    }
+    const t = requestAnimationFrame(() => setEntered(false));
+    return () => cancelAnimationFrame(t);
+  }, [open]);
 
-    const handleKeyDown = useCallback(
-      (e: KeyboardEvent<HTMLDivElement>) => {
-        if (e.key === 'Escape') {
-          e.preventDefault();
-          onClose();
-        }
-      },
-      [onClose]
-    );
-
-    useEffect(() => {
-      if (!open) return;
-      previousActiveElement.current = document.activeElement as HTMLElement | null;
-      const panel = panelRef.current;
-      if (panel) {
-        panel.focus();
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
       }
-      return () => {
-        previousActiveElement.current?.focus();
-      };
-    }, [open]);
+    },
+    [onClose]
+  );
 
-    const handleOverlayClick = () => {
-      if (closeOnOverlayClick) onClose();
+  useEffect(() => {
+    if (!open) return;
+    previousActiveElement.current = document.activeElement as HTMLElement | null;
+    const panel = panelRef.current;
+    if (panel) {
+      panel.focus();
+    }
+    return () => {
+      previousActiveElement.current?.focus();
     };
+  }, [open]);
 
-    const setPanelNode = useCallback((node: HTMLDivElement | null) => {
-      panelRef.current = node;
-      setMotionNode(node);
-    }, [setMotionNode]);
+  const handleOverlayClick = () => {
+    if (closeOnOverlayClick) onClose();
+  };
 
-    const mergedRootStyle = {
-      ...inlineSpaceStyle({ p: rootP, pt: rootPt, pr: rootPr, pb: rootPb, pl: rootPl, m: rootM, mt: rootMt, mr: rootMr, mb: rootMb, ml: rootMl }),
-      ...growStyle(grow),
-      ...rootStyle,
-    };
+  const setPanelNode = useCallback((node: HTMLDivElement | null) => {
+    panelRef.current = node;
+    setMotionNode(node);
+  }, [setMotionNode]);
 
-    return (
-      <Flex
-        ref={ref}
-        linkState={linkState}
-        data-point-events={dataPointEvents}
-        className={cx(
-          styles.Modal,
-          rootClassName,
-          ...c.enum('animation', animation),
-          ...layoutSpaceClasses(c, { p: rootP, pt: rootPt, pr: rootPr, pb: rootPb, pl: rootPl, m: rootM, mt: rootMt, mr: rootMr, mb: rootMb, ml: rootMl }),
-          needsInlineGrow(grow) && inlineGrowClassName()
-        )}
-        data-open={open}
-        data-entered={entered}
+  const mergedRootStyle = {
+    ...inlineSpaceStyle({ p: rootP, pt: rootPt, pr: rootPr, pb: rootPb, pl: rootPl, m: rootM, mt: rootMt, mr: rootMr, mb: rootMb, ml: rootMl }),
+    ...growStyle(grow),
+    ...rootStyle,
+  };
+
+  return (
+    <Flex
+      ref={ref}
+      linkState={linkState}
+      data-point-events={dataPointEvents}
+      className={cx(
+        styles.Modal,
+        rootClassName,
+        ...c.enum('animation', animation),
+        ...layoutSpaceClasses(c, { p: rootP, pt: rootPt, pr: rootPr, pb: rootPb, pl: rootPl, m: rootM, mt: rootMt, mr: rootMr, mb: rootMb, ml: rootMl }),
+        needsInlineGrow(grow) && inlineGrowClassName()
+      )}
+      data-open={open}
+      data-entered={entered}
+      role="presentation"
+      aria-hidden={!open}
+      align={alignItems ?? 'center'}
+      justify={justifyContent ?? 'center'}
+      style={mergedRootStyle}
+    >
+      <div
+        className={cx(styles.Overlay, overlayClassName)}
+        style={overlayStyle}
+        onClick={handleOverlayClick}
+        onKeyDown={handleKeyDown}
         role="presentation"
-        aria-hidden={!open}
-        align={alignItems ?? 'center'}
-        justify={justifyContent ?? 'center'}
-        style={mergedRootStyle}
+      />
+      <div
+        id={id}
+        ref={setPanelNode}
+        role="dialog"
+        aria-modal="true"
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledby}
+        data-lenis-prevent
+        data-lenis-prevent-wheel
+        data-lenis-prevent-touch
+        tabIndex={-1}
+        className={cx(
+          styles.Panel,
+          overflowVisible && styles.overflowVisible,
+          ...c.enum('preset', preset),
+          ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
+          ...radiusClasses(c, radiusProps),
+          ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
+          ...bgClasses,
+          ...colorClasses,
+          className
+        )}
+        style={{
+          ...(bg && !hasBgClass ? { background: bg } : null),
+          ...(color && !hasColorClass ? { color } : null),
+          ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
+          ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
+          ...(motionStyle ?? null),
+          ...panelStyle,
+        }}
+        {...motionHandlers}
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleKeyDown}
       >
-        <div
-          className={cx(styles.Overlay, overlayClassName)}
-          style={overlayStyle}
-          onClick={handleOverlayClick}
-          onKeyDown={handleKeyDown}
-          role="presentation"
-        />
-        <div
-          id={id}
-          ref={setPanelNode}
-          role="dialog"
-          aria-modal="true"
-          aria-label={ariaLabel}
-          aria-labelledby={ariaLabelledby}
-          data-lenis-prevent
-          data-lenis-prevent-wheel
-          data-lenis-prevent-touch
-          tabIndex={-1}
-          className={cx(
-            styles.Panel,
-            overflowVisible && styles.overflowVisible,
-            ...c.enum('preset', preset),
-            ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-            ...radiusClasses(c, radiusProps),
-            ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
-            ...bgClasses,
-            ...colorClasses,
-            className
-          )}
-          style={{
-            ...(bg && !hasBgClass ? { background: bg } : null),
-            ...(color && !hasColorClass ? { color } : null),
-            ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-            ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
-            ...(motionStyle ?? null),
-            ...panelStyle,
-          }}
-          {...motionHandlers}
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={handleKeyDown}
-        >
-          <div className={cx(styles.inner, overflowVisible && styles.innerOverflowVisible)}>{children}</div>
-        </div>
-      </Flex>
-    );
-  }
-);
+        <div className={cx(styles.inner, overflowVisible && styles.innerOverflowVisible)}>{children}</div>
+      </div>
+    </Flex>
+  );
+}
 
-ModalSurface.displayName = 'ModalSurface';
-
-export const Modal = forwardRef<HTMLDivElement, ModalProps>((props, ref) => {
+export function Modal({ ref, ...props }: WithRef<ModalProps, HTMLDivElement>) {
   const { open, dismiss } = useModalRuntime();
 
   return <ModalSurface {...props} ref={ref} open={open} onClose={dismiss} />;
-});
-
-Modal.displayName = 'Modal';
+}

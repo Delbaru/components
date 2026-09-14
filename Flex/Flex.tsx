@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { forwardRef, useCallback, useEffect, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './Flex.module.scss';
 import { 
@@ -38,6 +38,7 @@ import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotio
 import { usePresence } from '../hooks/usePresence';
 import { useSwapTransition } from '../hooks/useSwapTransition';
 import { resolveResponsive } from '../core/base/responsive';
+import type { WithRef } from '../core';
 
 type DirectionKey = 'row' | 'row_reverse' | 'column' | 'column_reverse';
 type WrapKey = 'nowrap' | 'wrap' | 'wrap_reverse';
@@ -137,128 +138,125 @@ export interface FlexProps
   noreferrer?: boolean;
 }
 
-export const Flex = forwardRef<HTMLElement, FlexProps>(
-  ({
-    children,
-    className = '',
-    style,
-    bg,
-    p, pt, pr, pb, pl,
-    m, mt, mr, mb, ml,
-    border, borderC, borderS, borderW, borderT, borderR, borderB, borderL,
-    gap, rowGap, columnGap,
-    collapse, collapseGap, onCollapseEnd, collapseFade, collapseOverflowVisible, collapseAxis, collapseAppear,
-    animation, transitionKey,
-    dir, justify, align, wrap,
-    scrollFade,
-    r, tlr, trr, brr, blr,
-    borderTLR, borderTRR, borderBRR, borderBLR,
-    w, minW, maxW, h, minH, maxH,
-    aspectRatio,
-    grow,
-    perspective3d,
-    parallax,
-    container,
-    state,
-    onMouseEnter, onMouseLeave,
-    href, target, rel, download, newTab, nofollow, noreferrer,
-    linkState,
-    ...props
-  }, ref) => {
-    const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-    const bgClasses = c.literal('bg', bg);
-    const borderClassResolution = resolveBorderClassResolution(c, { border, borderC, borderS, borderW, borderT, borderR, borderB, borderL });
-    const hasBgClass = Boolean(bgClasses[0]);
-    const isLink = Boolean(href);
-    const Comp = (isLink ? (shouldUseNextLink(href, target, download) ? Link : 'a') : 'div') as React.ElementType;
-    const resolved = resolveLinkProps({ href, target, rel, download, newTab, nofollow, noreferrer });
-    const anchorProps = isLink ? { ...props, ...resolved } : props;
-    const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
-    // Своп контента по transitionKey (exit→enter на самом узле). Без transitionKey — passthrough.
-    const { displayChildren, exiting, onAnimationEnd: onSwapAnimationEnd, ref: swapNodeRef } = useSwapTransition(transitionKey, children);
-    const swapping = transitionKey !== undefined;
-    const activeAnimation = swapping && exiting && animation ? (exitAnimationOf[animation] ?? animation) : animation;
-    const setRefs = useCallback((node: HTMLElement | null) => {
-      setMotionNode(node);
-      swapNodeRef.current = node;
+export function Flex({
+  ref,
+  children,
+  className = '',
+  style,
+  bg,
+  p, pt, pr, pb, pl,
+  m, mt, mr, mb, ml,
+  border, borderC, borderS, borderW, borderT, borderR, borderB, borderL,
+  gap, rowGap, columnGap,
+  collapse, collapseGap, onCollapseEnd, collapseFade, collapseOverflowVisible, collapseAxis, collapseAppear,
+  animation, transitionKey,
+  dir, justify, align, wrap,
+  scrollFade,
+  r, tlr, trr, brr, blr,
+  borderTLR, borderTRR, borderBRR, borderBLR,
+  w, minW, maxW, h, minH, maxH,
+  aspectRatio,
+  grow,
+  perspective3d,
+  parallax,
+  container,
+  state,
+  onMouseEnter, onMouseLeave,
+  href, target, rel, download, newTab, nofollow, noreferrer,
+  linkState,
+  ...props
+}: WithRef<FlexProps, HTMLElement>) {
+  const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
+  const bgClasses = c.literal('bg', bg);
+  const borderClassResolution = resolveBorderClassResolution(c, { border, borderC, borderS, borderW, borderT, borderR, borderB, borderL });
+  const hasBgClass = Boolean(bgClasses[0]);
+  const isLink = Boolean(href);
+  const Comp = (isLink ? (shouldUseNextLink(href, target, download) ? Link : 'a') : 'div') as React.ElementType;
+  const resolved = resolveLinkProps({ href, target, rel, download, newTab, nofollow, noreferrer });
+  const anchorProps = isLink ? { ...props, ...resolved } : props;
+  const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
+  // Своп контента по transitionKey (exit→enter на самом узле). Без transitionKey — passthrough.
+  const { displayChildren, exiting, onAnimationEnd: onSwapAnimationEnd, ref: swapNodeRef } = useSwapTransition(transitionKey, children);
+  const swapping = transitionKey !== undefined;
+  const activeAnimation = swapping && exiting && animation ? (exitAnimationOf[animation] ?? animation) : animation;
+  const setRefs = useCallback((node: HTMLElement | null) => {
+    setMotionNode(node);
+    swapNodeRef.current = node;
 
-      if (typeof ref === 'function') {
-        ref(node);
-        return;
-      }
-
-      if (ref) {
-        ref.current = node;
-      }
-    }, [ref, setMotionNode, swapNodeRef]);
-
-    const content = (
-      <Comp
-        ref={setRefs}
-        {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
-        className={cx(
-          styles.Flex,
-          container && styles.container,
-          ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-          ...radiusClasses(c, radiusProps),
-          ...c.num('gap', gap),
-          ...c.num('rowGap', rowGap),
-          ...c.num('columnGap', columnGap),
-          ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
-          ...c.enum('flexDirection', dir),
-          ...c.enum('justifyContent', justify),
-          ...c.enum('alignItems', align),
-          ...c.enum('flexWrap', wrap),
-          scrollFade && (scrollFade === 'x' ? 'scrollFadeX' : 'scrollFadeY'),
-          activeAnimation && animationClasses[activeAnimation],
-          ...bgClasses,
-          ...borderClassResolution.classes,
-          needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
-          needsInlineGrow(grow) && inlineGrowClassName(),
-          className
-        )}
-        style={{
-          ...(bg && !hasBgClass ? { background: bg } : null),
-          ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-          ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
-          ...aspectRatioStyle(aspectRatio),
-          ...growStyle(grow),
-          ...resolveBorderStyles({ border, borderC, borderS, borderW, borderT, borderR, borderB, borderL }, borderClassResolution.styleSkips),
-          ...(motionStyle ?? null),
-          ...style,
-        }}
-        {...stateProps(state)}
-        {...anchorProps}
-        {...(swapping ? { onAnimationEnd: onSwapAnimationEnd } : null)}
-      >
-        {displayChildren}
-      </Comp>
-    );
-
-    if (collapse === undefined) {
-      return content;
+    if (typeof ref === 'function') {
+      ref(node);
+      return;
     }
 
-    // Опт-ин сворачивание: оборачиваем во внешний grid (анимирует высоту + верхний отступ)
-    // и внутренний clip (overflow:hidden). Стили самого Flex (включая minH) остаются на нём
-    // внутри клипа, поэтому min-height блока не мешает схлопыванию до нуля.
-    return (
-      <CollapseWrap
-        open={collapse}
-        axis={collapseAxis}
-        collapseGap={collapseGap}
-        fade={collapseFade}
-        overflowVisibleWhenOpen={collapseOverflowVisible}
-        appear={collapseAppear}
-        onCollapseEnd={onCollapseEnd}
-      >
-        {content}
-      </CollapseWrap>
-    );
-  }
-);
+    if (ref) {
+      ref.current = node;
+    }
+  }, [ref, setMotionNode, swapNodeRef]);
 
-Flex.displayName = 'Flex';
+  const content = (
+    <Comp
+      ref={setRefs}
+      {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
+      className={cx(
+        styles.Flex,
+        container && styles.container,
+        ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
+        ...radiusClasses(c, radiusProps),
+        ...c.num('gap', gap),
+        ...c.num('rowGap', rowGap),
+        ...c.num('columnGap', columnGap),
+        ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
+        ...c.enum('flexDirection', dir),
+        ...c.enum('justifyContent', justify),
+        ...c.enum('alignItems', align),
+        ...c.enum('flexWrap', wrap),
+        scrollFade && (scrollFade === 'x' ? 'scrollFadeX' : 'scrollFadeY'),
+        activeAnimation && animationClasses[activeAnimation],
+        ...bgClasses,
+        ...borderClassResolution.classes,
+        needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
+        needsInlineGrow(grow) && inlineGrowClassName(),
+        className
+      )}
+      style={{
+        ...(bg && !hasBgClass ? { background: bg } : null),
+        ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
+        ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
+        ...aspectRatioStyle(aspectRatio),
+        ...growStyle(grow),
+        ...resolveBorderStyles({ border, borderC, borderS, borderW, borderT, borderR, borderB, borderL }, borderClassResolution.styleSkips),
+        ...(motionStyle ?? null),
+        ...style,
+      }}
+      {...stateProps(state)}
+      {...anchorProps}
+      {...(swapping ? { onAnimationEnd: onSwapAnimationEnd } : null)}
+    >
+      {displayChildren}
+    </Comp>
+  );
+
+  if (collapse === undefined) {
+    return content;
+  }
+
+  // Опт-ин сворачивание: оборачиваем во внешний grid (анимирует высоту + верхний отступ)
+  // и внутренний clip (overflow:hidden). Стили самого Flex (включая minH) остаются на нём
+  // внутри клипа, поэтому min-height блока не мешает схлопыванию до нуля.
+  return (
+    <CollapseWrap
+      open={collapse}
+      axis={collapseAxis}
+      collapseGap={collapseGap}
+      fade={collapseFade}
+      overflowVisibleWhenOpen={collapseOverflowVisible}
+      appear={collapseAppear}
+      onCollapseEnd={onCollapseEnd}
+    >
+      {content}
+    </CollapseWrap>
+  );
+}
 
 interface CollapseWrapProps {
   open: boolean;

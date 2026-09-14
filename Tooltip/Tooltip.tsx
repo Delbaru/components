@@ -1,12 +1,13 @@
 'use client';
 
-import { forwardRef, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 import styles from './Tooltip.module.scss';
 
 import { cx, stateProps } from '../core';
 import type { TooltipBubbleProps } from '../hooks/useTooltip';
+import type { WithRef } from '../core';
 
 export interface TooltipProps extends TooltipBubbleProps {
   children: ReactNode;
@@ -25,26 +26,22 @@ export interface TooltipProps extends TooltipBubbleProps {
  * Фундамент один на все тултипы (Input, ChoiceButtons, …); различается только контент/скин.
  * Логика (видимость/координаты/fade) живёт в `useTooltip` + `useAnchoredFloating`, здесь — только отрисовка.
  */
-export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
-  ({ portalNode, style, placement, active, className, id, surface = true, children }, ref) => {
-    if (!portalNode) return null;
+export function Tooltip({ ref, portalNode, style, placement, active, className, id, surface = true, children }: WithRef<TooltipProps, HTMLDivElement>) {
+  if (!portalNode) return null;
 
-    return createPortal(
-      <div
-        ref={ref}
-        id={id}
-        className={cx(styles.Tooltip, surface && styles.surface, className)}
-        style={style}
-        role='tooltip'
-        aria-hidden={!active}
-        data-placement={placement}
-        {...stateProps(active && 'active')}
-      >
-        {children}
-      </div>,
-      portalNode
-    );
-  }
-);
-
-Tooltip.displayName = 'Tooltip';
+  return createPortal(
+    <div
+      ref={ref}
+      id={id}
+      className={cx(styles.Tooltip, surface && styles.surface, className)}
+      style={style}
+      role='tooltip'
+      aria-hidden={!active}
+      data-placement={placement}
+      {...stateProps(active && 'active')}
+    >
+      {children}
+    </div>,
+    portalNode
+  );
+}

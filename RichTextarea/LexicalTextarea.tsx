@@ -25,7 +25,7 @@ import {
   type SerializedEditorState,
 } from 'lexical';
 import type { CSSProperties, MutableRefObject } from 'react';
-import { forwardRef, useCallback, useEffect, useId, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
 import type { SharedMotionProps } from '../hooks/useSharedMotion';
 import { Box } from '../Box';
@@ -47,6 +47,7 @@ import type { LexicalTextVariant } from '../RichText';
 import { LexicalTextareaCounter, LexicalTextareaToolbar } from './LexicalTextareaToolbar';
 import { $createVariableNode, $isVariableNode, VariableNode, type VariableNodePayload } from './lexical/VariableNode';
 import styles from './RichTextarea.module.scss';
+import type { WithRef } from '../core';
 
 export type LexicalTextareaContent =
   | SerializedEditorState
@@ -717,350 +718,344 @@ function VariablesPlugin({ variableLookup }: { variableLookup: Map<string, Lexic
   return null;
 }
 
-export const LexicalTextarea = forwardRef<LexicalTextareaHandle, LexicalTextareaProps>(
-  (
-    {
-      id: idProp,
-      className = '',
-      style,
-      p,
-      pt,
-      pr,
-      pb,
-      pl,
-      m,
-      mt,
-      mr,
-      mb,
-      ml,
-      r,
-      tlr,
-      trr,
-      brr,
-      blr,
-      borderTLR,
-      borderTRR,
-      borderBRR,
-      borderBLR,
-      border,
-      borderC,
-      borderS,
-      borderW,
-      borderT,
-      borderR,
-      borderB,
-      borderL,
-      grow,
-      perspective3d,
-      parallax,
-      w,
-      minW,
-      maxW,
-      h,
-      minH,
-      maxH,
-      bg,
-      color,
-      placeholder,
-      placeholderColor = 'var(--secondary-hover)',
-      label,
-      labelColor,
-      comment,
-      variant = 'style-1',
-      content,
-      variables = [],
-      allowLink = true,
-      onChange,
-      minLength,
-      maxLength,
-      error,
-      state,
-      required,
-      emptyMessage = DEFAULT_EMPTY_MESSAGE,
-      validate,
-      linkState,
-      'data-point-events': dataPointEvents,
+export function LexicalTextarea({
+  ref,
+  id: idProp,
+  className = '',
+  style,
+  p,
+  pt,
+  pr,
+  pb,
+  pl,
+  m,
+  mt,
+  mr,
+  mb,
+  ml,
+  r,
+  tlr,
+  trr,
+  brr,
+  blr,
+  borderTLR,
+  borderTRR,
+  borderBRR,
+  borderBLR,
+  border,
+  borderC,
+  borderS,
+  borderW,
+  borderT,
+  borderR,
+  borderB,
+  borderL,
+  grow,
+  perspective3d,
+  parallax,
+  w,
+  minW,
+  maxW,
+  h,
+  minH,
+  maxH,
+  bg,
+  color,
+  placeholder,
+  placeholderColor = 'var(--secondary-hover)',
+  label,
+  labelColor,
+  comment,
+  variant = 'style-1',
+  content,
+  variables = [],
+  allowLink = true,
+  onChange,
+  minLength,
+  maxLength,
+  error,
+  state,
+  required,
+  emptyMessage = DEFAULT_EMPTY_MESSAGE,
+  validate,
+  linkState,
+  'data-point-events': dataPointEvents,
+}: WithRef<LexicalTextareaProps, LexicalTextareaHandle>) {
+  const generatedId = useId();
+  const id = idProp ?? generatedId;
+  const editorRef = useRef<LexicalEditor | null>(null);
+  const valueRef = useRef<LexicalTextareaContent | null>(null);
+  const metaRef = useRef<LexicalTextareaChangePayload>(EMPTY_CHANGE_PAYLOAD);
+  const latestContentRef = useRef<LexicalTextareaContent | string | undefined>(content);
+  const variableLookup = useMemo(() => createVariableLookup(variables), [variables]);
+  const variableLookupRef = useRef(variableLookup);
+  const contentSignature = useMemo(() => JSON.stringify(content ?? null), [content]);
+  const didSyncRef = useRef(false);
+  const [editorMeta, setEditorMeta] = useState<LexicalTextareaMetaState>({ payload: EMPTY_CHANGE_PAYLOAD, error: undefined });
+
+  latestContentRef.current = content;
+  variableLookupRef.current = variableLookup;
+
+  const helperError = error ?? editorMeta.error;
+  const helperText = helperError ?? comment;
+  const helperTextColor = helperError ? 'var(--red)' : 'var(--gray)';
+  const helperTextId = helperText ? `${id}-comment` : undefined;
+  const showCounter = minLength != null || maxLength != null;
+  const hasVariables = variables.length > 0;
+
+  const validatePayload = useCallback(
+    (payload: LexicalTextareaChangePayload): string | undefined => {
+      if (required && payload.isEmpty) {
+        return emptyMessage;
+      }
+
+      if (!payload.isEmpty && minLength != null && payload.characters < minLength) {
+        return DEFAULT_MIN_LENGTH_MESSAGE(minLength);
+      }
+
+      if (maxLength != null && payload.characters > maxLength) {
+        return DEFAULT_MAX_LENGTH_MESSAGE(maxLength);
+      }
+
+      return validate?.(payload);
     },
-    ref
-  ) => {
-    const generatedId = useId();
-    const id = idProp ?? generatedId;
-    const editorRef = useRef<LexicalEditor | null>(null);
-    const valueRef = useRef<LexicalTextareaContent | null>(null);
-    const metaRef = useRef<LexicalTextareaChangePayload>(EMPTY_CHANGE_PAYLOAD);
-    const latestContentRef = useRef<LexicalTextareaContent | string | undefined>(content);
-    const variableLookup = useMemo(() => createVariableLookup(variables), [variables]);
-    const variableLookupRef = useRef(variableLookup);
-    const contentSignature = useMemo(() => JSON.stringify(content ?? null), [content]);
-    const didSyncRef = useRef(false);
-    const [editorMeta, setEditorMeta] = useState<LexicalTextareaMetaState>({ payload: EMPTY_CHANGE_PAYLOAD, error: undefined });
+    [emptyMessage, maxLength, minLength, required, validate]
+  );
 
-    latestContentRef.current = content;
-    variableLookupRef.current = variableLookup;
-
-    const helperError = error ?? editorMeta.error;
-    const helperText = helperError ?? comment;
-    const helperTextColor = helperError ? 'var(--red)' : 'var(--gray)';
-    const helperTextId = helperText ? `${id}-comment` : undefined;
-    const showCounter = minLength != null || maxLength != null;
-    const hasVariables = variables.length > 0;
-
-    const validatePayload = useCallback(
-      (payload: LexicalTextareaChangePayload): string | undefined => {
-        if (required && payload.isEmpty) {
-          return emptyMessage;
-        }
-
-        if (!payload.isEmpty && minLength != null && payload.characters < minLength) {
-          return DEFAULT_MIN_LENGTH_MESSAGE(minLength);
-        }
-
-        if (maxLength != null && payload.characters > maxLength) {
-          return DEFAULT_MAX_LENGTH_MESSAGE(maxLength);
-        }
-
-        return validate?.(payload);
-      },
-      [emptyMessage, maxLength, minLength, required, validate]
-    );
-
-    const handleEditorChange = useCallback(
-      (editorState: ReturnType<LexicalEditor['getEditorState']>, _editor: LexicalEditor, tags: Set<string>) => {
-        // Программная подстановка контента уже синхронизирует значение через
-        // onSync/setContent — повторно дёргать onChange не нужно (и нельзя:
-        // иначе родитель посчитает это правкой пользователя).
-        if (tags.has(PROGRAMMATIC_CONTENT_TAG)) {
-          return;
-        }
-
-        const payload = buildChangePayload(editorState);
-        const nextError = didSyncRef.current ? validatePayload(payload) : undefined;
-
-        valueRef.current = payload.json;
-        metaRef.current = payload;
-        setEditorMeta({ payload, error: nextError });
-        onChange?.(payload);
-        didSyncRef.current = true;
-      },
-      [onChange, validatePayload]
-    );
-
-    const handleInsertVariable = useCallback((variable: string | LexicalTextareaVariable) => {
-      const editor = editorRef.current;
-
-      if (!editor) {
+  const handleEditorChange = useCallback(
+    (editorState: ReturnType<LexicalEditor['getEditorState']>, _editor: LexicalEditor, tags: Set<string>) => {
+      // Программная подстановка контента уже синхронизирует значение через
+      // onSync/setContent — повторно дёргать onChange не нужно (и нельзя:
+      // иначе родитель посчитает это правкой пользователя).
+      if (tags.has(PROGRAMMATIC_CONTENT_TAG)) {
         return;
       }
 
-      const resolvedVariable = resolveVariableDefinition(variable, variableLookupRef.current);
+      const payload = buildChangePayload(editorState);
+      const nextError = didSyncRef.current ? validatePayload(payload) : undefined;
 
-      editor.focus();
-      editor.update(() => {
-        insertVariableAtSelection(resolvedVariable);
-      });
-    }, []);
-
-    const handleContentSync = useCallback((payload: LexicalTextareaChangePayload) => {
       valueRef.current = payload.json;
       metaRef.current = payload;
-      setEditorMeta({ payload, error: undefined });
-    }, []);
+      setEditorMeta({ payload, error: nextError });
+      onChange?.(payload);
+      didSyncRef.current = true;
+    },
+    [onChange, validatePayload]
+  );
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        focus: () => {
-          editorRef.current?.focus();
-        },
-        reset: () => {
-          const editor = editorRef.current;
+  const handleInsertVariable = useCallback((variable: string | LexicalTextareaVariable) => {
+    const editor = editorRef.current;
 
-          if (!editor) {
-            return;
-          }
+    if (!editor) {
+      return;
+    }
 
-          applyContentToEditor(editor, latestContentRef.current, variableLookupRef.current);
-          const payload = buildChangePayload(editor.getEditorState());
+    const resolvedVariable = resolveVariableDefinition(variable, variableLookupRef.current);
 
-          valueRef.current = payload.json;
-          metaRef.current = payload;
-          setEditorMeta({ payload, error: undefined });
-          onChange?.(payload);
-          didSyncRef.current = false;
-        },
-        setContent: (nextContent) => {
-          const editor = editorRef.current;
+    editor.focus();
+    editor.update(() => {
+      insertVariableAtSelection(resolvedVariable);
+    });
+  }, []);
 
-          if (!editor) {
-            return;
-          }
+  const handleContentSync = useCallback((payload: LexicalTextareaChangePayload) => {
+    valueRef.current = payload.json;
+    metaRef.current = payload;
+    setEditorMeta({ payload, error: undefined });
+  }, []);
 
-          applyContentToEditor(editor, nextContent, variableLookupRef.current);
-          const payload = buildChangePayload(editor.getEditorState());
+  useImperativeHandle(
+    ref,
+    () => ({
+      focus: () => {
+        editorRef.current?.focus();
+      },
+      reset: () => {
+        const editor = editorRef.current;
 
-          latestContentRef.current = nextContent;
-          valueRef.current = payload.json;
-          metaRef.current = payload;
-          setEditorMeta({ payload, error: undefined });
-          onChange?.(payload);
-          didSyncRef.current = false;
-        },
-        insertVariable: handleInsertVariable,
-        getValue: () => valueRef.current,
-      }),
-      [handleInsertVariable, onChange]
-    );
+        if (!editor) {
+          return;
+        }
 
-    const fieldState = mergeComponentStates(state, helperError && 'error');
-    const fieldStyle = {
-      ...(color ? { color } : null),
-      ['--font-p1' as string]: 'var(--font-p)',
-      ['--font-p2' as string]: 'var(--font-p)',
-      ['--font-p3' as string]: 'var(--font-p)',
-    } satisfies CSSProperties;
-    const contentClassName = cx(styles.ContentEditable, richTextStyles.RichText, richTextStyles[variant]);
+        applyContentToEditor(editor, latestContentRef.current, variableLookupRef.current);
+        const payload = buildChangePayload(editor.getEditorState());
 
-    return (
+        valueRef.current = payload.json;
+        metaRef.current = payload;
+        setEditorMeta({ payload, error: undefined });
+        onChange?.(payload);
+        didSyncRef.current = false;
+      },
+      setContent: (nextContent) => {
+        const editor = editorRef.current;
+
+        if (!editor) {
+          return;
+        }
+
+        applyContentToEditor(editor, nextContent, variableLookupRef.current);
+        const payload = buildChangePayload(editor.getEditorState());
+
+        latestContentRef.current = nextContent;
+        valueRef.current = payload.json;
+        metaRef.current = payload;
+        setEditorMeta({ payload, error: undefined });
+        onChange?.(payload);
+        didSyncRef.current = false;
+      },
+      insertVariable: handleInsertVariable,
+      getValue: () => valueRef.current,
+    }),
+    [handleInsertVariable, onChange]
+  );
+
+  const fieldState = mergeComponentStates(state, helperError && 'error');
+  const fieldStyle = {
+    ...(color ? { color } : null),
+    ['--font-p1' as string]: 'var(--font-p)',
+    ['--font-p2' as string]: 'var(--font-p)',
+    ['--font-p3' as string]: 'var(--font-p)',
+  } satisfies CSSProperties;
+  const contentClassName = cx(styles.ContentEditable, richTextStyles.RichText, richTextStyles[variant]);
+
+  return (
+    <Box
+      className={cx(styles.RichTextareaWrapper, className)}
+      style={style}
+      grow={grow}
+      perspective3d={perspective3d}
+      parallax={parallax}
+      data-point-events={dataPointEvents}
+      linkState={linkState}
+    >
+      {label && (
+        <Text color={labelColor} mb={[8, 4, 8]}>
+          {label}
+        </Text>
+      )}
+
       <Box
-        className={cx(styles.RichTextareaWrapper, className)}
-        style={style}
-        grow={grow}
-        perspective3d={perspective3d}
-        parallax={parallax}
-        data-point-events={dataPointEvents}
-        linkState={linkState}
+        className={styles.Field}
+        style={fieldStyle}
+        p={p}
+        pt={pt}
+        pr={pr}
+        pb={pb}
+        pl={pl}
+        m={m}
+        mt={mt}
+        mr={mr}
+        mb={mb}
+        ml={ml}
+        r={r}
+        tlr={tlr}
+        trr={trr}
+        brr={brr}
+        blr={blr}
+        borderTLR={borderTLR}
+        borderTRR={borderTRR}
+        borderBRR={borderBRR}
+        borderBLR={borderBLR}
+        border={border}
+        borderC={borderC}
+        borderS={borderS}
+        borderW={borderW}
+        borderT={borderT}
+        borderR={borderR}
+        borderB={borderB}
+        borderL={borderL}
+        w={w}
+        minW={minW}
+        maxW={maxW}
+        h={h}
+        minH={minH ?? [220, null, null]}
+        maxH={maxH}
+        bg={bg}
+        data-state={fieldState ?? undefined}
+        role='presentation'
+        onClick={() => editorRef.current?.focus()}
       >
-        {label && (
-          <Text color={labelColor} mb={[8, 4, 8]}>
-            {label}
-          </Text>
-        )}
-
-        <Box
-          className={styles.Field}
-          style={fieldStyle}
-          p={p}
-          pt={pt}
-          pr={pr}
-          pb={pb}
-          pl={pl}
-          m={m}
-          mt={mt}
-          mr={mr}
-          mb={mb}
-          ml={ml}
-          r={r}
-          tlr={tlr}
-          trr={trr}
-          brr={brr}
-          blr={blr}
-          borderTLR={borderTLR}
-          borderTRR={borderTRR}
-          borderBRR={borderBRR}
-          borderBLR={borderBLR}
-          border={border}
-          borderC={borderC}
-          borderS={borderS}
-          borderW={borderW}
-          borderT={borderT}
-          borderR={borderR}
-          borderB={borderB}
-          borderL={borderL}
-          w={w}
-          minW={minW}
-          maxW={maxW}
-          h={h}
-          minH={minH ?? [220, null, null]}
-          maxH={maxH}
-          bg={bg}
-          data-state={fieldState ?? undefined}
-          role='presentation'
-          onClick={() => editorRef.current?.focus()}
+        <LexicalComposer
+          initialConfig={{
+            namespace: 'SocratLexicalTextarea',
+            onError: (nextError) => {
+              throw nextError;
+            },
+            nodes: [VariableNode, ListNode, ListItemNode, LinkNode],
+            theme: {
+              text: {
+                underline: styles.underline,
+              },
+            },
+          }}
         >
-          <LexicalComposer
-            initialConfig={{
-              namespace: 'SocratLexicalTextarea',
-              onError: (nextError) => {
-                throw nextError;
-              },
-              nodes: [VariableNode, ListNode, ListItemNode, LinkNode],
-              theme: {
-                text: {
-                  underline: styles.underline,
-                },
-              },
-            }}
-          >
-            <EditorRefPlugin editorRef={editorRef} />
-            <ContentSyncPlugin
-              content={content}
-              contentSignature={contentSignature}
-              variableLookup={variableLookup}
-              onSync={handleContentSync}
+          <EditorRefPlugin editorRef={editorRef} />
+          <ContentSyncPlugin
+            content={content}
+            contentSignature={contentSignature}
+            variableLookup={variableLookup}
+            onSync={handleContentSync}
+          />
+          <VariablesPlugin variableLookup={variableLookup} />
+          <VariableSelectionPlugin />
+          <HistoryPlugin />
+          <ListPlugin />
+          <LinkPlugin validateUrl={isAllowedLink} />
+          <OnChangePlugin ignoreSelectionChange onChange={handleEditorChange} />
+
+          <Box className={styles.EditorShell} minH={[180, null, null]}>
+            <RichTextPlugin
+              contentEditable={
+                <ContentEditable
+                  id={id}
+                  className={contentClassName}
+                  aria-describedby={helperTextId}
+                  aria-invalid={Boolean(helperError)}
+                  onBlur={() => {
+                    setEditorMeta((currentMeta) => ({
+                      payload: currentMeta.payload,
+                      error: validatePayload(metaRef.current),
+                    }));
+                  }}
+                />
+              }
+              placeholder={placeholder ? (
+                <Text as='div' variant={['p', null, null]} color={placeholderColor} className={styles.Placeholder}>
+                  {placeholder}
+                </Text>
+              ) : null}
+              ErrorBoundary={LexicalErrorBoundary}
             />
-            <VariablesPlugin variableLookup={variableLookup} />
-            <VariableSelectionPlugin />
-            <HistoryPlugin />
-            <ListPlugin />
-            <LinkPlugin validateUrl={isAllowedLink} />
-            <OnChangePlugin ignoreSelectionChange onChange={handleEditorChange} />
+          </Box>
 
-            <Box className={styles.EditorShell} minH={[180, null, null]}>
-              <RichTextPlugin
-                contentEditable={
-                  <ContentEditable
-                    id={id}
-                    className={contentClassName}
-                    aria-describedby={helperTextId}
-                    aria-invalid={Boolean(helperError)}
-                    onBlur={() => {
-                      setEditorMeta((currentMeta) => ({
-                        payload: currentMeta.payload,
-                        error: validatePayload(metaRef.current),
-                      }));
-                    }}
-                  />
-                }
-                placeholder={placeholder ? (
-                  <Text as='div' variant={['p', null, null]} color={placeholderColor} className={styles.Placeholder}>
-                    {placeholder}
-                  </Text>
-                ) : null}
-                ErrorBoundary={LexicalErrorBoundary}
-              />
-            </Box>
-
-            <Flex
-              dir={['row', null, null]}
-              justify={['space_between', null, null]}
-              align={['center', null, null]}
-              wrap={['wrap', 'wrap', 'wrap']}
-              gap={[16, 8, 16]}
-              mt={[16, 16, 16]}
-              pt={[16, 16, 16]}
-              borderT={['calc(1 * var(--rpx)) solid var(--gray-light)', null, null]}
-            >
-              <LexicalTextareaToolbar hasVariables={hasVariables} allowLink={allowLink} />
-              {showCounter && <LexicalTextareaCounter characters={editorMeta.payload.characters} maxLength={maxLength} />}
-            </Flex>
-          </LexicalComposer>
-        </Box>
-
-        {helperText && (
-          <Text
-            as='div'
-            variant={['small', 'small', 'small']}
-            mt={[8, 4, 8]}
-            id={helperTextId}
-            color={helperTextColor}
-            role={helperError ? 'alert' : undefined}
+          <Flex
+            dir={['row', null, null]}
+            justify={['space_between', null, null]}
+            align={['center', null, null]}
+            wrap={['wrap', 'wrap', 'wrap']}
+            gap={[16, 8, 16]}
+            mt={[16, 16, 16]}
+            pt={[16, 16, 16]}
+            borderT={['calc(1 * var(--rpx)) solid var(--gray-light)', null, null]}
           >
-            {helperText}
-          </Text>
-        )}
+            <LexicalTextareaToolbar hasVariables={hasVariables} allowLink={allowLink} />
+            {showCounter && <LexicalTextareaCounter characters={editorMeta.payload.characters} maxLength={maxLength} />}
+          </Flex>
+        </LexicalComposer>
       </Box>
-    );
-  }
-);
 
-LexicalTextarea.displayName = 'LexicalTextarea';
+      {helperText && (
+        <Text
+          as='div'
+          variant={['small', 'small', 'small']}
+          mt={[8, 4, 8]}
+          id={helperTextId}
+          color={helperTextColor}
+          role={helperError ? 'alert' : undefined}
+        >
+          {helperText}
+        </Text>
+      )}
+    </Box>
+  );
+}

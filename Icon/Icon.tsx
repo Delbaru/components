@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { forwardRef, useCallback, useMemo, type CSSProperties, type SVGProps, useEffect, useRef, useState } from 'react';
+import { useCallback, useMemo, type CSSProperties, type SVGProps, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type React from 'react';
 import styles from './Icon.module.scss';
@@ -11,6 +11,7 @@ import { Flex } from '../Flex';
 import { useAnchoredFloating } from '../hooks/useAnchoredFloating';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { useIconSwap, componentSwapKey, type IconAnimate } from './swap';
+import type { WithRef } from '../core';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 
@@ -445,471 +446,465 @@ export type IconProps = IconBaseSvgProps & SizeInput & RadiusInput & IconRootSiz
  * 
  * Всегда рендерит inline SVG, не использует <img>.
  */
-export const Icon = forwardRef<SVGSVGElement, IconProps>(
-  (
-    {
-      src,
-      name,
-      hover,
-      component: IconComponent,
-      href,
-      target,
-      rel,
-      id,
-      'aria-label': ariaLabel,
-      'aria-disabled': ariaDisabled,
-      'data-point-events': dataPointEvents,
-      className = '',
-      style,
-      onClick,
-      onMouseEnter,
-      onMouseLeave,
-      onMouseDown,
-      onMouseUp,
-      onFocus,
-      onBlur,
-      onKeyDown,
-      onKeyUp,
-      role,
-      tabIndex,
-      w,
-      minW,
-      maxW,
-      h,
-      minH,
-      maxH,
-      rotate,
-      m,
-      mt,
-      mr,
-      mb,
-      ml,
-      grow,
-      r,
-      tlr,
-      trr,
-      brr,
-      blr,
-      borderTLR,
-      borderTRR,
-      borderBRR,
-      borderBLR,
-      color,
-      fill,
-      stroke,
-      strokeWidth,
-      border,
-      borderC,
-      borderS,
-      borderW,
-      borderT,
-      borderR,
-      borderB,
-      borderL,
-      state,
-      rootW,
-      rootMinW,
-      rootMaxW,
-      rootH,
-      rootMinH,
-      rootMaxH,
-      rootR,
-      rootTLR,
-      rootTRR,
-      rootBRR,
-      rootBLR,
-      rootBg,
-      rootClassName,
-      tooltip,
-      tooltipDirection = 'right',
-      tooltipGap = 8,
-      linkState,
-      perspective3d,
-      parallax,
-      animate,
-      ...props
-    },
-    ref
-  ) => {
-    const linkRel = rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined);
-    const useNextLink = shouldUseNextLink(href, target);
-    const linkProps = href
-      ? { href, target, rel: linkRel, className: styles.IconLink, 'data-point-events': dataPointEvents }
-      : null;
-    const wrapLink = (content: React.ReactNode) =>
-      linkProps ? (useNextLink ? <Link {...linkProps}>{content}</Link> : <a {...linkProps}>{content}</a>) : content;
+export function Icon({
+  ref,
+  src,
+  name,
+  hover,
+  component: IconComponent,
+  href,
+  target,
+  rel,
+  id,
+  'aria-label': ariaLabel,
+  'aria-disabled': ariaDisabled,
+  'data-point-events': dataPointEvents,
+  className = '',
+  style,
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
+  onMouseDown,
+  onMouseUp,
+  onFocus,
+  onBlur,
+  onKeyDown,
+  onKeyUp,
+  role,
+  tabIndex,
+  w,
+  minW,
+  maxW,
+  h,
+  minH,
+  maxH,
+  rotate,
+  m,
+  mt,
+  mr,
+  mb,
+  ml,
+  grow,
+  r,
+  tlr,
+  trr,
+  brr,
+  blr,
+  borderTLR,
+  borderTRR,
+  borderBRR,
+  borderBLR,
+  color,
+  fill,
+  stroke,
+  strokeWidth,
+  border,
+  borderC,
+  borderS,
+  borderW,
+  borderT,
+  borderR,
+  borderB,
+  borderL,
+  state,
+  rootW,
+  rootMinW,
+  rootMaxW,
+  rootH,
+  rootMinH,
+  rootMaxH,
+  rootR,
+  rootTLR,
+  rootTRR,
+  rootBRR,
+  rootBLR,
+  rootBg,
+  rootClassName,
+  tooltip,
+  tooltipDirection = 'right',
+  tooltipGap = 8,
+  linkState,
+  perspective3d,
+  parallax,
+  animate,
+  ...props
+}: WithRef<IconProps, SVGSVGElement>) {
+  const linkRel = rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined);
+  const useNextLink = shouldUseNextLink(href, target);
+  const linkProps = href
+    ? { href, target, rel: linkRel, className: styles.IconLink, 'data-point-events': dataPointEvents }
+    : null;
+  const wrapLink = (content: React.ReactNode) =>
+    linkProps ? (useNextLink ? <Link {...linkProps}>{content}</Link> : <a {...linkProps}>{content}</a>) : content;
 
-    const baseSource = resolveIconSource({ src, name, component: IconComponent });
-    const hoverSource = resolveIconSource(hover);
-    const iconUrl = baseSource.url;
-    const hoverUrl = hoverSource.url;
-    const hasHoverIcon = hasIconSource(hoverSource);
-    const iconSizeProps = {
-      w,
-      minW,
-      maxW,
-      h,
-      minH,
-      maxH,
-    };
-    const rootSizeProps = {
-      w: rootW,
-      minW: rootMinW,
-      maxW: rootMaxW,
-      h: rootH,
-      minH: rootMinH,
-      maxH: rootMaxH,
-    };
-    const resolvedRadiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-    const resolvedRootRadius = resolveRadiusInput({
-      r: rootR ?? resolvedRadiusProps.r,
-      tlr: rootTLR ?? resolvedRadiusProps.tlr,
-      trr: rootTRR ?? resolvedRadiusProps.trr,
-      brr: rootBRR ?? resolvedRadiusProps.brr,
-      blr: rootBLR ?? resolvedRadiusProps.blr,
-    });
-    const resolvedRootBg = rootBg;
-    const resolvedRootClassName = rootClassName;
-    const { rootProps, elementProps: rawElementProps } = splitRootDomProps(props as IconElementProps);
-    const {
-      tooltip: _tooltip,
-      tooltipDirection: _tooltipDirection,
-      tooltipGap: _tooltipGap,
-      ...elementProps
-    } = rawElementProps;
+  const baseSource = resolveIconSource({ src, name, component: IconComponent });
+  const hoverSource = resolveIconSource(hover);
+  const iconUrl = baseSource.url;
+  const hoverUrl = hoverSource.url;
+  const hasHoverIcon = hasIconSource(hoverSource);
+  const iconSizeProps = {
+    w,
+    minW,
+    maxW,
+    h,
+    minH,
+    maxH,
+  };
+  const rootSizeProps = {
+    w: rootW,
+    minW: rootMinW,
+    maxW: rootMaxW,
+    h: rootH,
+    minH: rootMinH,
+    maxH: rootMaxH,
+  };
+  const resolvedRadiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
+  const resolvedRootRadius = resolveRadiusInput({
+    r: rootR ?? resolvedRadiusProps.r,
+    tlr: rootTLR ?? resolvedRadiusProps.tlr,
+    trr: rootTRR ?? resolvedRadiusProps.trr,
+    brr: rootBRR ?? resolvedRadiusProps.brr,
+    blr: rootBLR ?? resolvedRadiusProps.blr,
+  });
+  const resolvedRootBg = rootBg;
+  const resolvedRootClassName = rootClassName;
+  const { rootProps, elementProps: rawElementProps } = splitRootDomProps(props as IconElementProps);
+  const {
+    tooltip: _tooltip,
+    tooltipDirection: _tooltipDirection,
+    tooltipGap: _tooltipGap,
+    ...elementProps
+  } = rawElementProps;
 
-    const rotateResolved = rotate ? resolveResponsive(rotate) : null;
-    const strokeWidthResolved = strokeWidth ? resolveResponsive(strokeWidth) : null;
-    const formatRotate = (value: string | number | null | undefined): string | undefined => {
-      if (value === null || value === undefined) return undefined;
-      return typeof value === 'number' ? `${value}deg` : value;
-    };
+  const rotateResolved = rotate ? resolveResponsive(rotate) : null;
+  const strokeWidthResolved = strokeWidth ? resolveResponsive(strokeWidth) : null;
+  const formatRotate = (value: string | number | null | undefined): string | undefined => {
+    if (value === null || value === undefined) return undefined;
+    return typeof value === 'number' ? `${value}deg` : value;
+  };
 
-    const rotateVars = rotateResolved
-      ? {
-          '--rotate-d': formatRotate(rotateResolved[0]),
-          '--rotate-m': formatRotate(rotateResolved[1]),
-          '--rotate-t': formatRotate(rotateResolved[2]),
-        }
-      : undefined;
-
-    const formatStrokeWidth = (value: string | number | null | undefined): string | undefined => {
-      if (value === null || value === undefined) return undefined;
-      return typeof value === 'number' ? `${value}px` : value;
-    };
-
-    const strokeWidthVars = strokeWidthResolved
-      ? {
-          '--icon-stroke-width': formatStrokeWidth(strokeWidthResolved[0]) ?? undefined,
-          '--icon-stroke-width-d': formatStrokeWidth(strokeWidthResolved[0]) ?? undefined,
-          '--icon-stroke-width-m': formatStrokeWidth(strokeWidthResolved[1]) ?? undefined,
-          '--icon-stroke-width-t': formatStrokeWidth(strokeWidthResolved[2]) ?? undefined,
-        }
-      : undefined;
-
-    const shouldNormalizeFetchedSvg = fill != null || stroke != null || strokeWidth != null;
-    const { content: svgContent, viewBox: svgViewBox, rootFill: svgRootFill } = useFetchedSvg(iconUrl, shouldNormalizeFetchedSvg);
-    const { content: hoverSvgContent, viewBox: hoverSvgViewBox, rootFill: hoverSvgRootFill } = useFetchedSvg(hoverUrl, shouldNormalizeFetchedSvg);
-
-    // Объект dangerouslySetInnerHTML МЕМОИЗИРУЕМ. React сравнивает этот проп по идентичности
-    // объекта, а не по строке: свежий литерал `{ __html: content }` на каждом рендере заставляет
-    // его переустанавливать innerHTML, то есть УНИЧТОЖАТЬ и создавать заново все path/circle внутри
-    // глифа. Свежевставленный узел рисуется сразу финальным цветом — любой CSS-transition на нём
-    // (перекраска активного пункта навигации) не запускается. См. Frontend.md §12.
-    const svgHtml = useMemo(() => ({ __html: svgContent ?? '' }), [svgContent]);
-    const hoverSvgHtml = useMemo(() => ({ __html: hoverSvgContent ?? '' }), [hoverSvgContent]);
-    const rootStateProps = buildStateProps(state);
-    const { hasMotion, motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
-    const linkedHandlers = stateLinkProps(linkState, {
-      ...motionHandlers,
-      onClick,
-      onMouseEnter,
-      onMouseLeave,
-      onMouseDown,
-      onMouseUp,
-      onFocus,
-      onBlur,
-      onKeyDown,
-      onKeyUp,
-    });
-    const needsRootWrapper = [
-      rootSizeProps.w,
-      rootSizeProps.minW,
-      rootSizeProps.maxW,
-      rootSizeProps.h,
-      rootSizeProps.minH,
-      rootSizeProps.maxH,
-      border,
-      borderC,
-      borderS,
-      borderW,
-      borderT,
-      borderR,
-      borderB,
-      borderL,
-      resolvedRootRadius.r,
-      resolvedRootRadius.tlr,
-      resolvedRootRadius.trr,
-      resolvedRootRadius.brr,
-      resolvedRootRadius.blr,
-      resolvedRootBg,
-      resolvedRootClassName,
-    ].some((value) => value !== undefined);
-    const contentHandlers = needsRootWrapper ? undefined : linkedHandlers;
-    // motionStyle уже собран useSharedMotion (transform + preserve-3d + willChange) — когда есть
-    // root-обёртка, моушен живёт на ней, иначе вешаем его прямо на контент.
-    const contentMotionStyle = needsRootWrapper ? undefined : motionStyle;
-    const contentRootProps = needsRootWrapper ? undefined : rootProps;
-    const wrapperRootProps = needsRootWrapper ? rootProps : undefined;
-    const contentInteractiveProps = !needsRootWrapper
-      ? {
-          id,
-          role,
-          tabIndex,
-          'aria-label': ariaLabel,
-          'aria-disabled': ariaDisabled,
-        }
-      : undefined;
-    const rootInteractiveProps = needsRootWrapper
-      ? {
-          id,
-          role,
-          tabIndex,
-          'aria-label': ariaLabel,
-          'aria-disabled': ariaDisabled,
-        }
-      : undefined;
-
-    // Общие props для SVG: при явных пропсах разрешаем прямое переопределение fill/stroke.
-    const commonSvgStyle = {
-      ...(color && { color }),
-      ...(stroke != null && { '--icon-stroke': stroke, stroke } as CSSProperties),
-      ...(fill != null && { '--icon-fill': fill, fill } as CSSProperties),
-      ...(strokeWidthVars as CSSProperties),
-    } as CSSProperties;
-
-    // Общие классы и стили
-    const commonClasses = [
-      ...c.space('m', m),
-      ...c.space('mt', mt),
-      ...c.space('mr', mr),
-      ...c.space('mb', mb),
-      ...c.space('ml', ml),
-      ...radiusClasses(c, resolvedRadiusProps),
-      ...sizeClasses(c, iconSizeProps),
-      !needsRootWrapper && needsInlineGrow(grow) && inlineGrowClassName(),
-      className,
-    ];
-
-    const commonStyles = {
-      ...inlineSpaceStyle({ m, mt, mr, mb, ml }),
-      ...sizeInlineStyle(iconSizeProps),
-      ...(!needsRootWrapper ? growStyle(grow) : null),
-      ...(strokeWidthVars as CSSProperties),
-      ...(rotateVars as CSSProperties),
-      ...style,
-    };
-
-    const stackAspectRatio = parseAspectRatio(svgViewBox || elementProps.viewBox || hoverSvgViewBox);
-
-    // useCallback обязателен: ref-колбэк со скачущей идентичностью React отцепляет и цепляет
-    // заново каждый рендер, а это сбрасывает накопленный моушен в setMotionNode(null).
-    const setSvgRefs = useCallback((node: SVGSVGElement | null) => {
-      setMotionNode(node);
-
-      if (typeof ref === 'function') {
-        ref(node);
-        return;
+  const rotateVars = rotateResolved
+    ? {
+        '--rotate-d': formatRotate(rotateResolved[0]),
+        '--rotate-m': formatRotate(rotateResolved[1]),
+        '--rotate-t': formatRotate(rotateResolved[2]),
       }
+    : undefined;
 
-      if (ref) {
-        ref.current = node;
+  const formatStrokeWidth = (value: string | number | null | undefined): string | undefined => {
+    if (value === null || value === undefined) return undefined;
+    return typeof value === 'number' ? `${value}px` : value;
+  };
+
+  const strokeWidthVars = strokeWidthResolved
+    ? {
+        '--icon-stroke-width': formatStrokeWidth(strokeWidthResolved[0]) ?? undefined,
+        '--icon-stroke-width-d': formatStrokeWidth(strokeWidthResolved[0]) ?? undefined,
+        '--icon-stroke-width-m': formatStrokeWidth(strokeWidthResolved[1]) ?? undefined,
+        '--icon-stroke-width-t': formatStrokeWidth(strokeWidthResolved[2]) ?? undefined,
       }
-    }, [ref, setMotionNode]);
+    : undefined;
 
-    const renderStackLayer = (
-      source: ResolvedIconSource,
-      fetched: FetchedSvgState,
-      html: { __html: string },
-      layer: 'default' | 'hover'
-    ): React.ReactElement | null => {
-      const layerProps = layer === 'default' ? elementProps : { 'aria-hidden': true };
+  const shouldNormalizeFetchedSvg = fill != null || stroke != null || strokeWidth != null;
+  const { content: svgContent, viewBox: svgViewBox, rootFill: svgRootFill } = useFetchedSvg(iconUrl, shouldNormalizeFetchedSvg);
+  const { content: hoverSvgContent, viewBox: hoverSvgViewBox, rootFill: hoverSvgRootFill } = useFetchedSvg(hoverUrl, shouldNormalizeFetchedSvg);
 
-      if (source.component) {
-        const LayerComponent = source.component;
-
-        return (
-          <LayerComponent
-            ref={layer === 'default' ? setSvgRefs : undefined}
-            data-icon-layer={layer}
-            className={styles.Icon}
-            style={commonSvgStyle}
-            {...layerProps}
-          />
-        );
+  // Объект dangerouslySetInnerHTML МЕМОИЗИРУЕМ. React сравнивает этот проп по идентичности
+  // объекта, а не по строке: свежий литерал `{ __html: content }` на каждом рендере заставляет
+  // его переустанавливать innerHTML, то есть УНИЧТОЖАТЬ и создавать заново все path/circle внутри
+  // глифа. Свежевставленный узел рисуется сразу финальным цветом — любой CSS-transition на нём
+  // (перекраска активного пункта навигации) не запускается. См. Frontend.md §12.
+  const svgHtml = useMemo(() => ({ __html: svgContent ?? '' }), [svgContent]);
+  const hoverSvgHtml = useMemo(() => ({ __html: hoverSvgContent ?? '' }), [hoverSvgContent]);
+  const rootStateProps = buildStateProps(state);
+  const { hasMotion, motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
+  const linkedHandlers = stateLinkProps(linkState, {
+    ...motionHandlers,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    onMouseDown,
+    onMouseUp,
+    onFocus,
+    onBlur,
+    onKeyDown,
+    onKeyUp,
+  });
+  const needsRootWrapper = [
+    rootSizeProps.w,
+    rootSizeProps.minW,
+    rootSizeProps.maxW,
+    rootSizeProps.h,
+    rootSizeProps.minH,
+    rootSizeProps.maxH,
+    border,
+    borderC,
+    borderS,
+    borderW,
+    borderT,
+    borderR,
+    borderB,
+    borderL,
+    resolvedRootRadius.r,
+    resolvedRootRadius.tlr,
+    resolvedRootRadius.trr,
+    resolvedRootRadius.brr,
+    resolvedRootRadius.blr,
+    resolvedRootBg,
+    resolvedRootClassName,
+  ].some((value) => value !== undefined);
+  const contentHandlers = needsRootWrapper ? undefined : linkedHandlers;
+  // motionStyle уже собран useSharedMotion (transform + preserve-3d + willChange) — когда есть
+  // root-обёртка, моушен живёт на ней, иначе вешаем его прямо на контент.
+  const contentMotionStyle = needsRootWrapper ? undefined : motionStyle;
+  const contentRootProps = needsRootWrapper ? undefined : rootProps;
+  const wrapperRootProps = needsRootWrapper ? rootProps : undefined;
+  const contentInteractiveProps = !needsRootWrapper
+    ? {
+        id,
+        role,
+        tabIndex,
+        'aria-label': ariaLabel,
+        'aria-disabled': ariaDisabled,
       }
+    : undefined;
+  const rootInteractiveProps = needsRootWrapper
+    ? {
+        id,
+        role,
+        tabIndex,
+        'aria-label': ariaLabel,
+        'aria-disabled': ariaDisabled,
+      }
+    : undefined;
 
-      if (!fetched.content) return null;
+  // Общие props для SVG: при явных пропсах разрешаем прямое переопределение fill/stroke.
+  const commonSvgStyle = {
+    ...(color && { color }),
+    ...(stroke != null && { '--icon-stroke': stroke, stroke } as CSSProperties),
+    ...(fill != null && { '--icon-fill': fill, fill } as CSSProperties),
+    ...(strokeWidthVars as CSSProperties),
+  } as CSSProperties;
+
+  // Общие классы и стили
+  const commonClasses = [
+    ...c.space('m', m),
+    ...c.space('mt', mt),
+    ...c.space('mr', mr),
+    ...c.space('mb', mb),
+    ...c.space('ml', ml),
+    ...radiusClasses(c, resolvedRadiusProps),
+    ...sizeClasses(c, iconSizeProps),
+    !needsRootWrapper && needsInlineGrow(grow) && inlineGrowClassName(),
+    className,
+  ];
+
+  const commonStyles = {
+    ...inlineSpaceStyle({ m, mt, mr, mb, ml }),
+    ...sizeInlineStyle(iconSizeProps),
+    ...(!needsRootWrapper ? growStyle(grow) : null),
+    ...(strokeWidthVars as CSSProperties),
+    ...(rotateVars as CSSProperties),
+    ...style,
+  };
+
+  const stackAspectRatio = parseAspectRatio(svgViewBox || elementProps.viewBox || hoverSvgViewBox);
+
+  // useCallback обязателен: ref-колбэк со скачущей идентичностью React отцепляет и цепляет
+  // заново каждый рендер, а это сбрасывает накопленный моушен в setMotionNode(null).
+  const setSvgRefs = useCallback((node: SVGSVGElement | null) => {
+    setMotionNode(node);
+
+    if (typeof ref === 'function') {
+      ref(node);
+      return;
+    }
+
+    if (ref) {
+      ref.current = node;
+    }
+  }, [ref, setMotionNode]);
+
+  const renderStackLayer = (
+    source: ResolvedIconSource,
+    fetched: FetchedSvgState,
+    html: { __html: string },
+    layer: 'default' | 'hover'
+  ): React.ReactElement | null => {
+    const layerProps = layer === 'default' ? elementProps : { 'aria-hidden': true };
+
+    if (source.component) {
+      const LayerComponent = source.component;
 
       return (
-        <svg
+        <LayerComponent
           ref={layer === 'default' ? setSvgRefs : undefined}
           data-icon-layer={layer}
           className={styles.Icon}
           style={commonSvgStyle}
-          fill={fill == null ? fetched.rootFill : undefined}
-          viewBox={fetched.viewBox || (layer === 'default' ? elementProps.viewBox : undefined)}
-          dangerouslySetInnerHTML={html}
           {...layerProps}
         />
       );
-    };
+    }
 
-    let content: React.ReactElement | null = null;
+    if (!fetched.content) return null;
 
-    if (baseSource.component && !hasHoverIcon) {
-      const BaseIconComponent = baseSource.component;
+    return (
+      <svg
+        ref={layer === 'default' ? setSvgRefs : undefined}
+        data-icon-layer={layer}
+        className={styles.Icon}
+        style={commonSvgStyle}
+        fill={fill == null ? fetched.rootFill : undefined}
+        viewBox={fetched.viewBox || (layer === 'default' ? elementProps.viewBox : undefined)}
+        dangerouslySetInnerHTML={html}
+        {...layerProps}
+      />
+    );
+  };
 
-      content = (
-        <BaseIconComponent
-          ref={setSvgRefs}
-          {...(contentInteractiveProps ?? null)}
-          {...(contentRootProps as Record<string, unknown> ?? null)}
-          data-point-events={dataPointEvents}
-          data-icon-root="true"
-          className={cx(
-            styles.Icon,
-            ...commonClasses,
-            className
-          )}
-          style={{
-            ...commonSvgStyle,
-            ...commonStyles,
-            ...(contentMotionStyle ?? null),
-          } as CSSProperties}
-          {...rootStateProps}
-          {...contentHandlers}
-          {...elementProps}
-        />
-      );
-    } else if (hasHoverIcon) {
-      const wrapperProps = {
-        ...(contentInteractiveProps ?? null),
-        ...(contentRootProps as Record<string, unknown> ?? null),
-        'data-point-events': dataPointEvents,
-        ...(rootStateProps ?? null),
-        className: cx(styles.IconWrapper, ...commonClasses),
-        style: {
-          ...(stackAspectRatio ? { aspectRatio: stackAspectRatio } : null),
+  let content: React.ReactElement | null = null;
+
+  if (baseSource.component && !hasHoverIcon) {
+    const BaseIconComponent = baseSource.component;
+
+    content = (
+      <BaseIconComponent
+        ref={setSvgRefs}
+        {...(contentInteractiveProps ?? null)}
+        {...(contentRootProps as Record<string, unknown> ?? null)}
+        data-point-events={dataPointEvents}
+        data-icon-root="true"
+        className={cx(
+          styles.Icon,
+          ...commonClasses,
+          className
+        )}
+        style={{
+          ...commonSvgStyle,
           ...commonStyles,
           ...(contentMotionStyle ?? null),
-        } as CSSProperties,
-      };
+        } as CSSProperties}
+        {...rootStateProps}
+        {...contentHandlers}
+        {...elementProps}
+      />
+    );
+  } else if (hasHoverIcon) {
+    const wrapperProps = {
+      ...(contentInteractiveProps ?? null),
+      ...(contentRootProps as Record<string, unknown> ?? null),
+      'data-point-events': dataPointEvents,
+      ...(rootStateProps ?? null),
+      className: cx(styles.IconWrapper, ...commonClasses),
+      style: {
+        ...(stackAspectRatio ? { aspectRatio: stackAspectRatio } : null),
+        ...commonStyles,
+        ...(contentMotionStyle ?? null),
+      } as CSSProperties,
+    };
 
-      content = (
-        <span ref={setMotionNode} {...wrapperProps} {...contentHandlers} data-icon-root="true" data-icon-stack="true">
-          {renderStackLayer(baseSource, { content: svgContent, viewBox: svgViewBox, rootFill: svgRootFill }, svgHtml, 'default')}
-          {renderStackLayer(hoverSource, { content: hoverSvgContent, viewBox: hoverSvgViewBox, rootFill: hoverSvgRootFill }, hoverSvgHtml, 'hover')}
-        </span>
-      );
-    } else {
-      // Не возвращаем null во время загрузки: рендерим размеренный плейсхолдер, чтобы
-      // коробка иконки занимала финальное место сразу и верстку не «шифтило».
-      content = (
-        <svg
-          ref={setSvgRefs}
-          {...(contentInteractiveProps ?? null)}
-          {...(contentRootProps as Record<string, unknown> ?? null)}
-          data-point-events={dataPointEvents}
-          data-icon-root="true"
-          data-icon-loading={svgContent ? undefined : 'true'}
-          className={cx(styles.Icon, ...commonClasses)}
-          style={{
-            ...commonSvgStyle,
-            ...commonStyles,
-            ...(contentMotionStyle ?? null),
-          }}
-          {...rootStateProps}
-          {...contentHandlers}
-          fill={fill == null ? svgRootFill : undefined}
-          viewBox={svgViewBox || elementProps.viewBox}
-          dangerouslySetInnerHTML={svgHtml}
-          {...elementProps}
-        />
-      );
-    }
-
-    // Идентичность источника для свопа + признак готовности контента (для инлайн-иконок — синхронно).
-    const iconIdentity = baseSource.url ?? (baseSource.component ? componentSwapKey(baseSource.component) : null);
-    const iconContentReady = svgContent != null || Boolean(baseSource.component);
-
-    // Root-бокс (заливка/бордер/размер) — часть визуала иконки, поэтому собираем его ДО свопа, чтобы
-    // анимировался весь отрисованный Icon целиком (кружок + глиф), а не только SVG внутри коробки.
-    if (needsRootWrapper) {
-      content = (
-        <Flex
-          ref={setMotionNode as React.Ref<HTMLDivElement>}
-          {...(rootInteractiveProps ?? null)}
-          {...(wrapperRootProps as Record<string, unknown> ?? null)}
-          data-point-events={dataPointEvents}
-          data-icon-root="true"
-          className={cx(
-            styles.IconRoot,
-            resolvedRootClassName,
-            ...c.bg('bg', resolvedRootBg),
-          )}
-          w={rootSizeProps.w}
-          minW={rootSizeProps.minW}
-          maxW={rootSizeProps.maxW}
-          h={rootSizeProps.h}
-          minH={rootSizeProps.minH}
-          maxH={rootSizeProps.maxH}
-          r={resolvedRootRadius.r}
-          tlr={resolvedRootRadius.tlr}
-          trr={resolvedRootRadius.trr}
-          brr={resolvedRootRadius.brr}
-          blr={resolvedRootRadius.blr}
-          border={border}
-          borderC={borderC}
-          borderS={borderS}
-          borderW={borderW}
-          borderT={borderT}
-          borderR={borderR}
-          borderB={borderB}
-          borderL={borderL}
-          grow={grow}
-          state={state}
-          align="center"
-          justify="center"
-          style={hasMotion ? (motionStyle as CSSProperties) : undefined}
-          {...linkedHandlers}
-        >
-          {content}
-        </Flex>
-      );
-    }
-
-    // Своп-анимация смены иконки (opt-in через animate="swap"): анимируем весь собранный Icon целиком.
-    content = useIconSwap(animate, iconIdentity, iconContentReady, content) as React.ReactElement | null;
-
-    if (!hasIconSource(baseSource) || !content) return null;
-
-    let result = wrapLink(content) as React.ReactElement;
-
-    if (tooltip) {
-      result = (
-        <IconTooltipWithPortal
-          tooltip={tooltip}
-          direction={tooltipDirection}
-          gap={tooltipGap}
-        >
-          {result}
-        </IconTooltipWithPortal>
-      );
-    }
-
-    return result;
+    content = (
+      <span ref={setMotionNode} {...wrapperProps} {...contentHandlers} data-icon-root="true" data-icon-stack="true">
+        {renderStackLayer(baseSource, { content: svgContent, viewBox: svgViewBox, rootFill: svgRootFill }, svgHtml, 'default')}
+        {renderStackLayer(hoverSource, { content: hoverSvgContent, viewBox: hoverSvgViewBox, rootFill: hoverSvgRootFill }, hoverSvgHtml, 'hover')}
+      </span>
+    );
+  } else {
+    // Не возвращаем null во время загрузки: рендерим размеренный плейсхолдер, чтобы
+    // коробка иконки занимала финальное место сразу и верстку не «шифтило».
+    content = (
+      <svg
+        ref={setSvgRefs}
+        {...(contentInteractiveProps ?? null)}
+        {...(contentRootProps as Record<string, unknown> ?? null)}
+        data-point-events={dataPointEvents}
+        data-icon-root="true"
+        data-icon-loading={svgContent ? undefined : 'true'}
+        className={cx(styles.Icon, ...commonClasses)}
+        style={{
+          ...commonSvgStyle,
+          ...commonStyles,
+          ...(contentMotionStyle ?? null),
+        }}
+        {...rootStateProps}
+        {...contentHandlers}
+        fill={fill == null ? svgRootFill : undefined}
+        viewBox={svgViewBox || elementProps.viewBox}
+        dangerouslySetInnerHTML={svgHtml}
+        {...elementProps}
+      />
+    );
   }
-);
 
-Icon.displayName = 'Icon';
+  // Идентичность источника для свопа + признак готовности контента (для инлайн-иконок — синхронно).
+  const iconIdentity = baseSource.url ?? (baseSource.component ? componentSwapKey(baseSource.component) : null);
+  const iconContentReady = svgContent != null || Boolean(baseSource.component);
+
+  // Root-бокс (заливка/бордер/размер) — часть визуала иконки, поэтому собираем его ДО свопа, чтобы
+  // анимировался весь отрисованный Icon целиком (кружок + глиф), а не только SVG внутри коробки.
+  if (needsRootWrapper) {
+    content = (
+      <Flex
+        ref={setMotionNode as React.Ref<HTMLDivElement>}
+        {...(rootInteractiveProps ?? null)}
+        {...(wrapperRootProps as Record<string, unknown> ?? null)}
+        data-point-events={dataPointEvents}
+        data-icon-root="true"
+        className={cx(
+          styles.IconRoot,
+          resolvedRootClassName,
+          ...c.bg('bg', resolvedRootBg),
+        )}
+        w={rootSizeProps.w}
+        minW={rootSizeProps.minW}
+        maxW={rootSizeProps.maxW}
+        h={rootSizeProps.h}
+        minH={rootSizeProps.minH}
+        maxH={rootSizeProps.maxH}
+        r={resolvedRootRadius.r}
+        tlr={resolvedRootRadius.tlr}
+        trr={resolvedRootRadius.trr}
+        brr={resolvedRootRadius.brr}
+        blr={resolvedRootRadius.blr}
+        border={border}
+        borderC={borderC}
+        borderS={borderS}
+        borderW={borderW}
+        borderT={borderT}
+        borderR={borderR}
+        borderB={borderB}
+        borderL={borderL}
+        grow={grow}
+        state={state}
+        align="center"
+        justify="center"
+        style={hasMotion ? (motionStyle as CSSProperties) : undefined}
+        {...linkedHandlers}
+      >
+        {content}
+      </Flex>
+    );
+  }
+
+  // Своп-анимация смены иконки (opt-in через animate="swap"): анимируем весь собранный Icon целиком.
+  content = useIconSwap(animate, iconIdentity, iconContentReady, content) as React.ReactElement | null;
+
+  if (!hasIconSource(baseSource) || !content) return null;
+
+  let result = wrapLink(content) as React.ReactElement;
+
+  if (tooltip) {
+    result = (
+      <IconTooltipWithPortal
+        tooltip={tooltip}
+        direction={tooltipDirection}
+        gap={tooltipGap}
+      >
+        {result}
+      </IconTooltipWithPortal>
+    );
+  }
+
+  return result;
+}

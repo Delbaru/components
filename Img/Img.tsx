@@ -1,7 +1,7 @@
 "use client";
 
 import Image, { type ImageProps } from 'next/image';
-import { forwardRef, useCallback, useMemo, useState, type CSSProperties } from 'react';
+import { useCallback, useMemo, useState, type CSSProperties } from 'react';
 import type React from 'react';
 
 import styles from './Img.module.scss';
@@ -9,6 +9,7 @@ import { aspectRatioStyle, cx, createLayoutClasses, growStyle, inlineAspectRatio
 import { resolveResponsive } from '../core/base/responsive';
 import { useFancybox } from '../hooks/useFancybox';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
+import type { WithRef } from '../core';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 
@@ -172,237 +173,231 @@ function resolveFancyboxHref(src: ImageProps['src']): string | null {
   return null;
 }
 
-export const Img = forwardRef<HTMLSpanElement, ImgProps>(
-  (
-    {
-      id,
-      className = '',
-      style,
-      'data-point-events': dataPointEvents,
-      alt,
-      w,
-      minW,
-      maxW,
-      h,
-      minH,
-      maxH,
-      rootW,
-      rootH,
-      grow,
-      r,
-      tlr,
-      trr,
-      brr,
-      blr,
-      borderTLR,
-      borderTRR,
-      borderBRR,
-      borderBLR,
-      objectFit,
-      objectPosition,
-      aspectRatio,
-      bg,
-      sizes,
-      sizesWidth,
-      sizesHeight,
-      blur = false,
-      quality,
-      onLoad,
-      onError,
-      linkState,
-      perspective3d,
-      parallax,
-      fancybox,
-      ...props
-    },
-    ref
-  ) => {
-    const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-    const bgClasses = c.literal('bg', bg);
-    const hasBgClass = Boolean(bgClasses[0]);
-    const [isLoaded, setIsLoaded] = useState(false);
-    const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
-    const imageSizeProps = {
-      w,
-      minW,
-      maxW,
-      h,
-      minH,
-      maxH,
-    };
-    const wrapperSizeProps = {
-      w: rootW ?? imageSizeProps.w,
-      minW: imageSizeProps.minW,
-      maxW: imageSizeProps.maxW,
-      h: rootH ?? imageSizeProps.h,
-      minH: imageSizeProps.minH,
-      maxH: imageSizeProps.maxH,
-    };
-    const { rootProps, elementProps } = splitRootDomProps(props as ImgElementProps);
+export function Img({
+  ref,
+  id,
+  className = '',
+  style,
+  'data-point-events': dataPointEvents,
+  alt,
+  w,
+  minW,
+  maxW,
+  h,
+  minH,
+  maxH,
+  rootW,
+  rootH,
+  grow,
+  r,
+  tlr,
+  trr,
+  brr,
+  blr,
+  borderTLR,
+  borderTRR,
+  borderBRR,
+  borderBLR,
+  objectFit,
+  objectPosition,
+  aspectRatio,
+  bg,
+  sizes,
+  sizesWidth,
+  sizesHeight,
+  blur = false,
+  quality,
+  onLoad,
+  onError,
+  linkState,
+  perspective3d,
+  parallax,
+  fancybox,
+  ...props
+}: WithRef<ImgProps, HTMLSpanElement>) {
+  const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
+  const bgClasses = c.literal('bg', bg);
+  const hasBgClass = Boolean(bgClasses[0]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
+  const imageSizeProps = {
+    w,
+    minW,
+    maxW,
+    h,
+    minH,
+    maxH,
+  };
+  const wrapperSizeProps = {
+    w: rootW ?? imageSizeProps.w,
+    minW: imageSizeProps.minW,
+    maxW: imageSizeProps.maxW,
+    h: rootH ?? imageSizeProps.h,
+    minH: imageSizeProps.minH,
+    maxH: imageSizeProps.maxH,
+  };
+  const { rootProps, elementProps } = splitRootDomProps(props as ImgElementProps);
 
-    // Картинку по адресу НАШЕГО API оптимизатор `next/image` собрать не может, и это не настройка,
-    // а его устройство: он идёт за исходником со СВОЕГО сервера, отдельным запросом и без cookie
-    // человека. Ответ такому запросу — 401/404, то есть на экране битая картинка, а не «чуть хуже
-    // качеством». Поэтому всё под `/api/` отдаётся как есть — ровно так же, как Next сам поступает
-    // с `blob:` и `data:`.
-    //
-    // Правилом, а не пропом на call-site: иначе про него забудут ровно там, где картинка личная,
-    // и поймается это уже глазами на живых данных.
-    const unoptimized = String(elementProps.src ?? '').startsWith('/api/');
-    const imageProps = { ...elementProps, unoptimized };
+  // Картинку по адресу НАШЕГО API оптимизатор `next/image` собрать не может, и это не настройка,
+  // а его устройство: он идёт за исходником со СВОЕГО сервера, отдельным запросом и без cookie
+  // человека. Ответ такому запросу — 401/404, то есть на экране битая картинка, а не «чуть хуже
+  // качеством». Поэтому всё под `/api/` отдаётся как есть — ровно так же, как Next сам поступает
+  // с `blob:` и `data:`.
+  //
+  // Правилом, а не пропом на call-site: иначе про него забудут ровно там, где картинка личная,
+  // и поймается это уже глазами на живых данных.
+  const unoptimized = String(elementProps.src ?? '').startsWith('/api/');
+  const imageProps = { ...elementProps, unoptimized };
 
-    const fancyboxGroup = fancybox?.trim();
-    const fancyboxHref = useMemo(() => resolveFancyboxHref(elementProps.src), [elementProps.src]);
-    const hasFancybox = Boolean(fancyboxGroup && fancyboxHref);
+  const fancyboxGroup = fancybox?.trim();
+  const fancyboxHref = useMemo(() => resolveFancyboxHref(elementProps.src), [elementProps.src]);
+  const hasFancybox = Boolean(fancyboxGroup && fancyboxHref);
 
-    useFancybox(hasFancybox);
+  useFancybox(hasFancybox);
 
-    // useCallback обязателен: ref-колбэк со скачущей идентичностью React отцепляет и цепляет
-    // заново каждый рендер, а это сбрасывает накопленный моушен в setMotionNode(null).
-    const setRefs = useCallback((node: HTMLSpanElement | null) => {
-      setMotionNode(node);
+  // useCallback обязателен: ref-колбэк со скачущей идентичностью React отцепляет и цепляет
+  // заново каждый рендер, а это сбрасывает накопленный моушен в setMotionNode(null).
+  const setRefs = useCallback((node: HTMLSpanElement | null) => {
+    setMotionNode(node);
 
-      if (typeof ref === 'function') {
-        ref(node);
-        return;
-      }
-
-      if (ref) {
-        ref.current = node;
-      }
-    }, [ref, setMotionNode]);
-
-    const computedSizes = useMemo(() => {
-      if (sizes) return sizes;
-      const widthForSizes = sizesWidth ?? imageSizeProps.w;
-      const heightForSizes = sizesHeight ?? imageSizeProps.h;
-      return buildSizes(widthForSizes, heightForSizes, aspectRatio);
-    }, [aspectRatio, imageSizeProps.h, imageSizeProps.w, sizes, sizesHeight, sizesWidth]);
-    const normalizedAlt = typeof alt === 'string' ? alt : '';
-    const fancyboxAriaLabel = normalizedAlt || 'Изображение';
-
-    if (quality !== undefined && (quality < 1 || quality > 100)) {
-      throw new Error(`[Img] quality must be between 1 and 100. Got: ${quality}`);
+    if (typeof ref === 'function') {
+      ref(node);
+      return;
     }
-    const normalizedQuality = quality === undefined ? undefined : Math.max(1, Math.min(100, quality));
 
-    const handleLoad: React.ComponentPropsWithoutRef<'img'>['onLoad'] = (event) => {
-      setIsLoaded(true);
-      onLoad?.(event);
-    };
+    if (ref) {
+      ref.current = node;
+    }
+  }, [ref, setMotionNode]);
 
-    return (
-      <span
-        ref={setRefs}
-        id={id}
-        data-point-events={dataPointEvents}
-        {...(rootProps as React.HTMLAttributes<HTMLSpanElement>)}
-        {...stateLinkProps(linkState, motionHandlers)}
-        className={cx(
-          styles.Img,
-          ...sizeClasses(c, wrapperSizeProps),
-          ...radiusClasses(c, radiusProps),
-          ...bgClasses,
-          needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
-          needsInlineGrow(grow) && inlineGrowClassName(),
-          className
-        )}
-        style={{
-          ...(bg && !hasBgClass ? { background: bg } : null),
-          ...sizeInlineStyle({
-            ...wrapperSizeProps,
-            w: wrapperSizeProps.w ?? '100%',
-            h: wrapperSizeProps.h ?? '100%',
-          }),
-          ...aspectRatioStyle(aspectRatio),
-          ...growStyle(grow),
-          ...(motionStyle ?? null),
-          ...style,
-        }}
-      >
-        {hasFancybox ? (
-          <a
-            href={fancyboxHref ?? undefined}
-            data-fancybox={fancyboxGroup}
-            data-caption={normalizedAlt || undefined}
-            className={styles.Link}
-            draggable={false}
-            aria-label={fancyboxAriaLabel}
-          >
-            {blur && (
-              <Image
-                {...imageProps}
-                alt=""
-                aria-hidden
-                draggable={false}
-                fill
-                sizes="5vw"
-                quality={normalizedQuality}
-                className={cx(
-                  styles.Image,
-                  styles.Blur,
-                  isLoaded && styles.BlurHidden,
-                  ...c.enum('objectFit', objectFit ?? 'cover'),
-                  ...c.enum('objectPosition', objectPosition ?? 'center'),
-                )}
-              />
-            )}
-            <Image
-              {...imageProps}
-              alt={normalizedAlt}
-              draggable={false}
-              fill
-              sizes={computedSizes}
-              quality={normalizedQuality}
-              className={cx(
-                styles.Image,
-                ...c.enum('objectFit', objectFit ?? 'cover'),
-                ...c.enum('objectPosition', objectPosition ?? 'center'),
-              )}
-              onLoad={handleLoad}
-              onError={onError}
-            />
-          </a>
-        ) : (
-          <>
-            {blur && (
-              <Image
-                {...imageProps}
-                alt=""
-                aria-hidden
-                draggable={false}
-                fill
-                sizes="5vw"
-                quality={normalizedQuality}
-                className={cx(
-                  styles.Image,
-                  styles.Blur,
-                  isLoaded && styles.BlurHidden,
-                  ...c.enum('objectFit', objectFit ?? 'cover'),
-                  ...c.enum('objectPosition', objectPosition ?? 'center'),
-                )}
-              />
-            )}
-            <Image
-              {...imageProps}
-              alt={normalizedAlt}
-              draggable={false}
-              fill
-              sizes={computedSizes}
-              quality={normalizedQuality}
-              className={cx(
-                styles.Image,
-                ...c.enum('objectFit', objectFit ?? 'cover'),
-                ...c.enum('objectPosition', objectPosition ?? 'center'),
-              )}
-              onLoad={handleLoad}
-              onError={onError}
-            />
-          </>
-        )}
-      </span>
-    );
+  const computedSizes = useMemo(() => {
+    if (sizes) return sizes;
+    const widthForSizes = sizesWidth ?? imageSizeProps.w;
+    const heightForSizes = sizesHeight ?? imageSizeProps.h;
+    return buildSizes(widthForSizes, heightForSizes, aspectRatio);
+  }, [aspectRatio, imageSizeProps.h, imageSizeProps.w, sizes, sizesHeight, sizesWidth]);
+  const normalizedAlt = typeof alt === 'string' ? alt : '';
+  const fancyboxAriaLabel = normalizedAlt || 'Изображение';
+
+  if (quality !== undefined && (quality < 1 || quality > 100)) {
+    throw new Error(`[Img] quality must be between 1 and 100. Got: ${quality}`);
   }
-);
+  const normalizedQuality = quality === undefined ? undefined : Math.max(1, Math.min(100, quality));
 
-Img.displayName = 'Img';
+  const handleLoad: React.ComponentPropsWithoutRef<'img'>['onLoad'] = (event) => {
+    setIsLoaded(true);
+    onLoad?.(event);
+  };
+
+  return (
+    <span
+      ref={setRefs}
+      id={id}
+      data-point-events={dataPointEvents}
+      {...(rootProps as React.HTMLAttributes<HTMLSpanElement>)}
+      {...stateLinkProps(linkState, motionHandlers)}
+      className={cx(
+        styles.Img,
+        ...sizeClasses(c, wrapperSizeProps),
+        ...radiusClasses(c, radiusProps),
+        ...bgClasses,
+        needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
+        needsInlineGrow(grow) && inlineGrowClassName(),
+        className
+      )}
+      style={{
+        ...(bg && !hasBgClass ? { background: bg } : null),
+        ...sizeInlineStyle({
+          ...wrapperSizeProps,
+          w: wrapperSizeProps.w ?? '100%',
+          h: wrapperSizeProps.h ?? '100%',
+        }),
+        ...aspectRatioStyle(aspectRatio),
+        ...growStyle(grow),
+        ...(motionStyle ?? null),
+        ...style,
+      }}
+    >
+      {hasFancybox ? (
+        <a
+          href={fancyboxHref ?? undefined}
+          data-fancybox={fancyboxGroup}
+          data-caption={normalizedAlt || undefined}
+          className={styles.Link}
+          draggable={false}
+          aria-label={fancyboxAriaLabel}
+        >
+          {blur && (
+            <Image
+              {...imageProps}
+              alt=""
+              aria-hidden
+              draggable={false}
+              fill
+              sizes="5vw"
+              quality={normalizedQuality}
+              className={cx(
+                styles.Image,
+                styles.Blur,
+                isLoaded && styles.BlurHidden,
+                ...c.enum('objectFit', objectFit ?? 'cover'),
+                ...c.enum('objectPosition', objectPosition ?? 'center'),
+              )}
+            />
+          )}
+          <Image
+            {...imageProps}
+            alt={normalizedAlt}
+            draggable={false}
+            fill
+            sizes={computedSizes}
+            quality={normalizedQuality}
+            className={cx(
+              styles.Image,
+              ...c.enum('objectFit', objectFit ?? 'cover'),
+              ...c.enum('objectPosition', objectPosition ?? 'center'),
+            )}
+            onLoad={handleLoad}
+            onError={onError}
+          />
+        </a>
+      ) : (
+        <>
+          {blur && (
+            <Image
+              {...imageProps}
+              alt=""
+              aria-hidden
+              draggable={false}
+              fill
+              sizes="5vw"
+              quality={normalizedQuality}
+              className={cx(
+                styles.Image,
+                styles.Blur,
+                isLoaded && styles.BlurHidden,
+                ...c.enum('objectFit', objectFit ?? 'cover'),
+                ...c.enum('objectPosition', objectPosition ?? 'center'),
+              )}
+            />
+          )}
+          <Image
+            {...imageProps}
+            alt={normalizedAlt}
+            draggable={false}
+            fill
+            sizes={computedSizes}
+            quality={normalizedQuality}
+            className={cx(
+              styles.Image,
+              ...c.enum('objectFit', objectFit ?? 'cover'),
+              ...c.enum('objectPosition', objectPosition ?? 'center'),
+            )}
+            onLoad={handleLoad}
+            onError={onError}
+          />
+        </>
+      )}
+    </span>
+  );
+}
