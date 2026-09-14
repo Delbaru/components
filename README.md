@@ -55,6 +55,27 @@ npm run ui:build
 `LexicalTextarea` не знает, какие бывают переменные. Проект передаёт их в `variables`, и у
 каждой переменной своя иконка (`icon`) — библиотека больше не подставляет её по ключу.
 
+## Проверки качества
+
+Всё ниже запускается из корня проекта, `<путь>` — папка библиотеки.
+
+```bash
+npx tsgo -p <путь>/tsconfig.json --noEmit            # строгий TypeScript самой библиотеки
+node --import tsx --test "<путь>/**/*.test.ts"       # юнит-тесты ядра
+node <путь>/tools/check-boundary.mjs                 # ни одного импорта наружу папки
+node <путь>/tools/check-tokens.mjs <стили проекта…>  # договор темы
+node <путь>/tools/check-rules.mjs --baseline <файл> <папки проекта…>   # красные линии с храповиком
+```
+
+`tsconfig.json` библиотеки строже обычного: помимо `strict` включены `noUncheckedIndexedAccess`,
+`noImplicitReturns`, `noImplicitOverride`, `noFallthroughCasesInSwitch`, `noUnusedLocals` и
+`noUnusedParameters`. `any`, `@ts-ignore`, `eslint-disable` и утверждений `!` в коде нет;
+`as unknown as` — одно, в точке стирания типа реестра анимаций `Text` (`defineAnimation`).
+
+`check-rules.mjs` считает нарушения красных линий в коде ПРОЕКТА (сырые `<button>`/`<input>`/`<a>`,
+инлайн-`<svg>`, условный рендер без анимации, числа мимо сетки 4, транзишны без токенов,
+`@media`). Планка лежит в проекте; сборка падает, только если нарушений стало больше.
+
 ## Обновление в проекте
 
 ```bash
