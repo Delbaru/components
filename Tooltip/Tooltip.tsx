@@ -5,9 +5,8 @@ import { createPortal } from 'react-dom';
 
 import styles from './Tooltip.module.scss';
 
-import { cx, stateProps } from '../core';
+import { cx, stateProps, type WithRef } from '../core';
 import type { TooltipBubbleProps } from '../hooks/useTooltip';
-import type { WithRef } from '../core';
 
 export interface TooltipProps extends TooltipBubbleProps {
   children: ReactNode;

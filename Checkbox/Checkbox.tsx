@@ -3,37 +3,10 @@
 import { useCallback, useEffect, useId, type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './Checkbox.module.scss';
-import {
-    cx,
-    createLayoutClasses,
-    growStyle,
-    inlineGrowClassName,
-    inlineSpaceStyle,
-    sizeClasses,
-    sizeInlineStyle,
-    needsInlineGrow,
-    splitRootDomProps,
-    stateProps,
-    layoutSpaceClasses,
-    resolveBorderClassResolution,
-    resolveBorderStyles,
-    stateLinkProps,
-    tokenStyles,
-    resolveRadiusInput,
-    type BorderStyleProps,
-    type ComponentStateValue,
-    type StateLinkInput,
-    type LayoutSpaceProps,
-    type RadiusPropsShort,
-    type ResponsiveValue,
-    type SizePropsShort,
-    type GrowProps,
-    radiusClasses
-} from '../core';
+import { cx, createLayoutClasses, growStyle, inlineGrowClassName, inlineSpaceStyle, sizeClasses, sizeInlineStyle, needsInlineGrow, splitRootDomProps, stateProps, layoutSpaceClasses, resolveBorderClassResolution, resolveBorderStyles, stateLinkProps, tokenStyles, resolveRadiusInput, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type SizePropsShort, type GrowProps, radiusClasses, type WithRef } from '../core';
 import { Icon } from '../Icon';
 import { Flex } from '../Flex';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
-import type { WithRef } from '../core';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 

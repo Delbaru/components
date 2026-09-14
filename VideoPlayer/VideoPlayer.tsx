@@ -14,21 +14,7 @@ import {
 import styles from './VideoPlayer.module.scss';
 
 import { clamp01 } from '../core/utils';
-import {
-    aspectRatioStyle,
-    createLayoutClasses,
-    cx,
-    growStyle,
-    inlineAspectRatioClassName,
-    inlineGrowClassName,
-    needsInlineAspectRatio,
-    needsInlineGrow,
-    radiusClasses,
-    resolveRadiusInput,
-    sizeClasses,
-    sizeInlineStyle,
-    tokenStyles,
-} from '../core';
+import { aspectRatioStyle, createLayoutClasses, cx, growStyle, inlineAspectRatioClassName, inlineGrowClassName, needsInlineAspectRatio, needsInlineGrow, radiusClasses, resolveRadiusInput, sizeClasses, sizeInlineStyle, tokenStyles, type WithRef, useMergedRefs } from '../core';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { Video } from '../Video';
@@ -36,7 +22,6 @@ import { Video } from '../Video';
 import { usePointerRatio } from './usePointerRatio';
 import { useVideoPlayer } from './useVideoPlayer';
 import type { MediaSource, VideoPlayerApi, VideoPlayerApiRef, VideoPlayerControlKey, VideoPlayerProps } from './types';
-import type { WithRef } from '../core';
 
 const c = createLayoutClasses([tokenStyles, styles]);
 
@@ -288,18 +273,7 @@ export function VideoPlayer({
     const volume = usePointerRatio({ orientation: 'y', onChange: applyVolume });
 
     // --- refs-проводка ---
-    const setRootRef = useCallback((node: HTMLDivElement | null) => {
-        rootRef.current = node;
-
-        if (typeof ref === 'function') {
-            ref(node);
-            return;
-        }
-
-        if (ref) {
-            ref.current = node;
-        }
-    }, [ref]);
+    const setRootRef = useMergedRefs(rootRef, ref);
 
     const setVideoNode = useCallback((node: HTMLVideoElement | null) => {
         videoNodeRef.current = node;

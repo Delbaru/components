@@ -19,23 +19,7 @@ import { Swiper as SwiperRoot, SwiperSlide } from 'swiper/react';
 
 import styles from './Carousel.module.scss';
 import { publishCarouselControlsSnapshot, resetCarouselControlsSnapshot } from './controls';
-import {
-  aspectRatioStyle,
-  createLayoutClasses,
-  cx,
-  getBreakpointIndex,
-  growStyle,
-  inlineAspectRatioClassName,
-  inlineGrowClassName,
-  inlineSizeStyle,
-  needsInlineAspectRatio,
-  needsInlineGrow,
-  resolveResponsive,
-  resolveResponsiveAtBreakpoint,
-  stateLinkProps,
-  tokenStyles,
-  type ResponsiveValue,
-} from '../core';
+import { aspectRatioStyle, createLayoutClasses, cx, getBreakpointIndex, growStyle, inlineAspectRatioClassName, inlineGrowClassName, inlineSizeStyle, needsInlineAspectRatio, needsInlineGrow, resolveResponsive, resolveResponsiveAtBreakpoint, stateLinkProps, tokenStyles, type ResponsiveValue, type WithRef, useMergedRefs } from '../core';
 import { useSharedMotion } from '../hooks/useSharedMotion';
 import type {
   CarouselApi,
@@ -44,7 +28,6 @@ import type {
   CarouselProps,
   SlidesPerViewValue,
 } from './types';
-import type { WithRef } from '../core';
 
 const DRAG_START_THRESHOLD_PX = 6;
 const DEFAULT_NAVIGATION_STATE: CarouselNavigationState = {
@@ -615,19 +598,7 @@ export function Carousel({
 
   const swiperKey = `${currentOrientation}-${swiperEffect}-${loopEnabled}-${usesPaddedLoop}-${String(currentSlidesPerView)}-${currentInitialSlide}-${renderedSlides.length}-${currentCenteredSlides}`;
 
-  const setRootRefs = useCallback((node: HTMLDivElement | null) => {
-    rootRef.current = node;
-    setMotionNode(node);
-
-    if (typeof ref === 'function') {
-      ref(node);
-      return;
-    }
-
-    if (ref) {
-      ref.current = node;
-    }
-  }, [ref, setMotionNode]);
+  const setRootRefs = useMergedRefs(rootRef, setMotionNode, ref);
 
   return (
     <div

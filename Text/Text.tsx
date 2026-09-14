@@ -3,18 +3,17 @@
 
 import Link from 'next/link';
 import type React from 'react';
-import { useCallback, useRef, type CSSProperties } from 'react';
+import { useRef, type CSSProperties } from 'react';
 
 import styles from './Text.module.scss';
 
-import { cx, createLayoutClasses, inlineGrowClassName, inlineSpaceStyle, growStyle, buildClampStyle, normalizeComponentState, layoutSpaceClasses, radiusClasses, resolveBorderClassResolution, resolveBorderStyles, resolveLinkProps, shouldUseNextLink, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, needsInlineGrow, resolveRadiusInput, responsiveValueHasFullClassCoverage, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps } from '../core';
+import { cx, createLayoutClasses, inlineGrowClassName, inlineSpaceStyle, growStyle, buildClampStyle, normalizeComponentState, layoutSpaceClasses, radiusClasses, resolveBorderClassResolution, resolveBorderStyles, resolveLinkProps, shouldUseNextLink, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, needsInlineGrow, resolveRadiusInput, responsiveValueHasFullClassCoverage, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps, type WithRef, useMergedRefs } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { resolveAnimation } from './animations/resolveAnimation';
 import type { AnimationInput } from './animations/types';
 import { resolveLetterSpacing, lineHeightKey, type LineHeightValue } from './typography';
 import { resolveTextContent, type TextFormat } from './formatContent';
 import { bindTextContent } from './nonBreaking';
-import type { WithRef } from '../core';
 
 /** 'inherit' — не навязывать типографику: для Text внутри Text (цветные куски чужого заголовка). */
 type VariantKey = 'h1' | 'h2' | 'h3' | 'h4' | 'p1' | 'p2' | 'p3' | 'subtitle' | 'title' | 'p' | 'small' | 'dop' | 'inherit';
@@ -143,15 +142,7 @@ export function Text({
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
 
   const internalRef = useRef<HTMLElement | null>(null);
-  const setRef = useCallback(
-    (el: HTMLElement | null) => {
-      internalRef.current = el;
-      setMotionNode(el);
-      if (typeof ref === 'function') ref(el);
-      else if (ref) (ref as React.MutableRefObject<HTMLElement | null>).current = el;
-    },
-    [ref, setMotionNode]
-  );
+  const setRef = useMergedRefs(internalRef, setMotionNode, ref);
 
   // Контент и анимация: формат строки → плагин анимации из реестра (или контент как есть).
   const content = resolveTextContent(children, format);

@@ -4,7 +4,7 @@ import { useCallback, useRef, useState, type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './Input.module.scss';
 import { Skeleton } from '../Skeleton';
-import { cx, createLayoutClasses, inlineGrowClassName, growStyle, needsInlineGrow, stateProps, stateLinkProps, tokenStyles, fieldLayoutStyles, resolveFieldLayoutClassResolution, fieldHelperPaddingLeft, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps } from '../core';
+import { cx, createLayoutClasses, inlineGrowClassName, growStyle, needsInlineGrow, stateProps, stateLinkProps, tokenStyles, fieldLayoutStyles, resolveFieldLayoutClassResolution, fieldHelperPaddingLeft, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps, type WithRef } from '../core';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { Flex } from '../Flex';
@@ -16,7 +16,6 @@ import { Tooltip } from '../Tooltip';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { useTextOverflow } from '../hooks/useTextOverflow';
 import { useTooltip } from '../hooks/useTooltip';
-import type { WithRef } from '../core';
 
 type VariantKey = 'primary' | 'secondary';
 type SizeKey = 'default' | 'fullWidth';

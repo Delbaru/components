@@ -3,13 +3,12 @@
 import styles from './MediaDropDown.module.scss';
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent } from 'react';
-import { cx, stateProps } from '../core';
+import { cx, stateProps, type WithRef, useMergedRefs } from '../core';
 import { resolveSvgAssetSource } from '../core/base/svg-asset';
 import { Flex } from '../Flex';
 import { Text } from '../Text';
 import { Icon } from '../Icon';
 import SkipNextOutlineIconAsset from '../RichTextarea/assets/skip-next-outline.svg';
-import type { WithRef } from '../core';
 
 const SkipNextOutlineIcon = resolveSvgAssetSource(SkipNextOutlineIconAsset) ?? '';
 
@@ -282,14 +281,7 @@ export function MediaDropDown({
     const canPreview = Boolean(selectedItem && onPreview && (selectedItem.src || selectedItem.link));
     const previewIsPlay = isPlayableMedia(selectedItem?.type);
 
-    const setRefs = useCallback(
-        (node: HTMLDivElement | null) => {
-            rootRef.current = node;
-            if (typeof ref === 'function') ref(node);
-            else if (ref) ref.current = node;
-        },
-        [ref]
-    );
+    const setRefs = useMergedRefs(rootRef, ref);
 
     return (
         <div

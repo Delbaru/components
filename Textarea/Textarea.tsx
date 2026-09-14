@@ -9,12 +9,11 @@ import {
 } from 'react';
 import type React from 'react';
 import styles from './Textarea.module.scss';
-import { cx, createLayoutClasses, inlineGrowClassName, growStyle, needsInlineGrow, stateProps, stateLinkProps, tokenStyles, useFieldControl, fieldLayoutStyles, resolveFieldLayoutClassResolution, fieldHelperPaddingLeft, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps } from '../core';
+import { cx, createLayoutClasses, inlineGrowClassName, growStyle, needsInlineGrow, stateProps, stateLinkProps, tokenStyles, useFieldControl, fieldLayoutStyles, resolveFieldLayoutClassResolution, fieldHelperPaddingLeft, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps, type WithRef } from '../core';
 import { Text } from '../Text';
 import { Flex } from '../Flex';
 import { Skeleton } from '../Skeleton';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
-import type { WithRef } from '../core';
 
 type VariantKey = 'primary' | 'secondary';
 type SizeKey = 'default' | 'fullWidth';

@@ -1,15 +1,14 @@
 "use client";
 
 import Image, { type ImageProps } from 'next/image';
-import { useCallback, useMemo, useState, type CSSProperties } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import type React from 'react';
 
 import styles from './Img.module.scss';
-import { aspectRatioStyle, cx, createLayoutClasses, growStyle, inlineAspectRatioClassName, inlineGrowClassName, needsInlineAspectRatio, needsInlineGrow, radiusClasses, sizeClasses, sizeInlineStyle, splitRootDomProps, stateLinkProps, tokenStyles, resolveRadiusInput, type GrowProps, type RadiusInput, type StateLinkInput, type ResponsiveValue, type SizeInput, type SizeValue } from '../core';
+import { aspectRatioStyle, cx, createLayoutClasses, growStyle, inlineAspectRatioClassName, inlineGrowClassName, needsInlineAspectRatio, needsInlineGrow, radiusClasses, sizeClasses, sizeInlineStyle, splitRootDomProps, stateLinkProps, tokenStyles, resolveRadiusInput, type GrowProps, type RadiusInput, type StateLinkInput, type ResponsiveValue, type SizeInput, type SizeValue, type WithRef, useMergedRefs } from '../core';
 import { resolveResponsive } from '../core/base/responsive';
 import { useFancybox } from '../hooks/useFancybox';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
-import type { WithRef } from '../core';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 
@@ -257,18 +256,7 @@ export function Img({
 
   // useCallback обязателен: ref-колбэк со скачущей идентичностью React отцепляет и цепляет
   // заново каждый рендер, а это сбрасывает накопленный моушен в setMotionNode(null).
-  const setRefs = useCallback((node: HTMLSpanElement | null) => {
-    setMotionNode(node);
-
-    if (typeof ref === 'function') {
-      ref(node);
-      return;
-    }
-
-    if (ref) {
-      ref.current = node;
-    }
-  }, [ref, setMotionNode]);
+  const setRefs = useMergedRefs(setMotionNode, ref);
 
   const computedSizes = useMemo(() => {
     if (sizes) return sizes;

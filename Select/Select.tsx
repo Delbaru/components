@@ -12,34 +12,12 @@ import {
     type KeyboardEvent,
 } from 'react';
 import type React from 'react';
-import {
-    cx,
-    createLayoutClasses,
-    inlineGrowClassName,
-    growStyle,
-    needsInlineGrow,
-    stateProps,
-    stateLinkProps,
-    tokenStyles,
-    useFieldControl,
-    fieldLayoutStyles,
-    resolveFieldLayoutClassResolution,
-    fieldHelperPaddingLeft,
-    type BorderStyleProps,
-    type ComponentStateValue,
-    type StateLinkInput,
-    type LayoutSpaceProps,
-    type RadiusPropsShort,
-    type SizePropsShort,
-    type ResponsiveValue,
-    type GrowProps,
-} from '../core';
+import { cx, createLayoutClasses, inlineGrowClassName, growStyle, needsInlineGrow, stateProps, stateLinkProps, tokenStyles, useFieldControl, fieldLayoutStyles, resolveFieldLayoutClassResolution, fieldHelperPaddingLeft, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps, type WithRef } from '../core';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { Skeleton } from '../Skeleton';
 import { Flex } from '../Flex';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
-import type { WithRef } from '../core';
 
 type VariantKey = 'primary' | 'primaryFill' | 'secondary';
 type SizeKey = 'default' | 'fullWidth';

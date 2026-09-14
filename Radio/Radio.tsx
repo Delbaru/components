@@ -3,10 +3,9 @@
 import { useCallback, useId, type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './Radio.module.scss';
-import { cx, createLayoutClasses, growStyle, inlineGrowClassName, inlineSpaceStyle, stateProps, needsInlineGrow, layoutSpaceClasses, radiusClasses, stateLinkProps, tokenStyles, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type GrowProps } from '../core';
+import { cx, createLayoutClasses, growStyle, inlineGrowClassName, inlineSpaceStyle, stateProps, needsInlineGrow, layoutSpaceClasses, radiusClasses, stateLinkProps, tokenStyles, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type GrowProps, type WithRef } from '../core';
 import { Flex } from '../Flex';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
-import type { WithRef } from '../core';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 

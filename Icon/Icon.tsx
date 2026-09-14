@@ -1,17 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useMemo, type CSSProperties, type SVGProps, useEffect, useRef, useState } from 'react';
+import { useMemo, type CSSProperties, type SVGProps, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type React from 'react';
 import styles from './Icon.module.scss';
-import { cx, createLayoutClasses, growStyle, inlineGrowClassName, inlineSpaceStyle, needsInlineGrow, radiusClasses, resolveRadiusInput, sanitizeSvgMarkup, shouldUseNextLink, sizeClasses, sizeInlineStyle, splitRootDomProps, stateProps as buildStateProps, stateLinkProps, tokenStyles, type BorderStyleProps, type ComponentStateValue, type GrowProps, type RadiusInput, type ResponsiveSpaceValue, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput } from '../core';
+import { cx, createLayoutClasses, growStyle, inlineGrowClassName, inlineSpaceStyle, needsInlineGrow, radiusClasses, resolveRadiusInput, sanitizeSvgMarkup, shouldUseNextLink, sizeClasses, sizeInlineStyle, splitRootDomProps, stateProps as buildStateProps, stateLinkProps, tokenStyles, type BorderStyleProps, type ComponentStateValue, type GrowProps, type RadiusInput, type ResponsiveSpaceValue, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef, useMergedRefs } from '../core';
 import { resolveResponsive } from '../core/base/responsive';
 import { Flex } from '../Flex';
 import { useAnchoredFloating } from '../hooks/useAnchoredFloating';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { useIconSwap, componentSwapKey, type IconAnimate } from './swap';
-import type { WithRef } from '../core';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 
@@ -712,18 +711,7 @@ export function Icon({
 
   // useCallback обязателен: ref-колбэк со скачущей идентичностью React отцепляет и цепляет
   // заново каждый рендер, а это сбрасывает накопленный моушен в setMotionNode(null).
-  const setSvgRefs = useCallback((node: SVGSVGElement | null) => {
-    setMotionNode(node);
-
-    if (typeof ref === 'function') {
-      ref(node);
-      return;
-    }
-
-    if (ref) {
-      ref.current = node;
-    }
-  }, [ref, setMotionNode]);
+  const setSvgRefs = useMergedRefs(setMotionNode, ref);
 
   const renderStackLayer = (
     source: ResolvedIconSource,

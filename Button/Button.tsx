@@ -7,10 +7,9 @@ import type React from 'react';
 
 import styles from './Button.module.scss';
 
-import { cx, createLayoutClasses, inlineGrowClassName, inlineSpaceStyle, growStyle, needsInlineGrow, resolveBorderClassResolution, resolveBorderStyles, stateProps, layoutSpaceClasses, radiusClasses, resolveLinkProps, shouldUseNextLink, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, resolveRadiusInput, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type SizeValue, type GrowProps } from '../core';
+import { cx, createLayoutClasses, inlineGrowClassName, inlineSpaceStyle, growStyle, needsInlineGrow, resolveBorderClassResolution, resolveBorderStyles, stateProps, layoutSpaceClasses, radiusClasses, resolveLinkProps, shouldUseNextLink, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, resolveRadiusInput, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type SizeValue, type GrowProps, type WithRef, useMergedRefs } from '../core';
 import { useAnchoredFloating } from '../hooks/useAnchoredFloating';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
-import type { WithRef } from '../core';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'secondaryFill' | 'tertiary';
 export type ButtonSize = 'small' | 'medium' | 'large';
@@ -153,19 +152,7 @@ export function Button({
     gap: tooltipGap,
     viewportPadding: 8,
   });
-  const setRefs = useCallback((node: HTMLElement | null) => {
-    anchorRef.current = node;
-    setMotionNode(node);
-
-    if (typeof ref === 'function') {
-      ref(node);
-      return;
-    }
-
-    if (ref) {
-      ref.current = node;
-    }
-  }, [ref, setMotionNode]);
+  const setRefs = useMergedRefs(anchorRef, setMotionNode, ref);
   const handleMouseEnter = useCallback((event: React.MouseEvent<HTMLElement>) => {
     setIsTooltipVisible(true);
     motionHandlers?.onMouseEnter?.(event);

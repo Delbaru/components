@@ -1,38 +1,10 @@
 'use client';
 
-import { useCallback } from 'react';
+
 import type React from 'react';
 import styles from './Grid.module.scss';
-import { 
-  aspectRatioStyle,
-  cx,
-  createLayoutClasses,
-  inlineAspectRatioClassName,
-  inlineGrowClassName,
-  resolveBorderClassResolution,
-  inlineSpaceStyle,
-  growStyle,
-  resolveBorderStyles,
-  needsInlineAspectRatio,
-  needsInlineGrow,
-  radiusClasses,
-  layoutSpaceClasses,
-  sizeClasses,
-  sizeInlineStyle,
-  stateLinkProps,
-  tokenStyles,
-  resolveRadiusInput,
-  type StateLinkInput,
-  type LayoutSpaceProps,
-  type SizePropsShort,
-  type ResponsiveValue,
-  type SizeValue,
-  type RadiusPropsShort,
-  type AspectRatioProps,
-  type GrowProps,
-  BorderStyleProps } from '../core';
+import { aspectRatioStyle, cx, createLayoutClasses, inlineAspectRatioClassName, inlineGrowClassName, resolveBorderClassResolution, inlineSpaceStyle, growStyle, resolveBorderStyles, needsInlineAspectRatio, needsInlineGrow, radiusClasses, layoutSpaceClasses, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, resolveRadiusInput, type StateLinkInput, type LayoutSpaceProps, type SizePropsShort, type ResponsiveValue, type SizeValue, type RadiusPropsShort, type AspectRatioProps, type GrowProps, BorderStyleProps, type WithRef, useMergedRefs } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
-import type { WithRef } from '../core';
 
 type Track =
 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12|
@@ -149,18 +121,7 @@ export function Grid({
   const borderClassResolution = resolveBorderClassResolution(c, { border, borderC, borderS, borderW, borderT, borderR, borderB, borderL });
   const hasBgClass = Boolean(bgClasses[0]);
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
-  const setRefs = useCallback((node: HTMLDivElement | null) => {
-    setMotionNode(node);
-
-    if (typeof ref === 'function') {
-      ref(node);
-      return;
-    }
-
-    if (ref) {
-      ref.current = node;
-    }
-  }, [ref, setMotionNode]);
+  const setRefs = useMergedRefs(setMotionNode, ref);
 
   return (
   <div
@@ -312,18 +273,7 @@ export function GridItem({
 }: WithRef<GridItemProps, HTMLDivElement>) {
   const hasFlex = justifyContent !== undefined || alignItems !== undefined;
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
-  const setRefs = useCallback((node: HTMLDivElement | null) => {
-    setMotionNode(node);
-
-    if (typeof ref === 'function') {
-      ref(node);
-      return;
-    }
-
-    if (ref) {
-      ref.current = node;
-    }
-  }, [ref, setMotionNode]);
+  const setRefs = useMergedRefs(setMotionNode, ref);
 
   return (
     <div

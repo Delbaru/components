@@ -1,11 +1,10 @@
 'use client';
 
-import { useCallback, type CSSProperties } from 'react';
+import { type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './Box.module.scss';
-import { aspectRatioStyle, stateLinkProps, cx, createLayoutClasses, inlineAspectRatioClassName, inlineGrowClassName, inlineSpaceStyle, growStyle, layoutSpaceClasses, needsInlineAspectRatio, needsInlineGrow, sizeClasses, sizeInlineStyle, radiusClasses, resolveBorderClassResolution, resolveBorderStyles, tokenStyles, resolveRadiusInput, type StateLinkInput, type LayoutSpaceProps, type SizePropsShort, type RadiusPropsShort, type BorderStyleProps, type ResponsiveValue, type AspectRatioProps, type GrowProps } from '../core';
+import { aspectRatioStyle, stateLinkProps, cx, createLayoutClasses, inlineAspectRatioClassName, inlineGrowClassName, inlineSpaceStyle, growStyle, layoutSpaceClasses, needsInlineAspectRatio, needsInlineGrow, sizeClasses, sizeInlineStyle, radiusClasses, resolveBorderClassResolution, resolveBorderStyles, tokenStyles, resolveRadiusInput, type StateLinkInput, type LayoutSpaceProps, type SizePropsShort, type RadiusPropsShort, type BorderStyleProps, type ResponsiveValue, type AspectRatioProps, type GrowProps, type WithRef, useMergedRefs } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
-import type { WithRef } from '../core';
 
 type JustifyContentKey = 'start' | 'end' | 'center' | 'space_between' | 'space_around' | 'space_evenly';
 
@@ -47,18 +46,7 @@ export function Box({
   const borderClassResolution = resolveBorderClassResolution(c, { border, borderC, borderS, borderW, borderT, borderR, borderB, borderL });
   const hasBgClass = Boolean(bgClasses[0]);
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
-  const setRefs = useCallback((node: HTMLDivElement | null) => {
-    setMotionNode(node);
-
-    if (typeof ref === 'function') {
-      ref(node);
-      return;
-    }
-
-    if (ref) {
-      ref.current = node;
-    }
-  }, [ref, setMotionNode]);
+  const setRefs = useMergedRefs(setMotionNode, ref);
 
   return (
     <div

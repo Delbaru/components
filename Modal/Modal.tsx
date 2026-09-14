@@ -9,31 +9,10 @@ import {
   type KeyboardEvent,
 } from 'react';
 import styles from './Modal.module.scss';
-import {
-  cx,
-  createLayoutClasses,
-  growStyle,
-  inlineGrowClassName,
-  inlineSpaceStyle,
-  layoutSpaceClasses,
-  needsInlineGrow,
-  radiusClasses,
-  resolveRadiusInput,
-  sizeClasses,
-  sizeInlineStyle,
-  tokenStyles,
-  type StateLinkInput,
-  type LayoutSpaceProps,
-  type RadiusPropsShort,
-  type SizePropsShort,
-  type ResponsiveValue,
-  type SpaceValue,
-  type GrowProps,
-} from '../core';
+import { cx, createLayoutClasses, growStyle, inlineGrowClassName, inlineSpaceStyle, layoutSpaceClasses, needsInlineGrow, radiusClasses, resolveRadiusInput, sizeClasses, sizeInlineStyle, tokenStyles, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type SpaceValue, type GrowProps, type WithRef } from '../core';
 import { Flex } from '../Flex';
 import { useModalRuntime } from './ModalProvider';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
-import type { WithRef } from '../core';
 
 type PresetKey = 'default' | 'fullWidth';
 

@@ -1,35 +1,11 @@
 "use client";
 
-import {
-  aspectRatioStyle,
-  cx,
-  createLayoutClasses,
-  growStyle,
-  inlineAspectRatioClassName,
-  inlineGrowClassName,
-  needsInlineAspectRatio,
-  needsInlineGrow,
-  radiusClasses,
-  resolveRadiusInput,
-  resolveResponsive,
-  sizeClasses,
-  sizeInlineStyle,
-  splitRootDomProps,
-  stateLinkProps,
-  tokenStyles,
-  type GrowProps,
-  type RadiusInput,
-  type StateLinkInput,
-  type ResponsiveValue,
-  type SizeInput,
-  type SizeValue,
-} from '../core';
+import { aspectRatioStyle, cx, createLayoutClasses, growStyle, inlineAspectRatioClassName, inlineGrowClassName, needsInlineAspectRatio, needsInlineGrow, radiusClasses, resolveRadiusInput, resolveResponsive, sizeClasses, sizeInlineStyle, splitRootDomProps, stateLinkProps, tokenStyles, type GrowProps, type RadiusInput, type StateLinkInput, type ResponsiveValue, type SizeInput, type SizeValue, type WithRef, useMergedRefs } from '../core';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
 import styles from './Video.module.scss';
-import type { WithRef } from '../core';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 
@@ -156,18 +132,7 @@ export function Video({
     setIsPlaying(node ? !node.paused && !node.ended : autoPlay && Boolean(resolvedSrc));
   }, [autoPlay, resolvedSrc]);
 
-  const setVideoRef = (node: HTMLVideoElement | null) => {
-    videoRef.current = node;
-
-    if (typeof ref === 'function') {
-      ref(node);
-      return;
-    }
-
-    if (ref) {
-      ref.current = node;
-    }
-  };
+  const setVideoRef = useMergedRefs(videoRef, ref);
 
   const setRootRef = useCallback((node: HTMLSpanElement | null) => {
     setMotionNode(node);

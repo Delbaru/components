@@ -1,44 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './Flex.module.scss';
-import { 
-  aspectRatioStyle,
-  stateLinkProps,
-  cx, createLayoutClasses,
-  inlineAspectRatioClassName,
-  inlineGrowClassName,
-  inlineSpaceStyle,
-  growStyle,
-  layoutSpaceClasses,
-  needsInlineAspectRatio,
-  needsInlineGrow,
-  sizeClasses,
-  sizeInlineStyle,
-  radiusClasses,
-  resolveBorderClassResolution,
-  resolveBorderStyles,
-  resolveLinkProps,
-  shouldUseNextLink,
-  tokenStyles,
-  stateProps,
-  resolveRadiusInput,
-  type ComponentStateValue,
-  type StateLinkInput,
-  type LayoutSpaceProps,
-  type SizePropsShort,
-  type RadiusPropsShort,
-  type BorderStyleProps,
-  type ResponsiveValue,
-  type AspectRatioProps,
-  type GrowProps } from '../core';
+import { aspectRatioStyle, stateLinkProps, cx, createLayoutClasses, inlineAspectRatioClassName, inlineGrowClassName, inlineSpaceStyle, growStyle, layoutSpaceClasses, needsInlineAspectRatio, needsInlineGrow, sizeClasses, sizeInlineStyle, radiusClasses, resolveBorderClassResolution, resolveBorderStyles, resolveLinkProps, shouldUseNextLink, tokenStyles, stateProps, resolveRadiusInput, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type SizePropsShort, type RadiusPropsShort, type BorderStyleProps, type ResponsiveValue, type AspectRatioProps, type GrowProps, type WithRef, useMergedRefs } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { usePresence } from '../hooks/usePresence';
 import { useSwapTransition } from '../hooks/useSwapTransition';
 import { resolveResponsive } from '../core/base/responsive';
-import type { WithRef } from '../core';
 
 type DirectionKey = 'row' | 'row_reverse' | 'column' | 'column_reverse';
 type WrapKey = 'nowrap' | 'wrap' | 'wrap_reverse';
@@ -179,19 +149,7 @@ export function Flex({
   const { displayChildren, exiting, onAnimationEnd: onSwapAnimationEnd, ref: swapNodeRef } = useSwapTransition(transitionKey, children);
   const swapping = transitionKey !== undefined;
   const activeAnimation = swapping && exiting && animation ? (exitAnimationOf[animation] ?? animation) : animation;
-  const setRefs = useCallback((node: HTMLElement | null) => {
-    setMotionNode(node);
-    swapNodeRef.current = node;
-
-    if (typeof ref === 'function') {
-      ref(node);
-      return;
-    }
-
-    if (ref) {
-      ref.current = node;
-    }
-  }, [ref, setMotionNode, swapNodeRef]);
+  const setRefs = useMergedRefs(setMotionNode, swapNodeRef, ref);
 
   const content = (
     <Comp

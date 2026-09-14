@@ -31,23 +31,12 @@ import type { SharedMotionProps } from '../hooks/useSharedMotion';
 import { Box } from '../Box';
 import { Flex } from '../Flex';
 import { Text } from '../Text';
-import {
-  cx,
-  mergeComponentStates,
-  type BorderStyleProps,
-  type ComponentStateValue,
-  type GrowProps,
-  type LayoutSpaceProps,
-  type RadiusPropsShort,
-  type SizePropsShort,
-  type StateLinkInput,
-} from '../core';
+import { cx, mergeComponentStates, type BorderStyleProps, type ComponentStateValue, type GrowProps, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type StateLinkInput, type WithRef } from '../core';
 import richTextStyles from '../RichText/RichText.module.scss';
 import type { LexicalTextVariant } from '../RichText';
 import { LexicalTextareaCounter, LexicalTextareaToolbar } from './LexicalTextareaToolbar';
 import { $createVariableNode, $isVariableNode, VariableNode, type VariableNodePayload } from './lexical/VariableNode';
 import styles from './RichTextarea.module.scss';
-import type { WithRef } from '../core';
 
 export type LexicalTextareaContent =
   | SerializedEditorState

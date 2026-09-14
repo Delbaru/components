@@ -4,10 +4,9 @@ import type React from 'react';
 
 import styles from './Section.module.scss';
 
-import { useCallback, type CSSProperties } from 'react';
-import { aspectRatioStyle, cx, createLayoutClasses, inlineAspectRatioClassName, inlineGrowClassName, inlineSpaceStyle, needsInlineAspectRatio, needsInlineGrow, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, growStyle, type StateLinkInput, type ResponsiveValue, type SpaceValue, type SizePropsShort, type AspectRatioProps, type GrowProps } from '../core';
+import { type CSSProperties } from 'react';
+import { aspectRatioStyle, cx, createLayoutClasses, inlineAspectRatioClassName, inlineGrowClassName, inlineSpaceStyle, needsInlineAspectRatio, needsInlineGrow, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, growStyle, type StateLinkInput, type ResponsiveValue, type SpaceValue, type SizePropsShort, type AspectRatioProps, type GrowProps, type WithRef, useMergedRefs } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
-import type { WithRef } from '../core';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 
@@ -30,18 +29,7 @@ export function Section({ ref, children, className = '', style, bg, mt, mb, pt, 
   const bgClasses = c.literal('bg', bg);
   const hasBgClass = Boolean(bgClasses[0]);
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
-  const setRefs = useCallback((node: HTMLElement | null) => {
-    setMotionNode(node);
-
-    if (typeof ref === 'function') {
-      ref(node);
-      return;
-    }
-
-    if (ref) {
-      ref.current = node;
-    }
-  }, [ref, setMotionNode]);
+  const setRefs = useMergedRefs(setMotionNode, ref);
 
   return (
     <section
