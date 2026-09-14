@@ -9,34 +9,11 @@ import { Select } from '../Select';
 import { Text } from '../Text';
 import { Tooltip } from '../Tooltip';
 import { cx } from '../core';
+import { resolveSvgAssetSource } from '../core/base/svg-asset';
 import { useTooltip } from '../hooks/useTooltip';
 
 import styles from './ChoiceButtons.module.scss';
 import UpIcon from './assets/up.svg';
-
-function normalizeSvgAssetPath(path: string) {
-    if (!path) {
-        return path;
-    }
-
-    if (/^(https?:)?\/\//i.test(path) || path.startsWith('data:') || path.startsWith('/')) {
-        return path;
-    }
-
-    return `/${path.replace(/^\.\//, '')}`;
-}
-
-function resolveSvgAssetSource(asset: unknown) {
-    if (typeof asset === 'string') {
-        return normalizeSvgAssetPath(asset);
-    }
-
-    if (asset && typeof asset === 'object' && 'src' in asset && typeof asset.src === 'string') {
-        return normalizeSvgAssetPath(asset.src);
-    }
-
-    return undefined;
-}
 
 const tooltipArrowIconSrc = resolveSvgAssetSource(UpIcon);
 

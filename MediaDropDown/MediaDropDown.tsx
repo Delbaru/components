@@ -4,36 +4,13 @@ import styles from './MediaDropDown.module.scss';
 
 import { forwardRef, useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent } from 'react';
 import { cx, stateProps } from '../core';
+import { resolveSvgAssetSource } from '../core/base/svg-asset';
 import { Flex } from '../Flex';
 import { Text } from '../Text';
 import { Icon } from '../Icon';
 import SkipNextOutlineIconAsset from '../RichTextarea/assets/skip-next-outline.svg';
 
-function normalizeSvgAssetPath(path: string) {
-    if (!path) {
-        return path;
-    }
-
-    if (/^(https?:)?\/\//i.test(path) || path.startsWith('data:') || path.startsWith('/')) {
-        return path;
-    }
-
-    return `/${path.replace(/^\.\//, '')}`;
-}
-
-function resolveSvgAssetSource(asset: unknown) {
-    if (typeof asset === 'string') {
-        return normalizeSvgAssetPath(asset);
-    }
-
-    if (asset && typeof asset === 'object' && 'src' in asset && typeof (asset as { src?: unknown }).src === 'string') {
-        return normalizeSvgAssetPath((asset as { src: string }).src);
-    }
-
-    return '';
-}
-
-const SkipNextOutlineIcon = resolveSvgAssetSource(SkipNextOutlineIconAsset);
+const SkipNextOutlineIcon = resolveSvgAssetSource(SkipNextOutlineIconAsset) ?? '';
 
 export type MediaType = 'image' | 'video' | 'audio' | 'file';
 
