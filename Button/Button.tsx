@@ -7,7 +7,7 @@ import type React from 'react';
 
 import styles from './Button.module.scss';
 
-import { cx, createLayoutClasses, inlineGrowClassName, inlineSpaceStyle, growStyle, needsInlineGrow, resolveBorderClassResolution, resolveBorderStyles, stateProps, layoutSpaceClasses, radiusClasses, resolveLinkProps, shouldUseNextLink, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, resolveRadiusInput, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type SizeValue, type GrowProps, type WithRef, useMergedRefs } from '../core';
+import { boxLayout, createLayoutClasses, cx, resolveLinkProps, shouldUseNextLink, splitBoxLayout, stateLinkProps, stateProps, tokenStyles, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
 import { useAnchoredFloating } from '../hooks/useAnchoredFloating';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
@@ -22,10 +22,7 @@ const c = createLayoutClasses([styles, tokenStyles]);
 export interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'color' | 'href' | 'target' | 'rel'>,
     Pick<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'target' | 'rel' | 'download'>,
-    LayoutSpaceProps,
-    RadiusPropsShort,
-    BorderStyleProps,
-    GrowProps,
+    Omit<BoxLayoutProps, 'aspectRatio'>,
     SharedMotionProps {
   children?: React.ReactNode;
   style?: CSSProperties;
@@ -41,13 +38,6 @@ export interface ButtonProps
   alignItems?: ResponsiveValue<AlignItemsKey>;
 
   gap?: ResponsiveValue<number>;
-  w?: ResponsiveValue<SizeValue>;
-  minW?: ResponsiveValue<SizeValue>;
-  maxW?: ResponsiveValue<SizeValue>;
-  h?: ResponsiveValue<SizeValue>;
-  minH?: ResponsiveValue<SizeValue>;
-  maxH?: ResponsiveValue<SizeValue>;
-  bg?: string;
   color?: string;
   state?: ComponentStateValue;
 
@@ -71,43 +61,8 @@ export function Button({
   justifyContent,
   alignItems,
   gap,
-  p,
-  pt,
-  pr,
-  pb,
-  pl,
-  m,
-  mt,
-  mr,
-  mb,
-  ml,
-  r,
-  tlr,
-  trr,
-  brr,
-  blr,
-  borderTLR,
-  borderTRR,
-  borderBRR,
-  borderBLR,
-  border,
-  borderC,
-  borderS,
-  borderW,
-  borderT,
-  borderR,
-  borderB,
-  borderL,
-  w,
-  minW,
-  maxW,
-  h,
-  minH,
-  maxH,
-  grow,
   perspective3d,
   parallax,
-  bg,
   color,
   state,
   type,
@@ -128,11 +83,9 @@ export function Button({
   tooltipGap = 8,
   ...props
 }: WithRef<ButtonProps, HTMLElement>) {
-  const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-  const bgClasses = c.literal('bg', bg);
+  const { box, rest } = splitBoxLayout(props);
+  const layout = boxLayout(c, box);
   const colorClasses = c.literal('color', color);
-  const borderClassResolution = resolveBorderClassResolution(c, { border, borderC, borderS, borderW, borderT, borderR, borderB, borderL });
-  const hasBgClass = Boolean(bgClasses[0]);
   const hasColorClass = Boolean(colorClasses[0]);
   const isLink = Boolean(href);
   const Comp = (isLink ? (shouldUseNextLink(href, target, download) ? Link : 'a') : 'button') as React.ElementType;
@@ -177,8 +130,8 @@ export function Button({
   }, []);
 
   const anchorProps = isLink
-    ? { ...props, ...linkProps }
-    : { ...props, type: type ?? 'button' };
+    ? { ...rest, ...linkProps }
+    : { ...rest, type: type ?? 'button' };
 
   let result = (
     <Comp
@@ -197,22 +150,13 @@ export function Button({
         ...c.enum('justifyContent', justifyContent),
         ...c.enum('alignItems', alignItems),
         ...c.num('gap', gap),
-        ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-        ...radiusClasses(c, radiusProps),
-        ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
-        ...bgClasses,
+        ...layout.classes,
         ...colorClasses,
-        ...borderClassResolution.classes,
-        needsInlineGrow(grow) && inlineGrowClassName(),
         className
       )}
       style={{
-        ...(bg && !hasBgClass ? { background: bg } : null),
+        ...layout.style,
         ...(color && !hasColorClass ? { color } : null),
-        ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-        ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
-        ...growStyle(grow),
-        ...resolveBorderStyles({ border, borderC, borderS, borderW, borderT, borderR, borderB, borderL }, borderClassResolution.styleSkips),
         ...(motionStyle ?? null),
         ...style,
       }}

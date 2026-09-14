@@ -66,20 +66,13 @@ export function splitBoxLayout<P extends BoxLayoutProps>(props: P): { box: BoxLa
   return { box: box as BoxLayoutProps, rest: rest as Omit<P, BoxLayoutKey> };
 }
 
-/**
- * Как понимать «у фона есть класс» (иначе фон уходит инлайном):
- * - `'first'` — по первому брейкпоинту, как исторически считают Box, Flex, Grid, Button;
- * - `'full'`  — по всем брейкпоинтам, как Text: адаптивный фон без класса на телефоне не теряется.
- */
-export type BgCoverage = 'first' | 'full';
-
 export interface BoxLayout {
   classes: (string | false | undefined)[];
   style: CSSProperties;
 }
 
 /** Классы и инлайн-стиль корня из пропсов коробки. Не заданный проп ничего не добавляет. */
-export function boxLayout(c: ClassBuilder, box: BoxLayoutProps, bgCoverage: BgCoverage = 'first'): BoxLayout {
+export function boxLayout(c: ClassBuilder, box: BoxLayoutProps): BoxLayout {
   const space = { p: box.p, pt: box.pt, pr: box.pr, pb: box.pb, pl: box.pl, m: box.m, mt: box.mt, mr: box.mr, mb: box.mb, ml: box.ml };
   const size = { w: box.w, minW: box.minW, maxW: box.maxW, h: box.h, minH: box.minH, maxH: box.maxH };
   const border = {
@@ -88,7 +81,8 @@ export function boxLayout(c: ClassBuilder, box: BoxLayoutProps, bgCoverage: BgCo
   };
 
   const bgClasses = c.literal('bg', box.bg);
-  const hasBgClass = bgCoverage === 'full' ? responsiveValueHasFullClassCoverage(box.bg, bgClasses) : Boolean(bgClasses[0]);
+  // Фон без класса хотя бы на одном брейкпоинте уходит инлайном целиком.
+  const hasBgClass = responsiveValueHasFullClassCoverage(box.bg, bgClasses);
   const borderResolution = resolveBorderClassResolution(c, border);
 
   return {

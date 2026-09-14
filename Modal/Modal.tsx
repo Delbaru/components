@@ -9,7 +9,7 @@ import {
   type KeyboardEvent,
 } from 'react';
 import styles from './Modal.module.scss';
-import { cx, createLayoutClasses, growStyle, inlineGrowClassName, inlineSpaceStyle, layoutSpaceClasses, needsInlineGrow, radiusClasses, resolveRadiusInput, sizeClasses, sizeInlineStyle, tokenStyles, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type SpaceValue, type GrowProps, type WithRef } from '../core';
+import { boxLayout, createLayoutClasses, cx, tokenStyles, useMergedRefs, type GrowProps, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type SizePropsShort, type SpaceValue, type StateLinkInput, type WithRef } from '../core';
 import { Flex } from '../Flex';
 import { useModalRuntime } from './ModalProvider';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
@@ -18,8 +18,7 @@ type PresetKey = 'default' | 'fullWidth';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 
-
-type ModalSurfaceProps = LayoutSpaceProps & RadiusPropsShort & SizePropsShort & GrowProps & SharedMotionProps & {
+interface ModalSurfaceProps extends LayoutSpaceProps, RadiusPropsShort, SizePropsShort, GrowProps, SharedMotionProps {
   id?: string;
   open: boolean;
   onClose: () => void;
@@ -67,7 +66,7 @@ type ModalSurfaceProps = LayoutSpaceProps & RadiusPropsShort & SizePropsShort & 
   'data-point-events'?: string;
 
   linkState?: StateLinkInput;
-};
+}
 
 export type ModalProps = Omit<ModalSurfaceProps, 'open' | 'onClose'>;
 
@@ -87,16 +86,6 @@ function ModalSurface({
   animation,
   closeOnOverlayClick = true,
   overflowVisible = false,
-  p,
-  pt,
-  pr,
-  pb,
-  pl,
-  m,
-  mt,
-  mr,
-  mb,
-  ml,
   rootP,
   rootPt,
   rootPr,
@@ -107,42 +96,28 @@ function ModalSurface({
   rootMr,
   rootMb,
   rootMl,
-  r,
-  tlr,
-  trr,
-  brr,
-  blr,
-  borderTLR,
-  borderTRR,
-  borderBRR,
-  borderBLR,
-  w,
-  minW,
-  maxW,
-  h,
-  minH,
-  maxH,
   grow,
   perspective3d,
   parallax,
   alignItems,
   justifyContent,
-  bg,
   color,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledby,
   'data-point-events': dataPointEvents,
   linkState,
+  ...panelBox
 }: WithRef<ModalSurfaceProps, HTMLDivElement>) {
-  const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-  const bgClasses = c.literal('bg', bg);
+  // Коробка делится на две: отступы root* и grow — у слоя-подложки, остальное — у панели диалога.
+  const root = boxLayout(c, { p: rootP, pt: rootPt, pr: rootPr, pb: rootPb, pl: rootPl, m: rootM, mt: rootMt, mr: rootMr, mb: rootMb, ml: rootMl, grow });
+  const panel = boxLayout(c, panelBox);
   const colorClasses = c.literal('color', color);
-  const hasBgClass = Boolean(bgClasses[0]);
   const hasColorClass = Boolean(colorClasses[0]);
   const panelRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
   const [entered, setEntered] = useState(false);
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
+  const setPanelNode = useMergedRefs(panelRef, setMotionNode);
 
   useEffect(() => {
     if (open) {
@@ -179,36 +154,19 @@ function ModalSurface({
     if (closeOnOverlayClick) onClose();
   };
 
-  const setPanelNode = useCallback((node: HTMLDivElement | null) => {
-    panelRef.current = node;
-    setMotionNode(node);
-  }, [setMotionNode]);
-
-  const mergedRootStyle = {
-    ...inlineSpaceStyle({ p: rootP, pt: rootPt, pr: rootPr, pb: rootPb, pl: rootPl, m: rootM, mt: rootMt, mr: rootMr, mb: rootMb, ml: rootMl }),
-    ...growStyle(grow),
-    ...rootStyle,
-  };
-
   return (
     <Flex
       ref={ref}
       linkState={linkState}
       data-point-events={dataPointEvents}
-      className={cx(
-        styles.Modal,
-        rootClassName,
-        ...c.enum('animation', animation),
-        ...layoutSpaceClasses(c, { p: rootP, pt: rootPt, pr: rootPr, pb: rootPb, pl: rootPl, m: rootM, mt: rootMt, mr: rootMr, mb: rootMb, ml: rootMl }),
-        needsInlineGrow(grow) && inlineGrowClassName()
-      )}
+      className={cx(styles.Modal, rootClassName, ...c.enum('animation', animation), ...root.classes)}
       data-open={open}
       data-entered={entered}
       role="presentation"
       aria-hidden={!open}
       align={alignItems ?? 'center'}
       justify={justifyContent ?? 'center'}
-      style={mergedRootStyle}
+      style={{ ...root.style, ...rootStyle }}
     >
       <div
         className={cx(styles.Overlay, overlayClassName)}
@@ -232,18 +190,13 @@ function ModalSurface({
           styles.Panel,
           overflowVisible && styles.overflowVisible,
           ...c.enum('preset', preset),
-          ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-          ...radiusClasses(c, radiusProps),
-          ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
-          ...bgClasses,
+          ...panel.classes,
           ...colorClasses,
           className
         )}
         style={{
-          ...(bg && !hasBgClass ? { background: bg } : null),
+          ...panel.style,
           ...(color && !hasColorClass ? { color } : null),
-          ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-          ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
           ...(motionStyle ?? null),
           ...panelStyle,
         }}

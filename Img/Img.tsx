@@ -5,8 +5,7 @@ import { useMemo, useState, type CSSProperties } from 'react';
 import type React from 'react';
 
 import styles from './Img.module.scss';
-import { aspectRatioStyle, cx, createLayoutClasses, growStyle, inlineAspectRatioClassName, inlineGrowClassName, needsInlineAspectRatio, needsInlineGrow, radiusClasses, sizeClasses, sizeInlineStyle, splitRootDomProps, stateLinkProps, tokenStyles, resolveRadiusInput, type GrowProps, type RadiusInput, type StateLinkInput, type ResponsiveValue, type SizeInput, type SizeValue, type WithRef, useMergedRefs } from '../core';
-import { resolveResponsive } from '../core/base/responsive';
+import { boxLayout, createLayoutClasses, cx, resolveResponsive, sizeClasses, sizeInlineStyle, splitRootDomProps, stateLinkProps, tokenStyles, useMergedRefs, type GrowProps, type RadiusInput, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef } from '../core';
 import { useFancybox } from '../hooks/useFancybox';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
@@ -214,9 +213,8 @@ export function Img({
   fancybox,
   ...props
 }: WithRef<ImgProps, HTMLSpanElement>) {
-  const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-  const bgClasses = c.literal('bg', bg);
-  const hasBgClass = Boolean(bgClasses[0]);
+  // Размеры обёртки — не из коробки: у них свой дефолт 100% только в инлайне (см. ниже).
+  const layout = boxLayout(c, { r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR, bg, aspectRatio, grow });
   const [isLoaded, setIsLoaded] = useState(false);
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
   const imageSizeProps = {
@@ -284,24 +282,14 @@ export function Img({
       data-point-events={dataPointEvents}
       {...(rootProps as React.HTMLAttributes<HTMLSpanElement>)}
       {...stateLinkProps(linkState, motionHandlers)}
-      className={cx(
-        styles.Img,
-        ...sizeClasses(c, wrapperSizeProps),
-        ...radiusClasses(c, radiusProps),
-        ...bgClasses,
-        needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
-        needsInlineGrow(grow) && inlineGrowClassName(),
-        className
-      )}
+      className={cx(styles.Img, ...sizeClasses(c, wrapperSizeProps), ...layout.classes, className)}
       style={{
-        ...(bg && !hasBgClass ? { background: bg } : null),
+        ...layout.style,
         ...sizeInlineStyle({
           ...wrapperSizeProps,
           w: wrapperSizeProps.w ?? '100%',
           h: wrapperSizeProps.h ?? '100%',
         }),
-        ...aspectRatioStyle(aspectRatio),
-        ...growStyle(grow),
         ...(motionStyle ?? null),
         ...style,
       }}

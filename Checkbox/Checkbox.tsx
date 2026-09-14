@@ -1,18 +1,17 @@
 'use client';
 
-import { useCallback, useEffect, useId, type CSSProperties } from 'react';
+import { useEffect, useId, useRef, type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './Checkbox.module.scss';
-import { cx, createLayoutClasses, growStyle, inlineGrowClassName, inlineSpaceStyle, sizeClasses, sizeInlineStyle, needsInlineGrow, splitRootDomProps, stateProps, layoutSpaceClasses, resolveBorderClassResolution, resolveBorderStyles, stateLinkProps, tokenStyles, resolveRadiusInput, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type SizePropsShort, type GrowProps, radiusClasses, type WithRef } from '../core';
+import { boxLayout, createLayoutClasses, cx, splitBoxLayout, splitRootDomProps, stateLinkProps, stateProps, tokenStyles, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
 import { Icon } from '../Icon';
 import { Flex } from '../Flex';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 
-export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>, LayoutSpaceProps, SizePropsShort, BorderStyleProps, GrowProps, SharedMotionProps, RadiusPropsShort {
+export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>, Omit<BoxLayoutProps, 'aspectRatio'>, SharedMotionProps {
     style?: CSSProperties;
-    bg?: string;
     children?: React.ReactNode;
     indeterminate?: boolean;
     /** Куда прижат квадрат относительно подписи. По умолчанию по центру; 'start' нужен карточке
@@ -34,17 +33,10 @@ export function Checkbox({
     ref,
     className = '',
     style,
-    bg,
     children,
     indeterminate = false,
     alignItems = 'center',
     gap,
-    p, pt, pr, pb, pl,
-    m, mt, mr, mb, ml,
-    r, tlr, trr, brr, blr,
-    grow,
-    w, minW, maxW, h, minH, maxH,
-    border, borderC, borderS, borderW, borderT, borderR, borderB, borderL,
     perspective3d,
     parallax,
     onMouseEnter,
@@ -61,14 +53,9 @@ export function Checkbox({
 }: WithRef<CheckboxProps, HTMLInputElement>) {
     const generatedId = useId();
     const id = idProp ?? generatedId;
-    const bgClasses = c.literal('bg', bg);
-    const hasBgClass = Boolean(bgClasses[0]);
-    const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr });
-    const borderClassResolution = resolveBorderClassResolution(c, { border, borderC, borderS, borderW, borderT, borderR, borderB, borderL });
-    // `size`/`iconSize` разобраны выше и в `props` их уже нет — но каст возвращал бы их в тип,
-    // и после того, как они стали кортежами, `<input size={…}>` перестал сходиться с нативным
-    // атрибутом. Убираем их из каста, а не из разбора: разбор и так верен.
-    const { rootProps, elementProps } = splitRootDomProps(props as Omit<CheckboxProps, 'size' | 'iconSize'> & Record<string, unknown>);
+    const { box, rest } = splitBoxLayout(props);
+    const layout = boxLayout(c, box);
+    const { rootProps, elementProps } = splitRootDomProps(rest as typeof rest & Record<string, unknown>);
     const { 'data-error': dataError, ...inputProps } = elementProps;
     const isDisabled = Boolean(inputProps.disabled);
     const isChecked = Boolean(inputProps.checked ?? inputProps.defaultChecked);
@@ -82,42 +69,22 @@ export function Checkbox({
         && !linkState;
     const rootDataPointEvents = dataPointEvents ?? (isPassiveReadOnly ? 'none' : undefined);
     const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
-    const setRootRef = useCallback((node: HTMLLabelElement | null) => {
-        setMotionNode(node);
-    }, [setMotionNode]);
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const setInputRef = useMergedRefs(inputRef, ref);
 
     useEffect(() => {
-        if (typeof ref !== 'function' && ref?.current) {
-            ref.current.indeterminate = indeterminate;
-        }
-    }, [ref, indeterminate]);
+        if (inputRef.current) inputRef.current.indeterminate = indeterminate;
+    }, [indeterminate]);
 
     return (
         <label
-            ref={setRootRef}
+            ref={setMotionNode}
             htmlFor={id}
             data-point-events={rootDataPointEvents}
             {...(rootProps as React.LabelHTMLAttributes<HTMLLabelElement>)}
             {...(!isDisabled ? stateLinkProps(linkState, { onMouseEnter, onMouseLeave, onClick, onFocus, onBlur, ...motionHandlers }) : {})}
-            className={cx(
-                styles.Checkbox,
-                ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-                ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
-                ...radiusClasses(c, radiusProps),
-                ...borderClassResolution.classes,
-                ...bgClasses,
-                needsInlineGrow(grow) && inlineGrowClassName(),
-                className
-            )}
-            style={{
-                ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-                ...(bg && !hasBgClass ? { background: bg } : null),
-                ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
-                ...growStyle(grow),
-                ...resolveBorderStyles({ border, borderC, borderS, borderW, borderT, borderR, borderB, borderL }, borderClassResolution.styleSkips),
-                ...(motionStyle ?? null),
-                ...style,
-            }}
+            className={cx(styles.Checkbox, ...layout.classes, className)}
+            style={{ ...layout.style, ...(motionStyle ?? null), ...style }}
             {...stateProps(state, isChecked && 'active', dataError && 'error', isDisabled && 'disabled')}
         >
             {/* Ряд тянется на ширину <label>: `grow` + `minW:0`. Без них базовый размер ряда
@@ -130,7 +97,7 @@ export function Checkbox({
                 ширинах. С кортежем ниже 1024 не было ни ширины, ни высоты, ни радиуса — то
                 есть квадрат схлопывался в точку (§12 «Экран, который живёт НИЖЕ 1024»). */}
             <Flex gap={gap ?? 8} align={alignItems} grow={1} minW={0}>
-                <input ref={ref} id={id} type="checkbox" className={styles.Input} {...inputProps} />
+                <input ref={setInputRef} id={id} type="checkbox" className={styles.Input} {...inputProps} />
 
                 <Flex
                     className={styles.Box}

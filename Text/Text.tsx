@@ -7,7 +7,7 @@ import { useRef, type CSSProperties } from 'react';
 
 import styles from './Text.module.scss';
 
-import { cx, createLayoutClasses, inlineGrowClassName, inlineSpaceStyle, growStyle, buildClampStyle, normalizeComponentState, layoutSpaceClasses, radiusClasses, resolveBorderClassResolution, resolveBorderStyles, resolveLinkProps, shouldUseNextLink, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, needsInlineGrow, resolveRadiusInput, responsiveValueHasFullClassCoverage, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps, type WithRef, useMergedRefs } from '../core';
+import { boxLayout, buildClampStyle, createLayoutClasses, cx, normalizeComponentState, resolveLinkProps, responsiveValueHasFullClassCoverage, shouldUseNextLink, splitBoxLayout, stateLinkProps, tokenStyles, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { resolveAnimation } from './animations/resolveAnimation';
 import type { AnimationInput } from './animations/types';
@@ -26,11 +26,7 @@ const c = createLayoutClasses([styles, tokenStyles]);
 export interface TextProps
   extends Omit<React.HTMLAttributes<HTMLElement>, 'color'>,
     Pick<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'target' | 'rel' | 'download'>,
-    LayoutSpaceProps,
-    RadiusPropsShort,
-    BorderStyleProps,
-    SizePropsShort,
-    GrowProps,
+    Omit<BoxLayoutProps, 'aspectRatio'>,
     SharedMotionProps {
   children?: React.ReactNode;
   style?: CSSProperties;
@@ -58,7 +54,6 @@ export interface TextProps
   whiteSpace?: ResponsiveValue<WhiteSpaceValue>;
   rows?: ResponsiveValue<number>;
   ellipsis?: boolean;
-  bg?: string;
 
   state?: ComponentStateValue;
 
@@ -75,13 +70,6 @@ export function Text({
   fontWeight,
   lineHeight,
   fontFamily,
-  w,
-  h,
-  minW,
-  maxW,
-  minH,
-  maxH,
-  grow,
   perspective3d,
   parallax,
   color,
@@ -91,35 +79,7 @@ export function Text({
   whiteSpace,
   rows,
   ellipsis,
-  bg,
   state,
-  p,
-  pt,
-  pr,
-  pb,
-  pl,
-  m,
-  mt,
-  mr,
-  mb,
-  ml,
-  border,
-  borderC,
-  borderS,
-  borderW,
-  borderT,
-  borderR,
-  borderB,
-  borderL,
-  r,
-  tlr,
-  trr,
-  brr,
-  blr,
-  borderTLR,
-  borderTRR,
-  borderBRR,
-  borderBLR,
   className = '',
   style,
   children,
@@ -131,7 +91,9 @@ export function Text({
   ...props
 }: WithRef<TextProps, HTMLElement>) {
   'use no memo';
-  const aProps = props as React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+  const { box, rest } = splitBoxLayout(props);
+  const layout = boxLayout(c, box);
+  const aProps = rest as React.AnchorHTMLAttributes<HTMLAnchorElement> & {
     download?: string | boolean;
     newTab?: boolean;
     nofollow?: boolean;
@@ -148,7 +110,7 @@ export function Text({
   const content = resolveTextContent(children, format);
   const anim = resolveAnimation(animation ?? animate, content);
 
-  // Классы и inline-стиль host'а собираются из core-хелперов (как во Flex). Алгоритмика (letter-spacing,
+  // Классы и inline-стиль host'а — коробка из ядра (boxLayout), типографика здесь. Алгоритмика (letter-spacing,
   // формат, разбор анимации) вынесена в ./typography, ./formatContent, ./animations.
   const letterSpacingResolved = resolveLetterSpacing(c, letterSpacing);
 
@@ -156,21 +118,13 @@ export function Text({
   const hasRows = rows !== undefined;
   const hasSingleLineEllipsis = Boolean(ellipsis) && !hasRows;
 
-  const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-  const bgClasses = c.literal('bg', bg);
   const colorClasses = c.literal('color', color);
-  const borderClassResolution = resolveBorderClassResolution(c, { border, borderC, borderS, borderW, borderT, borderR, borderB, borderL });
-  const hasBgClass = responsiveValueHasFullClassCoverage(bg, bgClasses);
   const hasColorClass = responsiveValueHasFullClassCoverage(color, colorClasses);
 
   const inline: CSSProperties = {
-    ...(bg && !hasBgClass ? { background: bg } : null),
+    ...layout.style,
     ...(color && !hasColorClass ? { color } : null),
     ...letterSpacingResolved.style,
-    ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-    ...sizeInlineStyle({ w, h, minW, maxW, minH, maxH }),
-    ...growStyle(grow),
-    ...resolveBorderStyles({ border, borderC, borderS, borderW, borderT, borderR, borderB, borderL }, borderClassResolution.styleSkips),
     ...clampStyle,
     ...(motionStyle ?? null),
   };
@@ -182,7 +136,7 @@ export function Text({
   const isAnchor = effectiveAs === 'a';
   const Comp = (isAnchor && shouldUseNextLink(href, target, download) ? Link : effectiveAs) as React.ElementType;
   const linkProps = isAnchor ? resolveLinkProps({ href, target, rel, download, newTab, nofollow, noreferrer }) : {};
-  const anchorProps = isAnchor ? { ...anchorRestProps, ...linkProps } : props;
+  const anchorProps = isAnchor ? { ...anchorRestProps, ...linkProps } : rest;
 
   const coreClasses = [
     ...c.enum('variant', variant),
@@ -190,17 +144,12 @@ export function Text({
     ...c.num('fontWeight', fontWeight),
     ...c.key('lineHeight', lineHeight, lineHeightKey),
     ...c.enum('fontFamily', fontFamily),
-    ...sizeClasses(c, { w, h, minW, maxW, minH, maxH }),
     ...c.enum('textTransform', textTransform),
     ...letterSpacingResolved.classes,
     ...c.enum('textAlign', textAlign),
     ...c.enum('whiteSpace', whiteSpace),
-    ...bgClasses,
+    ...layout.classes,
     ...colorClasses,
-    ...borderClassResolution.classes,
-    ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-    ...radiusClasses(c, radiusProps),
-    needsInlineGrow(grow) && inlineGrowClassName(),
   ];
 
   // clamp/ellipsis/required не сочетаются с анимациями — добавляем их только в неанимированном пути.

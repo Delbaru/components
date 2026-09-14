@@ -5,8 +5,7 @@ import { useMemo, type CSSProperties, type SVGProps, useEffect, useRef, useState
 import { createPortal } from 'react-dom';
 import type React from 'react';
 import styles from './Icon.module.scss';
-import { cx, createLayoutClasses, growStyle, inlineGrowClassName, inlineSpaceStyle, needsInlineGrow, radiusClasses, resolveRadiusInput, sanitizeSvgMarkup, shouldUseNextLink, sizeClasses, sizeInlineStyle, splitRootDomProps, stateProps as buildStateProps, stateLinkProps, tokenStyles, type BorderStyleProps, type ComponentStateValue, type GrowProps, type RadiusInput, type ResponsiveSpaceValue, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef, useMergedRefs } from '../core';
-import { resolveResponsive } from '../core/base/responsive';
+import { boxLayout, cx, createLayoutClasses, resolveRadiusInput, resolveResponsive, sanitizeSvgMarkup, shouldUseNextLink, splitRootDomProps, stateProps as buildStateProps, stateLinkProps, tokenStyles, type BorderStyleProps, type ComponentStateValue, type GrowProps, type RadiusInput, type ResponsiveSpaceValue, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef, useMergedRefs } from '../core';
 import { Flex } from '../Flex';
 import { useAnchoredFloating } from '../hooks/useAnchoredFloating';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
@@ -685,23 +684,12 @@ export function Icon({
     ...(strokeWidthVars as CSSProperties),
   } as CSSProperties;
 
-  // Общие классы и стили
-  const commonClasses = [
-    ...c.space('m', m),
-    ...c.space('mt', mt),
-    ...c.space('mr', mr),
-    ...c.space('mb', mb),
-    ...c.space('ml', ml),
-    ...radiusClasses(c, resolvedRadiusProps),
-    ...sizeClasses(c, iconSizeProps),
-    !needsRootWrapper && needsInlineGrow(grow) && inlineGrowClassName(),
-    className,
-  ];
+  // Коробка глифа: поля, радиус, размер. grow — у глифа, только когда нет root-обёртки (иначе он у неё).
+  const glyphLayout = boxLayout(c, { m, mt, mr, mb, ml, ...resolvedRadiusProps, ...iconSizeProps, grow: needsRootWrapper ? undefined : grow });
+  const commonClasses = [...glyphLayout.classes, className];
 
   const commonStyles = {
-    ...inlineSpaceStyle({ m, mt, mr, mb, ml }),
-    ...sizeInlineStyle(iconSizeProps),
-    ...(!needsRootWrapper ? growStyle(grow) : null),
+    ...glyphLayout.style,
     ...(strokeWidthVars as CSSProperties),
     ...(rotateVars as CSSProperties),
     ...style,
@@ -763,11 +751,7 @@ export function Icon({
         {...(contentRootProps as Record<string, unknown> ?? null)}
         data-point-events={dataPointEvents}
         data-icon-root="true"
-        className={cx(
-          styles.Icon,
-          ...commonClasses,
-          className
-        )}
+        className={cx(styles.Icon, ...commonClasses)}
         style={{
           ...commonSvgStyle,
           ...commonStyles,
