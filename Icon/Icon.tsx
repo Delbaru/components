@@ -184,7 +184,8 @@ export type IconSource = {
   component?: IconComponent;
 };
 
-type IconBaseSvgProps = Omit<SVGProps<SVGSVGElement>, 'width' | 'height' | 'color' | 'rotate' | 'strokeWidth'>;
+// `r` у SVG — радиус окружности; у Icon это радиус коробки (кортежем), поэтому родной убран.
+type IconBaseSvgProps = Omit<SVGProps<SVGSVGElement>, 'width' | 'height' | 'color' | 'rotate' | 'strokeWidth' | 'r'>;
 type IconSourceInput = string | IconComponent | IconSource | undefined;
 type FetchedSvgState = { content: string | null; viewBox?: string; rootFill?: string };
 type ResolvedIconSource = { url: string | null; component?: IconComponent };
@@ -362,7 +363,7 @@ function IconTooltipWithPortal({ children, tooltip, direction, gap }: IconToolti
   );
 }
 
-export type IconProps = IconBaseSvgProps & SizeInput & RadiusInput & IconRootSizeProps & IconRootStyleProps & BorderStyleProps & GrowProps & SharedMotionProps & {
+export interface IconProps extends IconBaseSvgProps, SizeInput, RadiusInput, IconRootSizeProps, IconRootStyleProps, BorderStyleProps, GrowProps, SharedMotionProps {
   'data-point-events'?: string;
   // URL иконки или импортированный SVG-компонент
   // Пример: src="https://example.com/icon.svg"
@@ -421,7 +422,7 @@ export type IconProps = IconBaseSvgProps & SizeInput & RadiusInput & IconRootSiz
    * Опции: animate={['swap', { duration, scale }]}.
    */
   animate?: IconAnimate;
-};
+}
 
 /**
  * Компонент Icon для отображения SVG иконок.

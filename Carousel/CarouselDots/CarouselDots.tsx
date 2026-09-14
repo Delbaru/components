@@ -9,10 +9,10 @@ import { Button } from '../../Button';
 import { Flex } from '../../Flex';
 import { cx } from '../../core';
 
-export type CarouselDotsProps = {
+export interface CarouselDotsProps {
   className?: string;
   carouselId?: string;
-};
+}
 
 export function CarouselDots({ className, carouselId }: CarouselDotsProps) {
   const baseId = useId().replace(/:/g, '');

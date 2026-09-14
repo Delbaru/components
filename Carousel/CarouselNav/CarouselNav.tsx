@@ -7,10 +7,10 @@ import { Flex } from '../../Flex';
 import { Icon } from '../../Icon';
 import { cx } from '../../core';
 
-export type CarouselNavProps = {
+export interface CarouselNavProps {
     className?: string;
     carouselId?: string;
-};
+}
 
 export function CarouselNav({ className, carouselId }: CarouselNavProps) {
     const { setRootRef, snapshot } = useNearestCarouselControls(carouselId);

@@ -5,7 +5,7 @@ import styles from './Skeleton.module.scss';
 import { Flex } from '../Flex';
 import { cx, type ResponsiveValue } from '../core';
 
-export type SkeletonProps = {
+export interface SkeletonProps {
     /** Ширина полосы. По умолчанию во всю доступную. */
     w?: ResponsiveValue<number | string>;
     /** Высота ОДНОЙ полосы. Дефолт 16 — строка текста, а не пустая коробка. */
@@ -21,7 +21,7 @@ export type SkeletonProps = {
     rows?: number;
     gap?: ResponsiveValue<number>;
     className?: string;
-};
+}
 
 /**
  * Заглушка на месте того, что ещё грузится.
