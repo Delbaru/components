@@ -5,7 +5,7 @@ import type React from 'react';
 import styles from './Container.module.scss';
 
 import { type CSSProperties } from 'react';
-import { aspectRatioStyle, cx, createLayoutClasses, inlineAspectRatioClassName, inlineGrowClassName, inlineSpaceStyle, needsInlineAspectRatio, needsInlineGrow, sizeClasses, sizeInlineStyle, radiusClasses, resolveBorderClassResolution, resolveBorderStyles, layoutSpaceClasses, stateLinkProps, tokenStyles, growStyle, resolveRadiusInput, type StateLinkInput, type LayoutSpaceProps, type SizePropsShort, type RadiusPropsShort, type BorderStyleProps, type AspectRatioProps, type GrowProps, type WithRef, useMergedRefs } from '../core';
+import { boxLayout, createLayoutClasses, cx, splitBoxLayout, stateLinkProps, tokenStyles, useMergedRefs, type AspectRatioProps, type BorderStyleProps, type GrowProps, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
 const c = createLayoutClasses([styles, tokenStyles]);
@@ -22,14 +22,6 @@ export function Container({
   children,
   className = '',
   style,
-  p, pt, pr, pb, pl,
-  m, mt, mr, mb, ml,
-  border, borderC, borderS, borderW, borderT, borderR, borderB, borderL,
-  r, tlr, trr, brr, blr,
-  borderTLR, borderTRR, borderBRR, borderBLR,
-  w, minW, maxW, h, minH, maxH,
-  aspectRatio,
-  grow,
   perspective3d,
   parallax,
   linkState,
@@ -37,37 +29,20 @@ export function Container({
   onMouseLeave,
   ...props
 }: WithRef<ContainerProps, HTMLDivElement>) {
-  const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-  const borderClassResolution = resolveBorderClassResolution(c, { border, borderC, borderS, borderW, borderT, borderR, borderB, borderL });
+  const { box, rest } = splitBoxLayout(props);
+  const layout = boxLayout(c, box);
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
   const setRefs = useMergedRefs(setMotionNode, ref);
 
   return (
-  <div
-    ref={setRefs}
-    {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
-    className={cx(
-      styles.Container,
-      ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-      ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
-      ...radiusClasses(c, radiusProps),
-      ...borderClassResolution.classes,
-      needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
-      needsInlineGrow(grow) && inlineGrowClassName(),
-      className
-    )}
-    style={{
-      ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-      ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
-      ...aspectRatioStyle(aspectRatio),
-      ...growStyle(grow),
-      ...resolveBorderStyles({ border, borderC, borderS, borderW, borderT, borderR, borderB, borderL }, borderClassResolution.styleSkips),
-      ...(motionStyle ?? null),
-      ...style,
-    }}
-    {...props}
-  >
-    {children}
-  </div>
+    <div
+      ref={setRefs}
+      {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
+      className={cx(styles.Container, ...layout.classes, className)}
+      style={{ ...layout.style, ...(motionStyle ?? null), ...style }}
+      {...rest}
+    >
+      {children}
+    </div>
   );
 }

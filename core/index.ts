@@ -5,6 +5,8 @@
 export { getBreakpointIndex, resolveResponsive, resolveResponsiveAtBreakpoint } from './base/responsive';
 export type { WithRef } from './base/with-ref';
 export { assignRef, useMergedRefs } from './useMergedRefs';
+export { boxLayout, splitBoxLayout } from './layout/box';
+export type { BgCoverage, BoxLayout, BoxLayoutKey, BoxLayoutProps } from './layout/box';
 export type { ResponsiveValue } from './base/responsive';
 export { cx, css } from './base/cn';
 export type { ClassValue } from './base/cn';

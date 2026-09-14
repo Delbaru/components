@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState, type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './Flex.module.scss';
-import { aspectRatioStyle, stateLinkProps, cx, createLayoutClasses, inlineAspectRatioClassName, inlineGrowClassName, inlineSpaceStyle, growStyle, layoutSpaceClasses, needsInlineAspectRatio, needsInlineGrow, sizeClasses, sizeInlineStyle, radiusClasses, resolveBorderClassResolution, resolveBorderStyles, resolveLinkProps, shouldUseNextLink, tokenStyles, stateProps, resolveRadiusInput, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type SizePropsShort, type RadiusPropsShort, type BorderStyleProps, type ResponsiveValue, type AspectRatioProps, type GrowProps, type WithRef, useMergedRefs } from '../core';
+import { boxLayout, createLayoutClasses, cx, resolveLinkProps, shouldUseNextLink, splitBoxLayout, stateLinkProps, stateProps, tokenStyles, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { usePresence } from '../hooks/usePresence';
 import { useSwapTransition } from '../hooks/useSwapTransition';
@@ -43,16 +43,10 @@ const exitAnimationOf: Partial<Record<FlexAnimation, FlexAnimation>> = {
 export interface FlexProps
   extends Omit<React.HTMLAttributes<HTMLElement>, 'dir' | 'href' | 'target' | 'rel' | 'download'>,
     Pick<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'target' | 'rel' | 'download'>,
-    LayoutSpaceProps,
-    SizePropsShort,
-    RadiusPropsShort,
-    BorderStyleProps,
-    AspectRatioProps,
-    GrowProps,
+    BoxLayoutProps,
     SharedMotionProps {
   children?: React.ReactNode;
   style?: CSSProperties;
-  bg?: string;
   state?: ComponentStateValue;
 
   gap?: ResponsiveValue<number>;
@@ -113,20 +107,11 @@ export function Flex({
   children,
   className = '',
   style,
-  bg,
-  p, pt, pr, pb, pl,
-  m, mt, mr, mb, ml,
-  border, borderC, borderS, borderW, borderT, borderR, borderB, borderL,
   gap, rowGap, columnGap,
   collapse, collapseGap, onCollapseEnd, collapseFade, collapseOverflowVisible, collapseAxis, collapseAppear,
   animation, transitionKey,
   dir, justify, align, wrap,
   scrollFade,
-  r, tlr, trr, brr, blr,
-  borderTLR, borderTRR, borderBRR, borderBLR,
-  w, minW, maxW, h, minH, maxH,
-  aspectRatio,
-  grow,
   perspective3d,
   parallax,
   container,
@@ -136,14 +121,12 @@ export function Flex({
   linkState,
   ...props
 }: WithRef<FlexProps, HTMLElement>) {
-  const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-  const bgClasses = c.literal('bg', bg);
-  const borderClassResolution = resolveBorderClassResolution(c, { border, borderC, borderS, borderW, borderT, borderR, borderB, borderL });
-  const hasBgClass = Boolean(bgClasses[0]);
+  const { box, rest } = splitBoxLayout(props);
+  const layout = boxLayout(c, box);
   const isLink = Boolean(href);
   const Comp = (isLink ? (shouldUseNextLink(href, target, download) ? Link : 'a') : 'div') as React.ElementType;
   const resolved = resolveLinkProps({ href, target, rel, download, newTab, nofollow, noreferrer });
-  const anchorProps = isLink ? { ...props, ...resolved } : props;
+  const anchorProps = isLink ? { ...rest, ...resolved } : rest;
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
   // Своп контента по transitionKey (exit→enter на самом узле). Без transitionKey — passthrough.
   const { displayChildren, exiting, onAnimationEnd: onSwapAnimationEnd, ref: swapNodeRef } = useSwapTransition(transitionKey, children);
@@ -158,31 +141,20 @@ export function Flex({
       className={cx(
         styles.Flex,
         container && styles.container,
-        ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-        ...radiusClasses(c, radiusProps),
+        ...layout.classes,
         ...c.num('gap', gap),
         ...c.num('rowGap', rowGap),
         ...c.num('columnGap', columnGap),
-        ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
         ...c.enum('flexDirection', dir),
         ...c.enum('justifyContent', justify),
         ...c.enum('alignItems', align),
         ...c.enum('flexWrap', wrap),
         scrollFade && (scrollFade === 'x' ? 'scrollFadeX' : 'scrollFadeY'),
         activeAnimation && animationClasses[activeAnimation],
-        ...bgClasses,
-        ...borderClassResolution.classes,
-        needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
-        needsInlineGrow(grow) && inlineGrowClassName(),
         className
       )}
       style={{
-        ...(bg && !hasBgClass ? { background: bg } : null),
-        ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-        ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
-        ...aspectRatioStyle(aspectRatio),
-        ...growStyle(grow),
-        ...resolveBorderStyles({ border, borderC, borderS, borderW, borderT, borderR, borderB, borderL }, borderClassResolution.styleSkips),
+        ...layout.style,
         ...(motionStyle ?? null),
         ...style,
       }}

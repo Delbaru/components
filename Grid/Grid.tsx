@@ -3,7 +3,7 @@
 
 import type React from 'react';
 import styles from './Grid.module.scss';
-import { aspectRatioStyle, cx, createLayoutClasses, inlineAspectRatioClassName, inlineGrowClassName, resolveBorderClassResolution, inlineSpaceStyle, growStyle, resolveBorderStyles, needsInlineAspectRatio, needsInlineGrow, radiusClasses, layoutSpaceClasses, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, resolveRadiusInput, type StateLinkInput, type LayoutSpaceProps, type SizePropsShort, type ResponsiveValue, type SizeValue, type RadiusPropsShort, type AspectRatioProps, type GrowProps, BorderStyleProps, type WithRef, useMergedRefs } from '../core';
+import { boxLayout, createLayoutClasses, cx, splitBoxLayout, stateLinkProps, tokenStyles, useMergedRefs, type AspectRatioProps, type BoxLayoutProps, type GrowProps, type LayoutSpaceProps, type ResponsiveValue, type SizeValue, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
 type Track =
@@ -39,7 +39,7 @@ type AutoFlowKey = 'row' | 'column' | 'dense' | 'row_dense' | 'column_dense';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 
-export interface GridProps extends React.HTMLAttributes<HTMLDivElement>, LayoutSpaceProps, SizePropsShort, BorderStyleProps, RadiusPropsShort, AspectRatioProps, GrowProps, SharedMotionProps {
+export interface GridProps extends React.HTMLAttributes<HTMLDivElement>, BoxLayoutProps, SharedMotionProps {
   children?: React.ReactNode;
 
   columns?: ResponsiveValue<Track>;
@@ -47,9 +47,6 @@ export interface GridProps extends React.HTMLAttributes<HTMLDivElement>, LayoutS
   gap?: ResponsiveValue<number>;
   rowGap?: ResponsiveValue<number>;
   columnGap?: ResponsiveValue<number>;
-
-  bg?: string;
-  grow?: ResponsiveValue<number>;
 
   justifyItems?: ResponsiveValue<JustifyItemsKey>;
   alignItems?: ResponsiveValue<AlignItemsKey>;
@@ -68,40 +65,11 @@ export function Grid({
   children,
   className = '',
   style,
-  p,
-  pt,
-  pr,
-  pb,
-  pl,
-  m,
-  mt,
-  mr,
-  mb,
-  ml,
   columns,
   rows,
   gap,
   rowGap,
   columnGap,
-  bg,
-  r,
-  tlr,
-  trr,
-  brr,
-  blr,
-  border, borderC, borderS, borderW, borderT, borderR, borderB, borderL,
-  borderTLR,
-  borderTRR,
-  borderBRR,
-  borderBLR,
-  h,
-  minH,
-  maxH,
-  w,
-  minW,
-  maxW,
-  aspectRatio,
-  grow,
   perspective3d,
   parallax,
   justifyItems,
@@ -116,10 +84,8 @@ export function Grid({
   onMouseLeave,
   ...props
 }: WithRef<GridProps, HTMLDivElement>) {
-  const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-  const bgClasses = c.literal('bg', bg);
-  const borderClassResolution = resolveBorderClassResolution(c, { border, borderC, borderS, borderW, borderT, borderR, borderB, borderL });
-  const hasBgClass = Boolean(bgClasses[0]);
+  const { box, rest } = splitBoxLayout(props);
+  const layout = boxLayout(c, box);
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
   const setRefs = useMergedRefs(setMotionNode, ref);
 
@@ -129,36 +95,25 @@ export function Grid({
     {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
     className={cx(
       styles.Grid,
-      ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
+      ...layout.classes,
       ...c.num('columns', columns),
       ...c.num('rows', rows),
       ...c.num('gap', gap),
       ...c.num('rowGap', rowGap),
       ...c.num('columnGap', columnGap),
-      ...sizeClasses(c, { w, h, minW, maxW, minH, maxH }),
-      ...radiusClasses(c, radiusProps),
       ...c.enum('justifyItems', justifyItems),
       ...c.enum('alignItems', alignItems),
       ...c.enum('alignContent', alignContent),
       ...c.enum('autoFlow', autoFlow),
-      ...bgClasses,
-      ...borderClassResolution.classes,
-      needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
-      needsInlineGrow(grow) && inlineGrowClassName(),
       className
     )}
     style={{
       ...(areas ? { gridTemplateAreas: areas.map((r) => `"${r}"`).join(' ') } : null),
-      ...(bg && !hasBgClass ? { background: bg } : null),
-      ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-      ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
-      ...aspectRatioStyle(aspectRatio),
-      ...resolveBorderStyles({ border, borderC, borderS, borderW, borderT, borderR, borderB, borderL }, borderClassResolution.styleSkips),
-      ...growStyle(grow),
+      ...layout.style,
       ...(motionStyle ?? null),
       ...style,
     }}
-    {...props}
+    {...rest}
   >
     {renderItem && items
       ? items.map((item, index) => (
@@ -252,17 +207,6 @@ export function GridItem({
   colEnd,
   rowStart,
   rowEnd,
-  h,
-  w,
-  maxH,
-  maxW,
-  m,
-  mt,
-  mr,
-  mb,
-  ml,
-  grow,
-  aspectRatio,
   perspective3d,
   parallax,
   justifyContent,
@@ -271,6 +215,8 @@ export function GridItem({
   onMouseLeave,
   ...props
 }: WithRef<GridItemProps, HTMLDivElement>) {
+  const { box, rest } = splitBoxLayout(props);
+  const layout = boxLayout(c, box);
   const hasFlex = justifyContent !== undefined || alignItems !== undefined;
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
   const setRefs = useMergedRefs(setMotionNode, ref);
@@ -288,27 +234,18 @@ export function GridItem({
         ...c.num('colEnd', colEnd),
         ...c.num('rowStart', rowStart),
         ...c.num('rowEnd', rowEnd),
-        ...c.size('height', h),
-        ...c.size('width', w),
-        ...c.size('maxHeight', maxH),
-        ...c.size('maxWidth', maxW),
-        ...layoutSpaceClasses(c, { m, mt, mr, mb, ml }),
+        ...layout.classes,
         ...c.enum('itemJustifyContent', justifyContent),
         ...c.enum('itemAlignItems', alignItems),
-        needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
-        needsInlineGrow(grow) && inlineGrowClassName(),
         className
       )}
       style={{
         ...(area ? { gridArea: area } : null),
-        ...sizeInlineStyle({ h, w, maxH, maxW }),
-        ...inlineSpaceStyle({ m, mt, mr, mb, ml }),
-        ...aspectRatioStyle(aspectRatio),
-        ...growStyle(grow),
+        ...layout.style,
         ...(motionStyle ?? null),
         ...style,
       }}
-      {...props}
+      {...rest}
     >
       {children}
     </div>
