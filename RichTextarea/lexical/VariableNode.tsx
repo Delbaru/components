@@ -10,8 +10,8 @@ import {
     type Spread,
 } from 'lexical';
 
+import { resolveSvgAssetSource } from '../../core/base/svg-asset';
 import styles from '../RichTextarea.module.scss';
-import { resolveSvgAssetSource, richTextareaVariableMetaByKey } from '../variableIcons';
 
 export interface VariableNodePayload {
     key: string;
@@ -33,12 +33,6 @@ export type SerializedVariableNode = Spread<
     SerializedTextNode
 >;
 
-function resolveVariableIcon(variableKey: string, icon?: string): string | undefined {
-    const meta = richTextareaVariableMetaByKey[variableKey as keyof typeof richTextareaVariableMetaByKey];
-
-    return resolveSvgAssetSource(icon ?? meta?.icon) ?? richTextareaVariableMetaByKey.name.icon;
-}
-
 // Переменная рендерится как обычный инлайн-текст (TextNode), поэтому нативное
 // выделение, двойной/тройной клик и drag работают «из коробки». Вид «пилюли»
 // (фон, скругление, иконка) навешиваем CSS-классом и data-атрибутом — их Lexical
@@ -47,7 +41,7 @@ function decorateVariableElement(element: HTMLElement, node: VariableNode): void
     element.classList.add(styles.VariableChip);
     element.setAttribute('data-variable-key', node.getVariableKey());
 
-    const iconSource = resolveVariableIcon(node.getVariableKey(), node.getIcon());
+    const iconSource = resolveSvgAssetSource(node.getIcon());
 
     if (iconSource) {
         element.style.setProperty('--chip-icon', `url("${iconSource}")`);

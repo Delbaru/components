@@ -6,10 +6,4 @@ export type {
   LexicalTextareaProps,
   LexicalTextareaVariable,
 } from './LexicalTextarea';
-export {
-  normalizeSvgAssetPath,
-  resolveSvgAssetSource,
-  richTextareaVariableMetaByKey,
-  richTextareaVariableOptions,
-} from './variableIcons';
-export type { RichTextareaVariableKey, RichTextareaVariableMeta } from './variableIcons';
+export { normalizeSvgAssetPath, resolveSvgAssetSource } from '../core/base/svg-asset';
