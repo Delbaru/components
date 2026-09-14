@@ -1,0 +1,210 @@
+@use '../core/scss-utils' as utils;
+
+.Flex {
+  display: flex;
+
+  &[href] {
+    color: inherit;
+    text-decoration: none;
+    outline: none !important;
+  }
+}
+
+@mixin flex-classes($bp: null) {
+  $p: "";
+  @if $bp != null {
+    $p: "#{$bp}_";
+  }
+
+  @include utils.enum(#{$p}flexDirection, flex-direction, utils.$flexDirections);
+  @include utils.enum(#{$p}flexWrap, flex-wrap, utils.$flexWraps);
+  @include utils.enum(#{$p}alignItems, align-items, utils.$alignItems);
+  @include utils.enum(#{$p}justifyContent, justify-content, utils.$justifyContent);
+}
+
+.container {
+  padding-left: var(--s-container);
+  padding-right: var(--s-container);
+  max-width: var(--width-container);
+}
+
+// base (all breakpoints)
+@include flex-classes();
+
+// responsive (order: desktop / mobile / tablet)
+@include utils.withBreakpoints() using ($bp) {
+  @include flex-classes($bp);
+}
+
+// Опт-ин сворачивание (проп collapse у Flex). grid-template 0fr↔1fr + отступ (--collapse-gap)
+// в одном transition → размер и отступ закрываются синхронно. Внешний .collapseWrap анимирует,
+// внутренний .collapseInner клипает (min-height/min-width:0). Ось задаёт data-axis (collapseAxis):
+// row — по высоте (rows + padding-top), column — по ширине (columns + padding-left).
+//
+// --collapse-delay (по умолчанию 0s) отодвигает старт сворачивания. Нужен там, где по тому же
+// действию идёт СВОП контента: у свопа mode='wait' (exit → подмена → enter), и без задержки хром
+// начинает ехать поверх exit'а — два вертикальных движения навстречу друг другу читаются как
+// «макет шатает». Задержкой в длину exit движение хрома уезжает в фазу enter, то есть складывается
+// с приходом нового контента в одно. Переменная, а не проп: правило живёт на обёртке, до которой
+// className с call-site не доходит (он уезжает на внутренний Flex), а переменная наследуется.
+//
+// --collapse-duration (по умолчанию --t-d-fast) удлиняет само сворачивание. Нужна там, где на
+// collapse ездит КРУПНЫЙ блок: 0.3s хороши для строки списка, но подмена панели в полэкрана на
+// них читается как рывок. Берём токен подлиннее (--t-d-normal/--t-d-slow), а не сырые секунды.
+// Дефолт равен прежнему значению, поэтому вид всех существующих раскрытий не меняется.
+.collapseWrap {
+  display: grid;
+}
+
+.collapseWrap[data-axis='row'] {
+  grid-template-rows: 0fr;
+  // Ширину столбца тянем по родителю: minmax(0,1fr) даёт полную ширину, когда контейнер получает
+  // определённую ширину (child в колоночном flex со stretch), и остаётся по контенту, когда ширина
+  // не задана (элемент row-between). Без этого auto-столбец сжимал бы растянутый ранее контент → текст
+  // «не влезал».
+  grid-template-columns: minmax(0, 1fr);
+  padding-top: 0;
+  transition:
+    grid-template-rows var(--collapse-duration, var(--t-d-fast)) var(--t-t-f-ease) var(--collapse-delay, 0s),
+    padding-top var(--collapse-duration, var(--t-d-fast)) var(--t-t-f-ease) var(--collapse-delay, 0s);
+
+  &[data-open] {
+    grid-template-rows: 1fr;
+    padding-top: var(--collapse-gap-d, 0);
+  }
+}
+
+.collapseWrap[data-axis='column'] {
+  grid-template-columns: 0fr;
+  // Не даём flex-родителю сжать обёртку уже содержимого: grid-минимум столбца = 0, поэтому в тесном
+  // ряду обёртка ужималась ниже ширины контента, а overflow:hidden у .collapseInner срезал его край
+  // (напр. цифру бейджа). При закрытии ширину до нуля ведёт grid-template-columns:0fr, а не flex-сжатие,
+  // так что flex-shrink:0 схлопыванию не мешает.
+  flex-shrink: 0;
+  padding-left: 0;
+  transition:
+    grid-template-columns var(--collapse-duration, var(--t-d-fast)) var(--t-t-f-ease) var(--collapse-delay, 0s),
+    padding-left var(--collapse-duration, var(--t-d-fast)) var(--t-t-f-ease) var(--collapse-delay, 0s);
+
+  &[data-open] {
+    grid-template-columns: 1fr;
+    padding-left: var(--collapse-gap-d, 0);
+  }
+}
+
+// responsive collapseGap: mobile/tablet перекрывают, иначе наследуют desktop-значение
+@include utils.withBreakpoints() using ($bp) {
+  .collapseWrap[data-axis='row'][data-open] {
+    padding-top: var(--collapse-gap-#{$bp}, var(--collapse-gap-d, 0));
+  }
+
+  .collapseWrap[data-axis='column'][data-open] {
+    padding-left: var(--collapse-gap-#{$bp}, var(--collapse-gap-d, 0));
+  }
+}
+
+.collapseInner {
+  overflow: hidden;
+  min-height: 0;
+  min-width: 0;
+}
+
+// Опт-ин затухание содержимого (проп collapseFade): opacity синхронно с высотой.
+.collapseFade {
+  .collapseInner {
+    opacity: 0;
+    transition: opacity var(--collapse-duration, var(--t-d-fast)) var(--t-t-f-ease) var(--collapse-delay, 0s);
+  }
+
+  &[data-open] .collapseInner {
+    opacity: 1;
+  }
+}
+
+// Опт-ин снятие клипа после раскрытия (проп collapseOverflowVisible) — для выпадающих меню.
+// Класс навешивается из JS только когда блок полностью раскрыт (settledOpen).
+.collapseInner.collapseOverflowVisible {
+  overflow: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  // Специфичность должна перебивать .collapseWrap[data-axis='...'] (0,2,0), поэтому целимся по осям.
+  .collapseWrap[data-axis='row'],
+  .collapseWrap[data-axis='column'] {
+    transition: none;
+  }
+
+  .collapseFade .collapseInner {
+    transition: none;
+  }
+}
+
+// Enter-анимации при монтировании (проп animation у Flex). Keyframe играет один раз и перезапускается
+// на ремоунте (напр. при смене key) — нативная замена AnimatePresence/motion для свопов контента.
+// animation-fill-mode: backwards применяет from-кадр сразу до старта (без вспышки base-состояния).
+@keyframes flexFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes flexFadeInDown {
+  from { opacity: 0; transform: translateY(calc(-16 * var(--rpx))); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes flexFadeInUp {
+  from { opacity: 0; transform: translateY(calc(16 * var(--rpx))); }
+  to { opacity: 1; transform: none; }
+}
+
+// Въезд из чуть уменьшенного состояния — зеркало flexFadeOutScale (пара для свопа контента).
+@keyframes flexFadeInScale {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+.anim_fadeIn { animation: flexFadeIn var(--t-d-fast) var(--t-t-f-ease-in-out) backwards; }
+.anim_fadeInDown { animation: flexFadeInDown var(--t-d-fast) var(--t-t-f-ease-in-out) backwards; }
+.anim_fadeInUp { animation: flexFadeInUp var(--t-d-fast) var(--t-t-f-ease-in-out) backwards; }
+.anim_fadeInScale { animation: flexFadeInScale var(--t-d-fast) var(--t-t-f-ease-in-out) backwards; }
+
+// Exit-анимации (зеркало enter) — для свопов контента через <Transition>: старый уходит, затем меняется.
+// forwards держит конечный кадр (opacity 0 / смещение) до момента подмены контента.
+@keyframes flexFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes flexFadeOutUp {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(calc(-16 * var(--rpx))); }
+}
+
+@keyframes flexFadeOutDown {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(calc(16 * var(--rpx))); }
+}
+
+@keyframes flexFadeOutScale {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: scale(0.96); }
+}
+
+.anim_fadeOut { animation: flexFadeOut var(--t-d-fast) var(--t-t-f-ease-in-out) forwards; }
+.anim_fadeOutUp { animation: flexFadeOutUp var(--t-d-fast) var(--t-t-f-ease-in-out) forwards; }
+.anim_fadeOutDown { animation: flexFadeOutDown var(--t-d-fast) var(--t-t-f-ease-in-out) forwards; }
+.anim_fadeOutScale { animation: flexFadeOutScale var(--t-d-fast) var(--t-t-f-ease-in-out) forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim_fadeIn,
+  .anim_fadeInDown,
+  .anim_fadeInUp,
+  .anim_fadeInScale,
+  .anim_fadeOut,
+  .anim_fadeOutUp,
+  .anim_fadeOutDown,
+  .anim_fadeOutScale {
+    animation: none;
+  }
+}
+

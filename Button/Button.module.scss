@@ -1,0 +1,236 @@
+@use '../core/scss-utils' as utils;
+@use '../core/safelist' as safe;
+
+$sizes: safe.$size-values;
+
+:where(.Button) {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: inherit;
+    border: 0;
+    transition: var(--t-fast);
+    -webkit-tap-highlight-color: transparent;
+    outline: none !important;
+    user-select: none;
+
+    // & {
+    //     >* {white-space: nowrap;}
+    // }
+}
+
+@mixin variant-classes($p: '') {
+    .#{$p}variant_primary {
+        background: var(--primary);
+        color: var(--black);
+        border-radius: 999px;
+        border: calc(2 * var(--rpx)) solid var(--primary);
+
+        &:hover,
+        &[state~='hover'] {
+            background: var(--white-100);
+            color: var(--black);
+            border-color: var(--black);
+        }
+
+        &[disabled],
+        &[state~='disabled'] {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            color: var(--black);
+            pointer-events: none;
+            opacity: 0.2;
+        }
+
+        @media (max-width: 767px) {
+            border-width: var(--rpx);
+        }
+    }
+    :where(.#{$p}variant_primary) {
+        padding: var(--s-12) var(--s-32);
+    }
+
+
+
+    .#{$p}variant_secondary {
+        background: transparent;
+        color: var(--text);
+        border: calc(2 * var(--rpx)) solid var(--text);
+        border-radius: 999px;
+
+        &:hover,
+        &[state~='hover'] {
+            background: var(--white-100);
+            color: var(--black);
+            border-color: var(--white-100);
+        }
+
+        @media (max-width: 767px) {
+            border-width: var(--rpx);
+        }
+    }
+    :where(.#{$p}variant_secondary) {
+        padding: 0 var(--s-64);
+    }
+
+
+
+    .#{$p}variant_secondaryFill {
+        background: var(--text);
+        color: var(--black);
+        border: calc(2 * var(--rpx)) solid var(--text);
+        border-radius: 999px;
+
+        &:hover,
+        &[state~='hover'] {
+            background: var(--primary);
+            color: var(--black);
+            border-color: var(--black);
+        }
+    }
+    :where(.#{$p}variant_secondaryFill) {
+        padding: 0 var(--s-64);
+    }
+
+
+
+    .#{$p}variant_tertiary {
+        background: var(--tertiary);
+        color: var(--black);
+        border: calc(2 * var(--rpx)) solid var(--tertiary);
+        border-radius: 999px;
+
+        &:hover,
+        &[state~='hover'] {
+            background: var(--text);
+            color: var(--black);
+            border-color: var(--black);
+        }
+    }
+    :where(.#{$p}variant_tertiary) {
+        padding: 0 var(--s-64);
+    }
+}
+
+@mixin size-classes($p: '') {
+    .#{$p}size_small {
+        @media (max-width: 767px) {
+            height: calc(var(--rpx) * 40);
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            height: calc(var(--rpx) * 48);
+        }
+
+        @media (min-width: 1024px) {
+            height: calc(var(--rpx) * 56);
+        }
+    }
+
+    .#{$p}size_medium {
+        @media (max-width: 767px) {
+            height: calc(var(--rpx) * 48);
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            height: calc(var(--rpx) * 56);
+        }
+
+        @media (min-width: 1024px) {
+            height: calc(var(--rpx) * 68);
+        }
+    }
+
+    .#{$p}size_large {
+        @media (max-width: 767px) {
+            height: calc(var(--rpx) * 64);
+        }
+
+        @media (min-width: 768px) and (max-width: 1023px) {
+            height: calc(var(--rpx) * 72);
+        }
+
+        @media (min-width: 1024px) {
+            height: calc(var(--rpx) * 80);
+        }
+    }
+}
+
+@mixin button-classes($bp: null) {
+    $p: '';
+
+    @if $bp !=null {
+        $p: '#{$bp}_';
+    }
+
+    @include variant-classes($p);
+    @include size-classes($p);
+
+    @include utils.enum(#{$p}alignItems, align-items, utils.$alignItems);
+    @include utils.enum(#{$p}justifyContent, justify-content, utils.$justifyContent);
+
+    @each $t in $sizes {
+        .#{$p}height_#{$t} {
+            height: calc(var(--rpx) * #{$t});
+        }
+
+        .#{$p}width_#{$t} {
+            width: calc(var(--rpx) * #{$t});
+        }
+
+        .#{$p}minWidth_#{$t} {
+            min-width: calc(var(--rpx) * #{$t});
+        }
+    }
+}
+
+@include button-classes();
+
+@include utils.withBreakpoints() using ($bp) {
+    @include button-classes($bp);
+}
+
+.ButtonTooltipWrapper {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.ButtonTooltip {
+    position: fixed;
+    left: var(--floating-left);
+    top: var(--floating-top);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    white-space: nowrap;
+    z-index: 10000;
+    transform: translate3d(0, 0, 0);
+    transition:
+        opacity var(--t-d-fast) var(--t-t-f-ease),
+        visibility var(--t-d-fast) var(--t-t-f-ease),
+        transform var(--t-d-fast) var(--t-t-f-ease);
+
+    &[data-placement='right'] {
+        transform: translate3d(calc(-8 * var(--rpx)), 0, 0);
+    }
+
+    &[data-placement='left'] {
+        transform: translate3d(calc(8 * var(--rpx)), 0, 0);
+    }
+
+    &[data-placement='top'] {
+        transform: translate3d(0, calc(8 * var(--rpx)), 0);
+    }
+
+    &[data-placement='bottom'] {
+        transform: translate3d(0, calc(-8 * var(--rpx)), 0);
+    }
+
+    &[state~='active'] {
+        opacity: 1;
+        visibility: visible;
+        transform: translate3d(0, 0, 0);
+    }
+}

@@ -1,0 +1,3 @@
+# Генераты: каждый проект собирает их под себя (`npm run ui:build`)
+core/_safelist.scss
+core/_calc-string-map.ts

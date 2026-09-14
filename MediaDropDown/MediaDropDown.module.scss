@@ -1,0 +1,325 @@
+@use '../core/scss-utils' as utils;
+
+.MediaDropDown {
+    position: relative;
+    width: 100%;
+    user-select: none;
+    z-index: 1;
+
+    &[state~='disabled'] {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .Trigger {
+        cursor: pointer;
+        height: calc(var(--rpx) * 48);
+        gap: var(--s-12);
+        padding: var(--s-8);
+        background: var(--white-100);
+        border: calc(var(--rpx) * 1) solid var(--gray-light);
+        border-radius: var(--s-16);
+        transition: var(--t-fast);
+
+        &:hover {
+            border-color: var(--gray);
+        }
+    }
+
+    .TriggerLabel {
+        color: var(--black);
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .TriggerContent {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .TriggerActions {
+        flex-shrink: 0;
+    }
+
+    .TriggerIconRoot {
+        width: calc(var(--rpx) * 32);
+        min-width: calc(var(--rpx) * 32);
+        max-width: calc(var(--rpx) * 32);
+        height: calc(var(--rpx) * 32);
+        min-height: calc(var(--rpx) * 32);
+        max-height: calc(var(--rpx) * 32);
+        background: var(--background);
+        border: calc(var(--rpx) * 1) solid var(--gray-light);
+        border-radius: var(--s-8);
+        transition: var(--t-fast);
+    }
+
+    .TriggerIcon {
+        color: var(--gray);
+        transition: var(--t-fast);
+    }
+
+    .Arrow {
+        flex-shrink: 0;
+        color: var(--gray);
+        transition:
+            color var(--t-fast),
+            transform var(--t-d-fast);
+    }
+
+    .ClearButton,
+    .PreviewButton {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: calc(var(--rpx) * 32);
+        min-width: calc(var(--rpx) * 32);
+        max-width: calc(var(--rpx) * 32);
+        height: calc(var(--rpx) * 32);
+        min-height: calc(var(--rpx) * 32);
+        max-height: calc(var(--rpx) * 32);
+        padding: 0;
+        background: var(--white-100);
+        border: calc(var(--rpx) * 1) solid var(--gray-light);
+        border-radius: var(--s-8);
+        transition: var(--t-fast);
+
+        &:hover {
+            border-color: var(--gray);
+            background: var(--background);
+        }
+    }
+
+    .ClearIcon,
+    .PreviewIcon,
+    .PlayIcon {
+        transition: var(--t-fast);
+    }
+
+    .PreviewButton:hover {
+        border-color: var(--primary);
+        background: var(--background);
+
+        .PreviewIcon,
+        .PlayIcon {
+            color: var(--primary);
+        }
+    }
+
+    .ClearButton:hover {
+        border-color: var(--red-light);
+        background: var(--red-light);
+
+        .ClearIcon {
+            color: var(--red);
+        }
+    }
+
+
+    &[data-open='true'] {
+        z-index: 100;
+
+        .Trigger {
+            border-color: var(--gray);
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .TriggerIconRoot {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        .TriggerIcon {
+            color: var(--primary);
+        }
+
+        .Arrow {
+            color: var(--primary);
+            transform: rotate(180deg);
+        }
+
+        .ClearButton,
+        .PreviewButton {
+            border-color: var(--gray);
+        }
+
+        .ClearIcon {
+            color: var(--primary);
+        }
+    }
+
+    .DropdownWrapper {
+        position: absolute;
+        top: calc(100% - var(--rpx));
+        left: 0;
+        width: 100%;
+        z-index: 100;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(calc(-10 * var(--rpx)));
+        will-change: transform, opacity;
+        transition:
+            opacity var(--t-d-fast),
+            visibility var(--t-d-fast),
+            transform var(--t-d-fast);
+    }
+
+    &[data-open='true'] .DropdownWrapper {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+
+    .DropdownInner {
+        min-height: max-content;
+    }
+
+    .Dropdown {
+        background: var(--white-100);
+        border: calc(var(--rpx) * 1) solid var(--gray);
+        border-top: 0;
+        border-radius: 0 0 var(--s-16) var(--s-16);
+        padding: var(--s-8) var(--s-8) var(--s-24);
+    }
+
+    .TypeGrid {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--s-4);
+    }
+
+    .TypeButton {
+        cursor: pointer;
+        width: 100%;
+        height: calc(var(--rpx) * 32);
+        padding: calc(var(--rpx) * 10) calc(var(--rpx) * 12);
+        background: var(--white-100);
+        border: calc(var(--rpx) * 1) solid var(--gray-light);
+        border-radius: var(--s-8);
+        transition: var(--t-fast);
+
+        &:hover {
+            background: var(--background);
+        }
+    }
+
+    .TypeButtonActive {
+        background: var(--background);
+    }
+
+    .TypeIcon {
+        flex-shrink: 0;
+    }
+
+    .TypeLabel {
+        color: var(--gray);
+    }
+
+    .TypeButtonActive .TypeLabel {
+        color: var(--black);
+    }
+
+    .UploadSection {
+        width: 100%;
+    }
+
+    .FileButton {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: calc(var(--rpx) * 8);
+        width: 100%;
+        height: calc(var(--rpx) * 40);
+        padding: calc(var(--rpx) * 10) calc(var(--rpx) * 16);
+        background: var(--primary);
+        border: none;
+        border-radius: var(--s-12);
+        transition: var(--t-fast);
+        outline: none;
+
+        .UploadLabel {
+            color: var(--white-100);
+        }
+
+        .UploadIcon {
+            flex-shrink: 0;
+            color: var(--white-100);
+            transition: transform var(--t-fast);
+        }
+
+        &:hover {
+            background: var(--primary-dark);
+
+            .UploadIcon {
+                transform: scale(1.05);
+            }
+        }
+    }
+
+    .Divider {
+        width: 100%;
+    }
+
+    .DividerLine {
+        flex: 1;
+        height: calc(var(--rpx) * 1);
+        background: var(--gray);
+    }
+
+    .DividerText {
+        color: var(--gray);
+        flex-shrink: 0;
+    }
+
+    .LinkInputWrapper {
+        width: 100%;
+    }
+
+    .LinkInput {
+        width: 100%;
+        height: calc(var(--rpx) * 40);
+        padding: var(--s-16);
+        background: var(--white-100);
+        border: calc(var(--rpx) * 1) solid var(--gray-light);
+        border-radius: var(--s-12);
+        color: var(--gray);
+        font: var(--font-dop);
+        outline: none;
+        transition: var(--t-fast);
+
+        &::placeholder {
+            color: var(--gray);
+        }
+
+        &:focus {
+            border-color: var(--primary);
+            color: var(--black);
+        }
+    }
+
+    .LinkHint {
+        color: var(--gray);
+        padding: 0 var(--s-8);
+        width: 100%;
+        line-height: 1.1;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .HiddenInput {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+        width: 0;
+        height: 0;
+    }
+}

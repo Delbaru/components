@@ -1,0 +1,390 @@
+@use '../core/scss-utils' as utils;
+@use '../core/safelist' as safe;
+
+$sizes: safe.$size-values;
+
+.wrapper {
+    position: relative;
+    transition: var(--t-fast);
+    cursor: text;
+    min-width: 0;
+
+    // Ошибка ПОД полем (`errorPlacement='below'`). Отступ слева отдан ПЕРЕМЕННОЙ с нулевым
+    // дефолтом, чтобы строка встала под НАБРАННЫМ значением, а не под внешней кромкой поля:
+    // паддинг ряда приезжает ИМЕНОВАННОЙ осью (`size: 'chip'`), а из имени `fieldHelperPaddingLeft`
+    // числа не достаёт — проп `pl` дал бы мёртвый класс (§12 «Мёртвые классы»). Значение объявляет
+    // тот, кто знает роль поля: у формы обратной связи — её корень, оттуда переменная наследуется
+    // всем полям разом.
+    .belowError {
+        padding-left: var(--field-helper-inset, 0px);
+    }
+
+    // Родительский `gap: 8` этой строки гасим, чтобы зазор вёл ОДИН источник — `collapseGap`,
+    // который едет вместе с высотой. Иначе зазора два: в раскрытом виде он двойной, а в конце
+    // сворачивания родительский схлопывается кадром (§8.4 «прыжок в самом конце»).
+    //
+    // ⚠️ Вешать margin на сам `.belowError` НЕЛЬЗЯ: `className` у `Flex collapse` уезжает на
+    // ВНУТРЕННИЙ Flex (§8.4), то есть внутрь измеряемого контента — обёртка тогда меряет высоту
+    // на 8 меньше и подрезает строку. Нужна именно обёртка сворачивания, и достаём мы её
+    // структурно: `.collapseWrap > .collapseInner > .belowError`.
+    > *:has(> * > .belowError) {
+        margin-top: calc(-8 * var(--rpx));
+    }
+
+    .input {
+        transition: var(--t-fast);
+        position: relative;
+        min-width: 0;
+
+        // Кегль поля живёт ПЕРЕМЕННОЙ на ряду, а не свойством на `<input>`: маска телефона и
+        // префикс «+7» — соседи поля, и одинаковый кегль у них обязан браться из одного места.
+        // Проп `font` пишет класс сюда же (Input.tsx), а пресет-обёртка вправе задать свой
+        // `--field-font` в машинной зоне скина (так набрана пилюля окна входа).
+        // Дефолт живёт фолбэком в `var(--field-font, var(--font-p))` у потребителей, а не
+        // объявлением здесь: правило `.input` весило бы ровно столько же, сколько `.skin-*`
+        // с call-site, и победитель зависел бы от порядка вставки CSS-модулей.
+        &.font_h1 { --field-font: var(--font-h1); }
+        &.font_h2 { --field-font: var(--font-h2); }
+        &.font_h3 { --field-font: var(--font-h3); }
+        &.font_subtitle { --field-font: var(--font-subtitle); }
+        &.font_title { --field-font: var(--font-title); }
+        &.font_p { --field-font: var(--font-p); }
+        &.font_small { --field-font: var(--font-small); }
+        &.font_dop { --field-font: var(--font-dop); }
+
+        .fieldSlot {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .field {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 0;
+            margin: 0;
+            border: none;
+            background: transparent;
+            outline: none;
+            color: inherit;
+            caret-color: var(--primary);
+            // Типографика ряда, а не своя: набранный текст, слой-маска телефона и префикс «+7» —
+            // соседи, а не потомки поля, и разойтись по кеглю им нельзя. Источник один —
+            // `--field-font` на РЯДУ (см. `.input` ниже).
+            font: var(--field-font, var(--font-p));
+            // Линейные цифры — как у `Text` (Text.module.scss). Без этого Raleway рисует в поле
+            // СТАРОСТИЛЬНЫЕ: «3» и «4» свисают под строку, «1» ростом с x-height — набранный номер
+            // выглядит скачущим, хотя кегль верный.
+            //
+            // ⚠️ Строго ПОСЛЕ `font`: это шорткат, и он сбрасывает `font-variant-numeric` в
+            // `normal` — поставленное выше правило он молча съедает.
+            font-variant-numeric: lining-nums proportional-nums;
+
+            &::placeholder {
+                color: var(--field-placeholder-color, var(--secondary));
+            }
+
+            &::-webkit-outer-spin-button,
+            &::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            &[type='number'] {
+                -moz-appearance: textfield;
+                appearance: textfield;
+            }
+
+            // Нейтрализуем заливку автозаполнения Chrome/Safari: поле прозрачное и должно
+            // показывать фон своего контейнера, а не жёлтый/синий фон браузера. Переопределить
+            // background напрямую WebKit не даёт, поэтому «замораживаем» переход на ~7 дней —
+            // заливка визуально не успевает появиться; текст оставляем обычного цвета.
+            &:-webkit-autofill,
+            &:-webkit-autofill:hover,
+            &:-webkit-autofill:focus,
+            &:-webkit-autofill:active {
+                -webkit-text-fill-color: inherit;
+                caret-color: var(--primary);
+                transition: background-color 600000s 0s, color 600000s 0s;
+            }
+        }
+
+        // Ошибка встаёт НА МЕСТО значения, поэтому значение гаснет, а не пропадает кадром: обе
+        // половины подмены обязаны ехать, иначе строка «моргает» ровно в тот момент, когда человека
+        // и так поправили. `-webkit-text-fill-color` перечисляем отдельно — именно он красит текст
+        // в WebKit, и без него поедет только `color`, то есть ничего.
+        &[data-inline-error='true'] .field {
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+
+            &::placeholder {
+                color: transparent;
+            }
+        }
+
+        .field {
+            transition:
+                color var(--t-d-fast) var(--t-t-f-ease),
+                -webkit-text-fill-color var(--t-d-fast) var(--t-t-f-ease);
+        }
+
+        // Слой ошибки: позиция и клип на обёртке (её же фейдит `animation='fadeIn'`), обрезка
+        // многоточием — на самой подписи. Одним узлом это не выражается: `text-overflow` на
+        // flex-контейнере не действует вовсе.
+        .inlineError {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            overflow: hidden;
+            pointer-events: none;
+
+            .inlineErrorText {
+                min-width: 0;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+        }
+
+        // Телефон: тянем инпут на всю высоту поля, чтобы браузер центрировал его текст по вертикали
+        // так же, как абсолютно центрированный префикс «+7». Иначе Chrome рисует текст <input> чуть
+        // выше, чем текст <span> «+7», и они оказываются на разной высоте.
+        &[data-phone-prefix='true'] {
+            .fieldSlot { align-self: stretch; }
+            .field { height: 100%; }
+        }
+
+        // Разделитель-просвет перед кнопкой календаря — белая нить 2px во всю высоту РЯДА
+        // (а не ячейки глифа), поэтому высота берётся из --input-height: её ставит класс
+        // height_* на самом ряду и она наследуется вниз. Рисуется всегда: на белом поле нить
+        // невидима, а на сером (variant='background-date-md') это и есть разделитель из макета.
+        .dateToggle {
+            position: relative;
+
+            &::before {
+                content: '';
+                position: absolute;
+                right: calc(100% + 4 * var(--rpx));
+                top: 50%;
+                transform: translateY(-50%);
+                width: calc(2 * var(--rpx));
+                // Минус 2 — чтобы у поля с обводкой нить не легла ПОВЕРХ верхней и нижней
+                // линии рамки и не выгрызла в ней белую засечку.
+                height: calc(var(--input-height, 100%) - 2 * var(--rpx));
+                background: var(--white-100);
+            }
+        }
+
+        // Кнопка показа пароля. Своей коробки у неё нет — глиф стоит в конце ряда, как в макете;
+        // цвет ведёт наведение, а не состояние поля.
+        .passwordToggle {
+            cursor: pointer;
+            flex-shrink: 0;
+
+            svg path[fill]:not([fill='none']) {
+                fill: var(--gray);
+                transition: fill var(--t-d-fast) var(--t-t-f-ease);
+            }
+
+            &:hover svg path[fill]:not([fill='none']) {
+                fill: var(--black);
+            }
+        }
+
+        .numberArrows {
+            .btn {
+                cursor: pointer;
+                transition: var(--t-fast);
+            }
+
+            .up {
+                transform: scaleY(-1);
+            }
+        }
+
+        // Слой-маска телефона: лежит ВНУТРИ ячейки поля, ровно на месте его текста, и кликов не
+        // ловит — фокус и каретка остаются у настоящего `<input>` под ним. Координата у неё
+        // нулевая: место под префикс отводит сам префикс, стоящий в потоке ряда.
+        .phoneMask {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+            height: fit-content;
+            display: flex;
+            align-items: center;
+            // Зазор между группами — из макета (4). Пробелом его не выразить: ширина пробела
+            // зависит от гарнитуры и кегля.
+            gap: calc(4 * var(--rpx));
+
+            // На ТЕЛЕФОНЕ маска набрана ТЕСНЕЕ — зазор 2 и разрядка 1.4 вместо 4 и 1.8 (макет 320).
+            // Это не украшение: при десктопных числах строка «+7 (999) 123 – 45 – 67» шире поля,
+            // которое остаётся ей в ряду с пилюлей кода страны, и последняя пара цифр обрезается.
+            // На планшете поле шире (форма окна входа там 592 макетных против 272), и сжимать
+            // разрядку не от чего — числа возвращаются к десктопным.
+            @media (max-width: 767px) {
+                gap: calc(2 * var(--rpx));
+            }
+            pointer-events: none;
+            white-space: nowrap;
+            // Тот же кегль, что у набранного текста: маска и значение стоят на одном месте, и
+            // разный размер читается как «поле подменили» (см. §12 «Поля и формы»).
+            font: var(--field-font, var(--font-p));
+            font-variant-numeric: lining-nums proportional-nums;
+            color: var(--black);
+        }
+
+        // Внутри группы зазора нет: «(999)» — скобки вплотную к цифрам.
+        .phoneMaskGroup {
+            display: flex;
+            align-items: center;
+        }
+
+        // Группы цифр — серые, ЛЕГЧЕ по весу и с разрядкой; скобки и тире остаются чёрными и
+        // полужирными. Разница именно в паре «цвет + вес»: одним цветом маска читается плоской.
+        // Но легче ровно на СТУПЕНЬ (500 против 600 у поля), а не вдвое: подсказка-образец набрана
+        // цифрами, и рядом с набранным номером Regular читался бы как другой шрифт, а не как подсказка.
+        .phoneMaskDim {
+            color: var(--gray);
+            font-weight: 500;
+            letter-spacing: calc(1.8 * var(--rpx));
+
+            // Пара к зазору выше: тесная разрядка нужна только там, где поле узкое (телефон).
+            @media (max-width: 767px) {
+                letter-spacing: calc(1.4 * var(--rpx));
+            }
+        }
+
+        // Префикс — обычный элемент ряда. Зазор до поля из макета (8) отдан ему самому, а не
+        // `gap` ряда: в том же ряду стоят кнопка-глаз и ячейка календаря, и общий зазор развёл бы
+        // и их тоже.
+        .phonePrefix {
+            flex-shrink: 0;
+            margin-right: calc(8 * var(--rpx));
+            // Кегль тот же, что у поля и у маски: «+7» — часть НОМЕРА, а не подпись рядом.
+            font: var(--field-font, var(--font-p));
+            // После шортката — он сбрасывает начертание цифр (см. `.field` выше).
+            font-variant-numeric: lining-nums proportional-nums;
+        }
+
+        &[state~='error'] { border-color: var(--error-color); }
+
+        &[state~='active'] {
+            &:active {
+                border-color: var(--gray);
+            }
+        }
+
+        // Наведение подсвечивает рамку — это affordance ввода. А вот ЗАПОЛНЕННОСТЬ рамку не
+        // трогает: в макетах поле со значением выглядит ровно как пустое (#D8DCEA = `hair`).
+        // `[state~='filled'] → --gray` перекрывал осевой .sk_border_* по специфичности (0,4,0
+        // против 0,1,0), то есть любое заполненное поле в приложении темнело мимо словаря LINES
+        // (--gray там вообще нет — это цвет текста). Убрано, см. Frontend.md §12.
+        //
+        // У readOnly-поля гасим и hover: вводить в него нельзя, а подсветка обещает обратное.
+        &:not([state~='error']):not([state~='readonly']):hover {
+            border-color: var(--gray);
+        }
+
+        // Поле-витрина (значение пришло извне): ни курсора ввода, ни клика «поставить каретку».
+        &[state~='readonly'] {
+            cursor: default;
+
+            .field {
+                cursor: default;
+            }
+        }
+    }
+
+    &.data {        
+        .input,
+        .input .field {
+            cursor: pointer;
+        }
+    }
+}
+
+
+
+
+@mixin variant-classes($p: '') {
+    // Reserved for future variant-specific overrides.
+}
+
+@mixin size-classes($p: '') {
+    .#{$p}size_default {
+        width: var(--input-width);
+        height: var(--input-height);
+        min-height: var(--input-height);
+
+        @media (max-width: 767px) {
+            --input-width: calc(var(--rpx) * 290);
+            --input-height: calc(var(--rpx) * 56);
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            --input-width: calc(var(--rpx) * 290);
+            --input-height: calc(var(--rpx) * 56);
+        }
+        
+        @media (min-width: 1024px) {
+            --input-width: calc(var(--rpx) * 290);
+            --input-height: calc(var(--rpx) * 56);
+        }
+    }
+
+    .#{$p}size_fullWidth {
+        width: var(--input-width);
+        height: var(--input-height);
+        min-height: var(--input-height);
+
+        @media (max-width: 767px) {
+            --input-width: 100%;
+            --input-height: calc(var(--rpx) * 56);
+        }
+        
+        @media (min-width: 768px) and (max-width: 1023px) {
+            --input-width: 100%;
+            --input-height: calc(var(--rpx) * 56);
+        }
+        
+        @media (min-width: 1024px) {
+            --input-width: 100%;
+            --input-height: calc(var(--rpx) * 56);
+        }
+    }
+}
+
+@mixin input-classes($bp: null) {
+    $p: "";
+
+    @if $bp != null {
+        $p: "#{$bp}_";
+    }
+
+    @each $t in $sizes {
+        .#{$p}height_#{$t} {
+            --input-height: calc(var(--rpx) * #{$t});
+            height: calc(var(--rpx) * #{$t});
+            min-height: calc(var(--rpx) * #{$t});
+        }
+    }
+
+    @include variant-classes($p);
+    @include size-classes($p);
+}
+
+@include input-classes();
+
+@include utils.withBreakpoints() using ($bp) {
+    @include input-classes($bp);
+}

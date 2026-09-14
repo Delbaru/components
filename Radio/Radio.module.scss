@@ -1,0 +1,76 @@
+.Radio {
+    --transition-radio: var(--t-fast);
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    .Input {
+        position: absolute;
+        width: 0;
+        height: 0;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .Box {
+        position: relative;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: calc(var(--rpx) * var(--radio-box, 20));
+        min-height: calc(var(--rpx) * var(--radio-box, 20));
+        max-width: calc(var(--rpx) * var(--radio-box, 20));
+        max-height: calc(var(--rpx) * var(--radio-box, 20));
+        border-radius: 50%;
+        border: calc(2 * var(--rpx)) solid var(--gray);
+        background: var(--white-100);
+        transition: var(--transition-radio);
+
+        .Dot {
+            min-width: calc(var(--rpx) * var(--radio-dot, 12));
+            min-height: calc(var(--rpx) * var(--radio-dot, 12));
+            max-width: calc(var(--rpx) * var(--radio-dot, 12));
+            max-height: calc(var(--rpx) * var(--radio-dot, 12));
+            border-radius: 50%;
+            background: var(--success-color);
+            opacity: 0;
+            transition: var(--transition-radio);
+        }
+    }
+
+    &:not([state~='disabled']):hover .Box,
+    &[state~='hover']:not([state~='disabled']) .Box {
+        border-color: var(--black);
+    }
+
+    &:not([state~='disabled']):hover .Input:checked+.Box,
+    &[state~='hover']:not(.Input:checked) + .Box {
+        background: var(--gray);
+        border-color: var(--gray);
+    }
+
+    .Input:checked + .Box {
+        background: var(--white-100) !important;
+        border-color: var(--success-color) !important;
+
+        .Dot {opacity: 1;}
+    }
+
+    // tone='primary' — отмеченное состояние синим (семантика «выбран», напр. SharedOption).
+    &[data-tone='primary'] {
+        .Box .Dot {background: var(--primary);}
+
+        .Input:checked + .Box {border-color: var(--primary) !important;}
+    }
+
+    &[state~='disabled'] {
+        cursor: not-allowed;
+
+        .Box {
+            opacity: 0.5;
+        }
+    }
+}

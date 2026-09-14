@@ -1,0 +1,76 @@
+.Checkbox {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    --transition-cb: var(--t-fast);
+
+    .Input {
+        position: absolute;
+        width: 0;
+        height: 0;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .Box {
+        flex-shrink: 0;
+        transition: var(--transition-cb);
+
+        .icon {
+            opacity: 0;
+            transition: opacity var(--transition-cb);
+        }
+    }
+
+    &:not([state~='disabled']) {
+        &:hover,
+        &[state~='hover'] {
+            .Box {
+                border-color: var(--black) !important;
+            }
+        }
+
+        &[state~='active'] {
+            .Box {
+                background: var(--primary);
+                border-color: var(--primary) !important;
+        
+                .icon { opacity: 1; }
+            }
+        }
+
+        &[state~='success'] {
+            .Box {
+                background: var(--success-color);
+                border-color: var(--success-color) !important;
+        
+                .icon { opacity: 1; }
+            }
+        }
+    }
+
+    &[state~='error'] .Box { border-color: var(--error-color); }
+
+    &[state~='disabled'] {
+        cursor: not-allowed;
+
+        .Box { opacity: 0.5; }
+
+        &[state~='active'] {
+            .Box {
+                background: var(--primary);
+                border-color: var(--primary) !important;
+
+                .icon { opacity: 1; }
+            }
+        }
+    }
+
+    a {
+        color: var(--text);
+
+        &:hover {color: var(--primary);}
+    }
+}

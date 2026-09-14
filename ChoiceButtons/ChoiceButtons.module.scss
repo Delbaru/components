@@ -1,0 +1,81 @@
+.ChoiceButtons {
+    width: 100%;
+}
+
+.item {
+    position: relative;
+}
+
+.info {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button {
+    .label {
+        transition: var(--t-fast);
+    }
+
+    &:hover,
+    &[state~='hover'] {
+        background: var(--primary-light);
+    }
+
+    &[state~='active'] {
+        background: var(--primary);
+
+        .label {
+            color: var(--white-100) !important;
+        }
+
+        .tooltipWrapper .info path {
+            --icon-stroke: var(--white-100);
+            --icon-fill: var(--white-100);
+        }
+
+        .tooltipWrapper:hover .info path {
+            --icon-stroke: var(--white-100);
+            --icon-fill: var(--white-100);
+        }
+    }
+}
+
+.tooltipWrapper {
+    &:hover .info path{
+        --icon-stroke: var(--gray);
+        --icon-fill: var(--gray);
+    }
+}
+
+// Позиционирование/портал/fade — общий фундамент (UI/Tooltip). Здесь только скин: карточка + хвост + тень.
+.tooltip {
+    // Drop Shadow по форме — тень накрывает и карточку, и хвост-указатель (как в ExamTimeWarning).
+    filter:
+        drop-shadow(0 calc(4 * var(--rpx)) calc(2 * var(--rpx)) rgba(12, 12, 13, 0.05))
+        drop-shadow(0 calc(16 * var(--rpx)) calc(16 * var(--rpx)) rgba(12, 12, 13, 0.1));
+
+    .card {
+        position: relative;
+        text-align: start;
+    }
+
+    // Хвост-указатель: остриём в info-иконку, прячется ЗА карточкой (z-index: -1) — основание тонет
+    // под краем карточки (белая заливка перекрывает шов), наружу торчит только остриё. Указатель никогда
+    // не наезжает на текст и не висит отдельным треугольником под курсором.
+    .tail {
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        right: 0;
+        z-index: -1;
+        margin: 0 auto;
+        transform: translateY(calc(12 * var(--rpx)));
+    }
+
+    &[data-placement='top'] .tail {
+        bottom: auto;
+        top: 100%;
+        transform: translateY(calc(-12 * var(--rpx))) rotate(180deg);
+    }
+}

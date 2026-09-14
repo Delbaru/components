@@ -1,0 +1,434 @@
+@use 'sass:map';
+@use 'sass:meta';
+@use './scss-utils' as utils;
+@use './safelist' as safe;
+
+$safe-vars: meta.module-variables('safe');
+$safe-border-width-values: ();
+$safe-border-color-value-map: ();
+$safe-color-value-map: ();
+$safe-placeholder-color-value-map: ();
+$safe-border-value-map: ();
+$safe-border-top-value-map: ();
+$safe-border-right-value-map: ();
+$safe-border-bottom-value-map: ();
+$safe-border-left-value-map: ();
+
+@if map.has-key($safe-vars, 'border-width-values') {
+  $safe-border-width-values: map.get($safe-vars, 'border-width-values');
+}
+
+@if map.has-key($safe-vars, 'border-color-value-map') {
+  $safe-border-color-value-map: map.get($safe-vars, 'border-color-value-map');
+}
+
+@if map.has-key($safe-vars, 'color-value-map') {
+  $safe-color-value-map: map.get($safe-vars, 'color-value-map');
+}
+
+@if map.has-key($safe-vars, 'placeholder-color-value-map') {
+  $safe-placeholder-color-value-map: map.get($safe-vars, 'placeholder-color-value-map');
+}
+
+@if map.has-key($safe-vars, 'border-value-map') {
+  $safe-border-value-map: map.get($safe-vars, 'border-value-map');
+}
+
+@if map.has-key($safe-vars, 'border-top-value-map') {
+  $safe-border-top-value-map: map.get($safe-vars, 'border-top-value-map');
+}
+
+@if map.has-key($safe-vars, 'border-right-value-map') {
+  $safe-border-right-value-map: map.get($safe-vars, 'border-right-value-map');
+}
+
+@if map.has-key($safe-vars, 'border-bottom-value-map') {
+  $safe-border-bottom-value-map: map.get($safe-vars, 'border-bottom-value-map');
+}
+
+@if map.has-key($safe-vars, 'border-left-value-map') {
+  $safe-border-left-value-map: map.get($safe-vars, 'border-left-value-map');
+}
+
+@mixin allTokens($bp: null) {
+  $p: "";
+  @if $bp != null {
+    $p: "#{$bp}_";
+  }
+
+  // size (width, height, minWidth, maxWidth, minHeight, maxHeight)
+  @include utils.sizeTokens(#{$p}, safe.$size-values);
+  @include utils.sizeUnitTokens(#{$p}, safe.$unit-values, safe.$unit-map);
+  @include utils.sizeKeywordTokens(#{$p});
+
+  // space (p, pt, pr, pb, pl, m, mt, mr, mb, ml)
+  @include utils.spaceTokens(#{$p}, safe.$space-values);
+  @include utils.spaceKeywordTokens(#{$p});
+  @include utils.spaceShorthandTokens(#{$p}, safe.$space-shorthand-map);
+
+  // radius (borderRadius, borderTopLeftRadius, ...)
+  @include utils.radiusTokens(#{$p}, safe.$radius-values);
+
+  // background
+  @include utils.bgTokens(#{$p}, safe.$bg-value-map);
+
+  // color
+  @include utils.colorTokens(#{$p}, $safe-color-value-map);
+  @include utils.customPropertyTokens(#{$p}placeholderColor, --field-placeholder-color, $safe-placeholder-color-value-map);
+
+  // gap
+  @include utils.token(#{$p}gap, gap, safe.$gap-values);
+  @include utils.token(#{$p}rowGap, row-gap, safe.$gap-values);
+  @include utils.token(#{$p}columnGap, column-gap, safe.$gap-values);
+
+  // border
+  @include utils.borderWidthTokens(#{$p}, $safe-border-width-values);
+  @include utils.borderStyleTokens(#{$p});
+  @include utils.borderColorTokens(#{$p}, $safe-border-color-value-map);
+  @include utils.literalValueTokens(#{$p}border, border, $safe-border-value-map);
+  @include utils.literalValueTokens(#{$p}borderTop, border-top, $safe-border-top-value-map);
+  @include utils.literalValueTokens(#{$p}borderRight, border-right, $safe-border-right-value-map);
+  @include utils.literalValueTokens(#{$p}borderBottom, border-bottom, $safe-border-bottom-value-map);
+  @include utils.literalValueTokens(#{$p}borderLeft, border-left, $safe-border-left-value-map);
+}
+
+// Генерируем calc-string классы отдельно (один раз для base, потом для каждого bp)
+@mixin allCalcStringTokens($bp: null) {
+  $p: "";
+  @if $bp != null {
+    $p: "#{$bp}_";
+  }
+  $map: safe.$calc-string-map;
+
+  @if $map {
+    // size calc (width/height)
+    @include utils.calcStringTokens(#{$p}width_, width, $map);
+    @include utils.calcStringTokens(#{$p}minWidth_, min-width, $map);
+    @include utils.calcStringTokens(#{$p}maxWidth_, max-width, $map);
+    @include utils.calcStringTokens(#{$p}height_, height, $map);
+    @include utils.calcStringTokens(#{$p}minHeight_, min-height, $map);
+    @include utils.calcStringTokens(#{$p}maxHeight_, max-height, $map);
+
+    // space calc
+    @include utils.calcStringTokens(#{$p}p_, padding, $map);
+    @include utils.calcStringTokens(#{$p}pt_, padding-top, $map);
+    @include utils.calcStringTokens(#{$p}pr_, padding-right, $map);
+    @include utils.calcStringTokens(#{$p}pb_, padding-bottom, $map);
+    @include utils.calcStringTokens(#{$p}pl_, padding-left, $map);
+
+    @include utils.calcStringTokens(#{$p}m_, margin, $map);
+    @include utils.calcStringTokens(#{$p}mt_, margin-top, $map);
+    @include utils.calcStringTokens(#{$p}mr_, margin-right, $map);
+    @include utils.calcStringTokens(#{$p}mb_, margin-bottom, $map);
+    @include utils.calcStringTokens(#{$p}ml_, margin-left, $map);
+  }
+}
+
+// Этот файл НЕ импортируется как CSS-модуль — он @use'ится в styles/globals.scss (глобальный
+// стайлшит), поэтому dart-sass инлайнит эти селекторы в глобальный CSS БЕЗ хеширования: имя класса
+// в DOM = ключу (d_gap_16), а не tokens-module-scss-module__…__d_gap_16. В рантайме tokenStyles —
+// identity-прокси (token-classes.ts): css(tokenStyles,'d_gap_16') === 'd_gap_16'. Порядок в
+// createLayoutClasses — [styles, tokenStyles], чтобы компонент-скоуп классы резолвились раньше прокси.
+
+// base
+@include allTokens();
+@include allCalcStringTokens();
+
+// responsive
+@include utils.withBreakpoints() using ($bp) {
+  @include allTokens($bp);
+  @include allCalcStringTokens($bp);
+}
+
+// Inline p/m fallback for responsive nested shorthand values.
+.inlineP {
+  padding: var(--inline-space-p-d);
+}
+
+.inlinePt {
+  padding-top: var(--inline-space-pt-d);
+}
+
+.inlinePr {
+  padding-right: var(--inline-space-pr-d);
+}
+
+.inlinePb {
+  padding-bottom: var(--inline-space-pb-d);
+}
+
+.inlinePl {
+  padding-left: var(--inline-space-pl-d);
+}
+
+.inlineM {
+  margin: var(--inline-space-m-d);
+}
+
+.inlineMt {
+  margin-top: var(--inline-space-mt-d);
+}
+
+.inlineMr {
+  margin-right: var(--inline-space-mr-d);
+}
+
+.inlineMb {
+  margin-bottom: var(--inline-space-mb-d);
+}
+
+.inlineMl {
+  margin-left: var(--inline-space-ml-d);
+}
+
+.inlineWidth {
+  width: var(--inline-size-width-d);
+}
+
+.inlineMinWidth {
+  min-width: var(--inline-size-minWidth-d);
+}
+
+.inlineMaxWidth {
+  max-width: var(--inline-size-maxWidth-d);
+}
+
+.inlineHeight {
+  height: var(--inline-size-height-d);
+}
+
+.inlineMinHeight {
+  min-height: var(--inline-size-minHeight-d);
+}
+
+.inlineMaxHeight {
+  max-height: var(--inline-size-maxHeight-d);
+}
+
+.inlineAspectRatio {
+  aspect-ratio: var(--inline-aspect-ratio-d);
+}
+
+.inlineFlexGrow {
+  flex-grow: var(--inline-flex-grow-d, 0);
+}
+
+@media (max-width: 767px) {
+  .inlineP {
+    padding: var(--inline-space-p-m, var(--inline-space-p-d));
+  }
+
+  .inlinePt {
+    padding-top: var(--inline-space-pt-m, var(--inline-space-pt-d));
+  }
+
+  .inlinePr {
+    padding-right: var(--inline-space-pr-m, var(--inline-space-pr-d));
+  }
+
+  .inlinePb {
+    padding-bottom: var(--inline-space-pb-m, var(--inline-space-pb-d));
+  }
+
+  .inlinePl {
+    padding-left: var(--inline-space-pl-m, var(--inline-space-pl-d));
+  }
+
+  .inlineM {
+    margin: var(--inline-space-m-m, var(--inline-space-m-d));
+  }
+
+  .inlineMt {
+    margin-top: var(--inline-space-mt-m, var(--inline-space-mt-d));
+  }
+
+  .inlineMr {
+    margin-right: var(--inline-space-mr-m, var(--inline-space-mr-d));
+  }
+
+  .inlineMb {
+    margin-bottom: var(--inline-space-mb-m, var(--inline-space-mb-d));
+  }
+
+  .inlineMl {
+    margin-left: var(--inline-space-ml-m, var(--inline-space-ml-d));
+  }
+
+  .inlineWidth {
+    width: var(--inline-size-width-m, var(--inline-size-width-d));
+  }
+
+  .inlineMinWidth {
+    min-width: var(--inline-size-minWidth-m, var(--inline-size-minWidth-d));
+  }
+
+  .inlineMaxWidth {
+    max-width: var(--inline-size-maxWidth-m, var(--inline-size-maxWidth-d));
+  }
+
+  .inlineHeight {
+    height: var(--inline-size-height-m, var(--inline-size-height-d));
+  }
+
+  .inlineMinHeight {
+    min-height: var(--inline-size-minHeight-m, var(--inline-size-minHeight-d));
+  }
+
+  .inlineMaxHeight {
+    max-height: var(--inline-size-maxHeight-m, var(--inline-size-maxHeight-d));
+  }
+
+  .inlineAspectRatio {
+    aspect-ratio: var(--inline-aspect-ratio-m, var(--inline-aspect-ratio-d));
+  }
+
+  .inlineFlexGrow {
+    flex-grow: var(--inline-flex-grow-m, var(--inline-flex-grow-d, 0));
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .inlineP {
+    padding: var(--inline-space-p-t, var(--inline-space-p-d));
+  }
+
+  .inlinePt {
+    padding-top: var(--inline-space-pt-t, var(--inline-space-pt-d));
+  }
+
+  .inlinePr {
+    padding-right: var(--inline-space-pr-t, var(--inline-space-pr-d));
+  }
+
+  .inlinePb {
+    padding-bottom: var(--inline-space-pb-t, var(--inline-space-pb-d));
+  }
+
+  .inlinePl {
+    padding-left: var(--inline-space-pl-t, var(--inline-space-pl-d));
+  }
+
+  .inlineM {
+    margin: var(--inline-space-m-t, var(--inline-space-m-d));
+  }
+
+  .inlineMt {
+    margin-top: var(--inline-space-mt-t, var(--inline-space-mt-d));
+  }
+
+  .inlineMr {
+    margin-right: var(--inline-space-mr-t, var(--inline-space-mr-d));
+  }
+
+  .inlineMb {
+    margin-bottom: var(--inline-space-mb-t, var(--inline-space-mb-d));
+  }
+
+  .inlineMl {
+    margin-left: var(--inline-space-ml-t, var(--inline-space-ml-d));
+  }
+
+  .inlineWidth {
+    width: var(--inline-size-width-t, var(--inline-size-width-d));
+  }
+
+  .inlineMinWidth {
+    min-width: var(--inline-size-minWidth-t, var(--inline-size-minWidth-d));
+  }
+
+  .inlineMaxWidth {
+    max-width: var(--inline-size-maxWidth-t, var(--inline-size-maxWidth-d));
+  }
+
+  .inlineHeight {
+    height: var(--inline-size-height-t, var(--inline-size-height-d));
+  }
+
+  .inlineMinHeight {
+    min-height: var(--inline-size-minHeight-t, var(--inline-size-minHeight-d));
+  }
+
+  .inlineMaxHeight {
+    max-height: var(--inline-size-maxHeight-t, var(--inline-size-maxHeight-d));
+  }
+
+  .inlineAspectRatio {
+    aspect-ratio: var(--inline-aspect-ratio-t, var(--inline-aspect-ratio-d));
+  }
+
+  .inlineFlexGrow {
+    flex-grow: var(--inline-flex-grow-t, var(--inline-flex-grow-d, 0));
+  }
+}
+
+// ── Краевой fade скролл-контейнеров (mask + scroll-driven animations) ─────────────────────────
+// Утилита-класс .scrollFadeY (ось Y) / .scrollFadeX (ось X). Мягко гасит контент у краёв области
+// прокрутки CSS-маской — без псевдоэлементов и лишних слоёв, не ломает клики (маска рулит только
+// прозрачностью). Зоны у краёв включает ТОЛЬКО активный скролл-таймлайн: когда скролла нет, маска
+// пустая (края не подрезаются); у самого верха/низа зона схлопывается в 0 (первая/последняя карточка
+// не глушится). Никакого JS. Размер зоны — var --scroll-fade (по умолчанию 16 дизайн-ед.).
+//
+// КАК ПОДКЛЮЧАТЬ: на Flex — проп `scrollFade` (или `scrollFade='x'`); он и вешает этот класс (см.
+// Flex.tsx). На не-Flex элементе — `composes: scrollFadeY from global;` в его .module.scss, либо класс
+// строкой в className. Размер переопределяется на месте: `--scroll-fade: calc(24 * var(--rpx));`.
+//
+// ВАЖНО: mask создаёт stacking context — плавающие оверлеи (кнопки-плавашки, тени) держите на
+// элементе-обёртке, а не на самом скролле, иначе их затянет под маску.
+//
+// Расплата: scroll-driven animations пока нет в Safari — там (внутри @supports не сматчится) fade не
+// появится вовсе. Это осознанно: лучше без fade, чем всегда подрезанные края.
+@property --scroll-fade-start {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --scroll-fade-end {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+// Верхняя/левая зона раскрывается на первых --scroll-fade пикселях прокрутки (у старта её нет).
+@keyframes scrollFadeStart {
+  from { --scroll-fade-start: 0px; }
+  to { --scroll-fade-start: var(--scroll-fade); }
+}
+
+// Нижняя/правая зона держится всю дорогу и гаснет на последних --scroll-fade пикселях (у конца её нет).
+@keyframes scrollFadeEnd {
+  from { --scroll-fade-end: var(--scroll-fade); }
+  to { --scroll-fade-end: 0px; }
+}
+
+.scrollFadeY {
+  --scroll-fade: calc(16 * var(--rpx));
+  --scroll-fade-start: 0px;
+  --scroll-fade-end: 0px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--scroll-fade-start), #000 calc(100% - var(--scroll-fade-end)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--scroll-fade-start), #000 calc(100% - var(--scroll-fade-end)), transparent 100%);
+
+  @supports (animation-timeline: scroll()) {
+    animation-name: scrollFadeStart, scrollFadeEnd;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: scroll(self block), scroll(self block);
+    animation-range: 0 var(--scroll-fade), calc(100% - var(--scroll-fade)) 100%;
+  }
+}
+
+.scrollFadeX {
+  --scroll-fade: calc(16 * var(--rpx));
+  --scroll-fade-start: 0px;
+  --scroll-fade-end: 0px;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--scroll-fade-start), #000 calc(100% - var(--scroll-fade-end)), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 var(--scroll-fade-start), #000 calc(100% - var(--scroll-fade-end)), transparent 100%);
+
+  @supports (animation-timeline: scroll()) {
+    animation-name: scrollFadeStart, scrollFadeEnd;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: scroll(self inline), scroll(self inline);
+    animation-range: 0 var(--scroll-fade), calc(100% - var(--scroll-fade)) 100%;
+  }
+}

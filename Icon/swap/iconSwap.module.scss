@@ -1,0 +1,60 @@
+// Последовательная смена (wait): в любой момент один центрированный слой — старая уходит, потом новая
+// въезжает. Наложения нет, поэтому позиционирование простое: центрирование + анимация opacity/scale.
+.viewport {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 0;
+}
+
+.layer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+// Уход старой: до полного исчезновения (opacity 0 + сжатие до --icon-swap-scale). both держит финал.
+.swapOut {
+  animation: iconSwapOut var(--icon-swap-dur, var(--t-d-fast)) var(--t-t-f-cubic-bezier) both;
+}
+
+// Въезд новой: из opacity 0 и scale (--icon-swap-scale) до 1. Стартует уже ПОСЛЕ ухода старой.
+.swapIn {
+  animation: iconSwapIn var(--icon-swap-dur, var(--t-d-fast)) var(--t-t-f-cubic-bezier) both;
+}
+
+// rotate по умолчанию 0deg → стиль 'swap' без вращения (как раньше); 'spin' задаёт угол доворота.
+@keyframes iconSwapIn {
+  from {
+    opacity: 0;
+    transform: scale(var(--icon-swap-scale, 0.8)) rotate(var(--icon-swap-rotate, 0deg));
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes iconSwapOut {
+  from {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(var(--icon-swap-scale, 0.8)) rotate(var(--icon-swap-rotate, 0deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swapIn,
+  .swapOut {
+    animation: none;
+  }
+}

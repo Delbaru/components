@@ -1,0 +1,175 @@
+// Слайд-сцена: единый Flex-бокс (высота пропом h) — клипует (overflow), держит контекст для absolute-шагов
+// (position) и анимирует высоту + сдвиг. Длительность приходит CSS-переменной --slide-dur (дефолт — токен).
+.slideStage {
+  position: relative;
+  overflow: hidden;
+  transition:
+    height var(--slide-dur, var(--t-d-very-slow)) var(--t-t-f-ease),
+    transform var(--slide-dur, var(--t-d-very-slow)) var(--t-t-f-ease);
+
+  .textItem {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    display: block;
+  }
+}
+
+// Hover-слайд: корень-вьюпорт со стеком из двух слоёв; :hover/:focus разъезжает их по вертикали.
+.textSlideHover {
+  display: inline-block;
+
+  .textHoverViewport {
+    display: inline-grid;
+    overflow: hidden;
+    vertical-align: top;
+  }
+
+  .textHoverLayer {
+    grid-area: 1 / 1;
+    display: block;
+    transition:
+      transform var(--text-slide-duration, 0.35s) var(--t-t-f-ease),
+      color var(--text-slide-duration, 0.35s) var(--t-t-f-ease);
+    will-change: transform;
+  }
+
+  .textHoverBase {
+    transform: translateY(0);
+  }
+
+  .textHoverAlt {
+    transform: translateY(100%);
+    color: var(--text-slide-hover-color, var(--primary));
+  }
+
+  &:hover .textHoverBase,
+  &:focus-visible .textHoverBase,
+  &:focus-within .textHoverBase {
+    transform: translateY(-100%);
+  }
+
+  &:hover .textHoverAlt,
+  &:focus-visible .textHoverAlt,
+  &:focus-within .textHoverAlt {
+    transform: translateY(0);
+  }
+}
+
+// Своп-слайд значения ПОСИМВОЛЬНО: строка из ячеек-символов. Неизменившийся символ — статичный inline-block
+// (без клипа, чтобы не резать выносные элементы). Изменившийся — ячейка с overflow (клипует сдвиг) и стеком
+// двух слоёв в одной grid-ячейке: старый уезжает вверх, новый въезжает снизу. Длительность — CSS-var.
+.swapViewport {
+  // inline-block, vertical-align: baseline держит выравнивание в inline-контексте (as='span'). Ширину при
+  // смене значения НЕ ведём здесь — её ведут сами ячейки-одометры (каждая едет от ширины старого символа к
+  // новому), а вьюпорт width:auto подхватывает сумму сам. На уровне вьюпорта ведём только высоту (смена числа
+  // строк при переносе «N из M» в узком контейнере). Перенос наследуется от host-Text.
+  display: inline-block;
+  vertical-align: baseline;
+  transition: height var(--slide-swap-dur, 0.4s) var(--t-t-f-cubic-bezier);
+
+  // Слово целиком не переносим по буквам (перенос допустим только между словами — по пробелам-ячейкам).
+  // tabular-nums держим на словах (цифры одной ширины — таймер не прыгает 9→0); на пробелах-ячейках не нужно.
+  //
+  // ⚠️ `!important` тут не украшение: `.Text` печатает `font-variant-numeric: lining-nums
+  // proportional-nums !important`, и без ответного `!important` табличные цифры проигрывали —
+  // правило стояло в файле, а свопящееся число всё равно дрожало на каждой смене разряда.
+  // `lining-nums` повторяем осознанно: свойство ОДНО, и перечисление затирает соседнюю ось.
+  .swapWord {
+    display: inline-block;
+    white-space: nowrap;
+    font-variant-numeric: lining-nums tabular-nums !important;
+  }
+
+  // ⚠️ Табличные фигуры выше объявлены, но НИЧЕГО не дают: в гарнитуре сайта их нет (замер —
+  // «000000» и «111111» в Raleway 40px дают 147.38 против 118.56 и с `tabular-nums`, и без).
+  // То есть ширина ячеек у свопа НЕ фиксирована, и на крупном кегле смена значения читается как
+  // пляска цифр. Равнять ширину вручную (`min-width: 1ch` на цифровых ячейках) пробовали —
+  // приём рабочий, но он меняет вид цифр во всех местах свопа разом, поэтому снят: крупному
+  // числу, которое пересчитывается от действия, правильнее взять `counter` — он пишет значение
+  // одним узлом, без ячеек и вертикального хода. Разбор — Frontend.md §12 «SCSS-ловушки».
+
+  .swapStatic {
+    display: inline-block;
+    vertical-align: bottom;
+  }
+
+  // Ячейка-одометр: новый символ (in) — в потоке, задаёт ширину/высоту ПОКОЯ ячейки; старый (out) — абсолют,
+  // из раскладки выключен, поэтому в покое ширина = новый символ (без рывка на размонтировании старого и без
+  // гонки таймеров). overflow клипует вертикальный слайд. Ширину на время свопа ведёт плагин (transition
+  // width): пин старой ширины символа → глайд к новой → релиз в auto (= новый символ).
+  .swapCell {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    vertical-align: bottom;
+    transition: width var(--slide-swap-dur, 0.4s) var(--t-t-f-cubic-bezier);
+  }
+
+  // will-change — только на время свопа (.swapIn/.swapOut). В покое сменившийся символ снова становится
+  // статичным (.swapStatic) без слоя, поэтому висеть в GPU-слое ему незачем: иначе символ растеризуется
+  // grayscale-сглаживанием и выглядит мыльным рядом с обычным текстом. Анимируем ТОЛЬКО transform (без
+  // opacity): ячейка клипует (overflow: hidden), старый/новый символ не накладываются и фейд не нужен —
+  // символ едет на полной непрозрачности и остаётся ЧЁТКИМ (стиль «отрывного табло»).
+  .swapIn {
+    display: inline-block;
+    will-change: transform;
+    backface-visibility: hidden;
+    animation: textSlideSwapIn var(--slide-swap-dur, 0.4s) var(--t-t-f-cubic-bezier) backwards;
+  }
+
+  // Старый символ — абсолют поверх нового (левый-верхний угол ячейки), уезжает вверх под клип.
+  .swapOut {
+    position: absolute;
+    left: 0;
+    top: 0;
+    will-change: transform;
+    backface-visibility: hidden;
+    animation: textSlideSwapOut var(--slide-swap-dur, 0.4s) var(--t-t-f-cubic-bezier) forwards;
+  }
+}
+
+// Чистый слайд без opacity: ячейка клипует вынос, поэтому цифра остаётся чёткой (полная непрозрачность),
+// а не полупрозрачно-мыльной. Старая уезжает вверх за край клипа, новая въезжает снизу.
+@keyframes textSlideSwapIn {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes textSlideSwapOut {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slideStage {
+    transition: none;
+  }
+
+  .textSlideHover .textHoverLayer {
+    transition: none;
+  }
+
+  .swapViewport {
+    transition: none;
+
+    .swapCell {
+      transition: none;
+    }
+
+    .swapIn,
+    .swapOut {
+      animation: none;
+    }
+  }
+}

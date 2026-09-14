@@ -1,0 +1,28 @@
+.CarouselNav {
+    position: relative;
+
+    .nav {
+        cursor: pointer;
+        // Явно opacity (hover/disabled — единственное, что меняется); `all` транзишил бы лишнее.
+        transition: opacity var(--t-d-fast) ease;
+
+        &.prev {transform: scaleX(-1);}
+
+        &[state~='disabled'] {
+            pointer-events: none;
+
+            svg {opacity: 0.2;}
+        }
+
+        &:hover,
+        &[state~='hover'] {
+            opacity: 0.75;
+        }
+    }
+
+    .nav svg {
+        pointer-events: none;
+        transition:
+            opacity var(--t-d-fast) ease;
+    }
+}

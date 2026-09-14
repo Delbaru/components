@@ -1,0 +1,581 @@
+.animation_textSlide {
+  overflow: hidden;
+}
+
+.textContainer {
+  transition: transform var(--t-d-very-slow) var(--t-t-f-ease);
+}
+
+.textItem {
+  display: block;
+}
+
+.animation_textClip {
+  overflow: hidden;
+}
+
+.clipContainer {
+  position: relative;
+  transition: clip-path var(--t-d-very-slow) var(--t-t-f-ease);
+}
+
+.clipItem {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.previewText {
+  margin: 0;
+}
+
+.clamp {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  -webkit-line-clamp: var(--text-rows-d, 1);
+}
+
+.ellipsis {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.variableChip {
+  display: inline-flex;
+  min-height: calc(var(--rpx) * 32);
+  padding: calc(var(--rpx) * 11) calc(var(--rpx) * 12);
+  justify-content: center;
+  align-items: center;
+  gap: calc(var(--rpx) * 8);
+  border-radius: calc(var(--rpx) * 8);
+  border: calc(var(--rpx) * 1) solid var(--rich-text-variable-color, var(--primary));
+  background: var(--white-100);
+  color: var(--rich-text-variable-color, var(--primary));
+  font: var(--font-small);
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+@media (max-width: 767px) {
+  .clamp {
+    -webkit-line-clamp: var(--text-rows-m, var(--text-rows-d, 1));
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .clamp {
+    -webkit-line-clamp: var(--text-rows-t, var(--text-rows-d, 1));
+  }
+}
+
+.RichText {
+  @media (max-width: 767px) {
+    &.default {
+      h1 { font: var(--font-h1); text-transform: var(--tt-h1); letter-spacing: var(--ls-h1); margin-bottom: var(--s-20); }
+      h2 { font: var(--font-h2); text-transform: var(--tt-h2); letter-spacing: var(--ls-h2); margin-bottom: var(--s-20); }
+      h3 { font: var(--font-h3); text-transform: var(--tt-h3); letter-spacing: var(--ls-h3); margin-bottom: var(--s-20); }
+      h4 { font: var(--font-h4); text-transform: var(--tt-h4); letter-spacing: var(--ls-h4); margin-bottom: var(--s-20); }
+      h5 { font: var(--font-h5); text-transform: var(--tt-h5); letter-spacing: var(--ls-h5); margin-bottom: var(--s-20); }
+      h6 { font: var(--font-h6); text-transform: var(--tt-h6); letter-spacing: var(--ls-h6); margin-bottom: var(--s-20); }
+
+      p {
+        margin: 0;
+        font: var(--font-title);
+
+        &:not(:last-child) { margin-bottom: var(--s-8); }
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: var(--s-24);
+
+        li {
+          font: var(---font-title);
+  
+          &:not(:last-child) { margin-bottom: var(--s-4); }
+        }
+
+        &:not(:last-child) { margin-bottom: var(--s-8); }
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        font: var(--font-title);
+        padding: var(--s-8);
+        padding-left: var(--s-12);
+        background: var(--white-10);
+
+        &:not(:first-child) { margin-top: var(--s-8); }
+        &:not(:last-child) { margin-bottom: var(--s-8); }
+      }
+    }
+
+    &.style-1 {
+      h1 { font: var(--font-h1); text-transform: var(--tt-h1); letter-spacing: var(--ls-h1); margin-bottom: var(--s-20); }
+      h2 { font: var(--font-h2); text-transform: var(--tt-h2); letter-spacing: var(--ls-h2); margin-bottom: var(--s-20); }
+      h3 { font: var(--font-h3); text-transform: var(--tt-h3); letter-spacing: var(--ls-h3); margin-bottom: var(--s-20); }
+      h4 { font: var(--font-h4); text-transform: var(--tt-h4); letter-spacing: var(--ls-h4); margin-bottom: var(--s-20); }
+      h5 { font: var(--font-h5); text-transform: var(--tt-h5); letter-spacing: var(--ls-h5); margin-bottom: var(--s-20); }
+      h6 { font: var(--font-h6); text-transform: var(--tt-h6); letter-spacing: var(--ls-h6); margin-bottom: var(--s-20); }
+
+      p {
+        margin: 0;
+        font: var(--font-p1);
+
+        &:not(:last-child) { margin-bottom: var(--s-8); }
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: var(--s-24);
+
+        li {
+          font: var(--font-p1);
+  
+          &:not(:last-child) { margin-bottom: var(--s-4); }
+        }
+
+        &:not(:last-child) { margin-bottom: var(--s-8); }
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        font: var(--font-p1);
+        padding: var(--s-8);
+        padding-left: var(--s-12);
+        background: var(--white-10);
+
+        &:not(:first-child) { margin-top: var(--s-8); }
+        &:not(:last-child) { margin-bottom: var(--s-8); }
+      }
+    }
+
+    &.style-2 {
+      h1 { font: var(--font-h1); text-transform: var(--tt-h1); letter-spacing: var(--ls-h1); margin-bottom: var(--s-20); }
+      h2 { font: var(--font-h2); text-transform: var(--tt-h2); letter-spacing: var(--ls-h2); margin-bottom: var(--s-20); }
+      h3 { font: var(--font-h3); text-transform: var(--tt-h3); letter-spacing: var(--ls-h3); margin-bottom: var(--s-20); }
+      h4 { font: var(--font-p2); font-size: var(--s-12); text-transform: var(--tt-h4); letter-spacing: var(--ls-h4); margin-bottom: var(--s-8); }
+      h5 { font: var(--font-h5); text-transform: var(--tt-h5); letter-spacing: var(--ls-h5); margin-bottom: var(--s-20); }
+      h6 { font: var(--font-h6); text-transform: var(--tt-h6); letter-spacing: var(--ls-h6); margin-bottom: var(--s-20); }
+
+      p {
+        margin: 0;
+        font: var(--font-p3);
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: var(--s-24);
+
+        li {
+          font: var(--font-p3);
+  
+          &:not(:last-child) { margin-bottom: var(--s-4); }
+        }
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        font: var(--font-p1);
+        padding: var(--s-16);
+        padding-left: var(--s-24);
+        background: var(--white-10);
+
+        &:not(:first-child) { margin-top: var(--s-16); }
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+    }
+
+    &.style-3 {
+      h1 { font: var(--font-h1); text-transform: var(--tt-h1); letter-spacing: var(--ls-h1); margin-bottom: var(--s-20); }
+      h2 { font: var(--font-h2); text-transform: var(--tt-h2); letter-spacing: var(--ls-h2); margin-bottom: var(--s-20); }
+      h3 { font: var(--font-h3); text-transform: var(--tt-h3); letter-spacing: var(--ls-h3); margin-bottom: var(--s-20); }
+      h4 { font: var(--font-p2); font-size: var(--s-12); text-transform: var(--tt-h4); letter-spacing: var(--ls-h4); margin-bottom: var(--s-8); }
+      h5 { font: var(--font-h5); text-transform: var(--tt-h5); letter-spacing: var(--ls-h5); margin-bottom: var(--s-20); }
+      h6 { font: var(--font-h6); text-transform: var(--tt-h6); letter-spacing: var(--ls-h6); margin-bottom: var(--s-20); }
+
+      p {
+        margin: 0;
+        font: var(--font-p3);
+        font-size: calc(14 * var(--rpx));
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: var(--s-24);
+
+        li {
+          font: var(--font-p3);
+          font-size: calc(14 * var(--rpx));
+  
+          &:not(:last-child) { margin-bottom: var(--s-4); }
+        }
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        font: var(--font-p1);
+        padding: var(--s-16);
+        padding-left: var(--s-24);
+        background: var(--white-10);
+
+        &:not(:first-child) { margin-top: var(--s-16); }
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    &.default {
+      h1 { font: var(--font-h1); text-transform: var(--tt-h1); letter-spacing: var(--ls-h1); margin-bottom: var(--s-20); }
+      h2 { font: var(--font-h2); text-transform: var(--tt-h2); letter-spacing: var(--ls-h2); margin-bottom: var(--s-20); }
+      h3 { font: var(--font-h3); text-transform: var(--tt-h3); letter-spacing: var(--ls-h3); margin-bottom: var(--s-20); }
+      h4 { font: var(--font-h4); text-transform: var(--tt-h4); letter-spacing: var(--ls-h4); margin-bottom: var(--s-20); }
+      h5 { font: var(--font-h5); text-transform: var(--tt-h5); letter-spacing: var(--ls-h5); margin-bottom: var(--s-20); }
+      h6 { font: var(--font-h6); text-transform: var(--tt-h6); letter-spacing: var(--ls-h6); margin-bottom: var(--s-20); }
+
+      p {
+        margin: 0;
+        font: var(--font-title);
+
+        &:not(:last-child) { margin-bottom: var(--s-12); }
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: var(--s-32);
+
+        li {
+          font: var(--font-title);
+  
+          &:not(:last-child) { margin-bottom: var(--s-8); }
+        }
+
+        &:not(:last-child) { margin-bottom: var(--s-12); }
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        font: var(--font-title);
+        padding: var(--s-12);
+        padding-left: var(--s-16);
+        background: var(--white-10);
+
+        &:not(:first-child) { margin-top: var(--s-12); }
+        &:not(:last-child) { margin-bottom: var(--s-12); }
+      }
+    }
+
+    &.style-1 {
+      h1 { font: var(--font-h1); text-transform: var(--tt-h1); letter-spacing: var(--ls-h1); margin-bottom: var(--s-20); }
+      h2 { font: var(--font-h2); text-transform: var(--tt-h2); letter-spacing: var(--ls-h2); margin-bottom: var(--s-20); }
+      h3 { font: var(--font-h3); text-transform: var(--tt-h3); letter-spacing: var(--ls-h3); margin-bottom: var(--s-20); }
+      h4 { font: var(--font-h4); text-transform: var(--tt-h4); letter-spacing: var(--ls-h4); margin-bottom: var(--s-20); }
+      h5 { font: var(--font-h5); text-transform: var(--tt-h5); letter-spacing: var(--ls-h5); margin-bottom: var(--s-20); }
+      h6 { font: var(--font-h6); text-transform: var(--tt-h6); letter-spacing: var(--ls-h6); margin-bottom: var(--s-20); }
+
+      p {
+        margin: 0;
+        font: var(--font-p1);
+
+        &:not(:last-child) { margin-bottom: var(--s-12); }
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: var(--s-32);
+
+        li {
+          font: var(--font-p1);
+  
+          &:not(:last-child) { margin-bottom: var(--s-8); }
+        }
+
+        &:not(:last-child) { margin-bottom: var(--s-12); }
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        font: var(--font-p1);
+        padding: var(--s-12);
+        padding-left: var(--s-16);
+        background: var(--white-10);
+
+        &:not(:first-child) { margin-top: var(--s-12); }
+        &:not(:last-child) { margin-bottom: var(--s-12); }
+      }
+    }
+
+    &.style-2 {
+      h1 { font: var(--font-h1); text-transform: var(--tt-h1); letter-spacing: var(--ls-h1); margin-bottom: var(--s-20); }
+      h2 { font: var(--font-h2); text-transform: var(--tt-h2); letter-spacing: var(--ls-h2); margin-bottom: var(--s-20); }
+      h3 { font: var(--font-h3); text-transform: var(--tt-h3); letter-spacing: var(--ls-h3); margin-bottom: var(--s-20); }
+      h4 { font: var(--font-p3); text-transform: var(--tt-h4); letter-spacing: var(--ls-h4); margin-bottom: var(--s-8); }
+      h5 { font: var(--font-h5); text-transform: var(--tt-h5); letter-spacing: var(--ls-h5); margin-bottom: var(--s-20); }
+      h6 { font: var(--font-h6); text-transform: var(--tt-h6); letter-spacing: var(--ls-h6); margin-bottom: var(--s-20); }
+
+      p {
+        margin: 0;
+        font: var(--font-p1);
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: var(--s-36);
+
+        li {
+          font: var(--font-p1);
+  
+          &:not(:last-child) { margin-bottom: var(--s-8); }
+        }
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        font: var(--font-p1);
+        padding: var(--s-16);
+        padding-left: var(--s-24);
+        background: var(--white-10);
+
+        &:not(:first-child) { margin-top: var(--s-16); }
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+    }
+
+    &.style-3 {
+      h1 { font: var(--font-h1); text-transform: var(--tt-h1); letter-spacing: var(--ls-h1); margin-bottom: var(--s-20); }
+      h2 { font: var(--font-h2); text-transform: var(--tt-h2); letter-spacing: var(--ls-h2); margin-bottom: var(--s-20); }
+      h3 { font: var(--font-h3); text-transform: var(--tt-h3); letter-spacing: var(--ls-h3); margin-bottom: var(--s-20); }
+      h4 { font: var(--font-p2); font-size: var(--s-12); text-transform: var(--tt-h4); letter-spacing: var(--ls-h4); margin-bottom: var(--s-8); }
+      h5 { font: var(--font-h5); text-transform: var(--tt-h5); letter-spacing: var(--ls-h5); margin-bottom: var(--s-20); }
+      h6 { font: var(--font-h6); text-transform: var(--tt-h6); letter-spacing: var(--ls-h6); margin-bottom: var(--s-20); }
+
+      p {
+        margin: 0;
+        font: var(--font-p3);
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: var(--s-24);
+
+        li {
+          font: var(--font-p3);
+  
+          &:not(:last-child) { margin-bottom: var(--s-4); }
+        }
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        font: var(--font-p1);
+        padding: var(--s-16);
+        padding-left: var(--s-24);
+        background: var(--white-10);
+
+        &:not(:first-child) { margin-top: var(--s-16); }
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+    }
+  }
+
+  @media (min-width: 1024px) {
+    &.default {
+      h1 { font: var(--font-h1); text-transform: var(--tt-h1); letter-spacing: var(--ls-h1); margin-bottom: var(--s-20); }
+      h2 { font: var(--font-h2); text-transform: var(--tt-h2); letter-spacing: var(--ls-h2); margin-bottom: var(--s-20); }
+      h3 { font: var(--font-h3); text-transform: var(--tt-h3); letter-spacing: var(--ls-h3); margin-bottom: var(--s-20); }
+      h4 { font: var(--font-h4); text-transform: var(--tt-h4); letter-spacing: var(--ls-h4); margin-bottom: var(--s-20); }
+      h5 { font: var(--font-h5); text-transform: var(--tt-h5); letter-spacing: var(--ls-h5); margin-bottom: var(--s-20); }
+      h6 { font: var(--font-h6); text-transform: var(--tt-h6); letter-spacing: var(--ls-h6); margin-bottom: var(--s-20); }
+
+      p {
+        margin: 0;
+        font: var(--font-title);
+
+        &:not(:last-child) { margin-bottom: var(--s-8); }
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: var(--s-40);
+
+        li {
+          font: var(--font-title);
+  
+          &:not(:last-child) { margin-bottom: var(--s-8); }
+        }
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        font: var(--font-title);
+        padding: var(--s-16);
+        padding-left: var(--s-24);
+        background: var(--white-10);
+
+        &:not(:first-child) { margin-top: var(--s-16); }
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+    }
+
+    &.style-1 {
+      h1 { font: var(--font-h1); text-transform: var(--tt-h1); letter-spacing: var(--ls-h1); margin-bottom: var(--s-20); }
+      h2 { font: var(--font-h2); text-transform: var(--tt-h2); letter-spacing: var(--ls-h2); margin-bottom: var(--s-20); }
+      h3 { font: var(--font-h3); text-transform: var(--tt-h3); letter-spacing: var(--ls-h3); margin-bottom: var(--s-20); }
+      h4 { font: var(--font-h4); font-weight: 700; text-transform: var(--tt-h4); letter-spacing: var(--ls-h4); margin-bottom: var(--s-20); }
+      h5 { font: var(--font-h5); text-transform: var(--tt-h5); letter-spacing: var(--ls-h5); margin-bottom: var(--s-20); }
+      h6 { font: var(--font-h6); text-transform: var(--tt-h6); letter-spacing: var(--ls-h6); margin-bottom: var(--s-20); }
+
+      p {
+        margin: 0;
+        font: var(--font-p1);
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: var(--s-40);
+
+        li {
+          font: var(--font-p1);
+  
+          &:not(:last-child) { margin-bottom: var(--s-8); }
+        }
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        font: var(--font-p1);
+        padding: var(--s-16);
+        padding-left: var(--s-24);
+        background: var(--white-10);
+
+        &:not(:first-child) { margin-top: var(--s-16); }
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+    }
+
+    &.style-2 {
+      h1 { font: var(--font-h1); text-transform: var(--tt-h1); letter-spacing: var(--ls-h1); margin-bottom: var(--s-20); }
+      h2 { font: var(--font-h2); text-transform: var(--tt-h2); letter-spacing: var(--ls-h2); margin-bottom: var(--s-20); }
+      h3 { font: var(--font-h3); text-transform: var(--tt-h3); letter-spacing: var(--ls-h3); margin-bottom: var(--s-20); }
+      h4 { font: var(--font-p2); text-transform: var(--tt-h4); letter-spacing: var(--ls-h4); margin-bottom: var(--s-8); }
+      h5 { font: var(--font-h5); text-transform: var(--tt-h5); letter-spacing: var(--ls-h5); margin-bottom: var(--s-20); }
+      h6 { font: var(--font-h6); text-transform: var(--tt-h6); letter-spacing: var(--ls-h6); margin-bottom: var(--s-20); }
+
+      p {
+        margin: 0;
+        font: var(--font-p2);
+        font-weight: 400;
+
+        &:not(:last-child) { margin-bottom: var(--s-12); }
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: var(--s-36);
+
+        li {
+          font: var(--font-p2);
+          font-weight: 400;
+  
+          &:not(:last-child) { margin-bottom: var(--s-8); }
+        }
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        font: var(--font-p1);
+        font-weight: 400;
+        padding: var(--s-16);
+        padding-left: var(--s-24);
+        background: var(--white-10);
+
+        &:not(:first-child) { margin-top: var(--s-16); }
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+    }
+
+    &.style-3 {
+      h1 { font: var(--font-h1); text-transform: var(--tt-h1); letter-spacing: var(--ls-h1); margin-bottom: var(--s-20); }
+      h2 { font: var(--font-h2); text-transform: var(--tt-h2); letter-spacing: var(--ls-h2); margin-bottom: var(--s-20); }
+      h3 { font: var(--font-h3); text-transform: var(--tt-h3); letter-spacing: var(--ls-h3); margin-bottom: var(--s-20); }
+      h4 { font: var(--font-p2); font-size: var(--s-12); text-transform: var(--tt-h4); letter-spacing: var(--ls-h4); margin-bottom: var(--s-8); }
+      h5 { font: var(--font-h5); text-transform: var(--tt-h5); letter-spacing: var(--ls-h5); margin-bottom: var(--s-20); }
+      h6 { font: var(--font-h6); text-transform: var(--tt-h6); letter-spacing: var(--ls-h6); margin-bottom: var(--s-20); }
+
+      p {
+        margin: 0;
+        font: var(--font-p3);
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: var(--s-24);
+
+        li {
+          font: var(--font-p3);
+  
+          &:not(:last-child) { margin-bottom: var(--s-4); }
+        }
+
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+
+      blockquote {
+        margin-left: 0;
+        margin-right: 0;
+        font: var(--font-p1);
+        padding: var(--s-16);
+        padding-left: var(--s-24);
+        background: var(--white-10);
+
+        &:not(:first-child) { margin-top: var(--s-16); }
+        &:not(:last-child) { margin-bottom: var(--s-16); }
+      }
+    }
+  }
+}

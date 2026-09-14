@@ -1,0 +1,33 @@
+.root {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    font: var(--font-p);
+    letter-spacing: normal;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+}
+
+.mask {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    pointer-events: none;
+    appearance: none;
+    color: var(--field-placeholder-color, var(--secondary));
+    -webkit-text-fill-color: var(--field-placeholder-color, var(--secondary));
+}
+
+.mask,
+.fieldMasked {
+    font: inherit;
+    letter-spacing: inherit;
+    font-variant-numeric: inherit;
+    font-feature-settings: inherit;
+}
+
+.fieldMasked {
+    appearance: none;
+    position: relative;
+    z-index: 1;
+}

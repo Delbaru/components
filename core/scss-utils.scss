@@ -1,0 +1,275 @@
+@use 'sass:list';
+@use 'sass:math';
+@use 'sass:string';
+
+// Числовой range (включительно): range(0, 80, 4) => (0, 4, 8, ..., 80)
+@function range($from, $to, $step) {
+  $out: ();
+  $count: math.div($to - $from, $step);
+
+  @for $i from 0 through $count {
+    $out: list.append($out, $from + ($i * $step));
+  }
+
+  @return $out;
+}
+
+// Общие брейкпоинты (держать в синхроне с `app/globals.scss`)
+$breakpoints: (
+  m: '(max-width: 767px)',
+  t: '(min-width: 768px) and (max-width: 1023px)',
+  d: '(min-width: 1024px)'
+) !default;
+
+// Относительные unit-токены для size-классов.
+// Пример класса: width_vw_100 => width: 100vw;
+$relativeUnits: (
+  vw: vw,
+  vh: vh,
+  dvw: dvw,
+  dvh: dvh,
+  p: '%'
+) !default;
+
+// 0..500 step 5 (покрывает 100%, 500% и т.д.)
+$relativeSizes: null !default;
+@if $relativeSizes == null {
+  $relativeSizes: range(0, 500, 5) !global;
+}
+
+// Дефолтные шкалы (можно переопределять в конкретном компоненте при необходимости)
+$gapScale: null !default;
+@if $gapScale == null { $gapScale: range(0, 520, 4) !global; }
+
+$sizeScale: null !default;
+@if $sizeScale == null { $sizeScale: range(0, 2916, 4) !global; }
+
+$spaceScale: null !default;
+@if $spaceScale == null { $spaceScale: range(0, 400, 4) !global; }
+
+@mixin token($classPrefix, $prop, $tokens) {
+  @each $t in $tokens {
+    .#{$classPrefix}_#{$t} { #{$prop}: calc(var(--rpx) * #{$t}); }
+  }
+}
+
+@mixin enum($classPrefix, $prop, $map) {
+  @each $k, $v in $map {
+    .#{$classPrefix}_#{$k} { #{$prop}: $v; }
+  }
+}
+
+// Набор size-токенов (часто нужен во многих layout-компонентах)
+@mixin sizeTokens($classPrefix, $tokens) {
+  @include token(#{$classPrefix}width, width, $tokens);
+  @include token(#{$classPrefix}minWidth, min-width, $tokens);
+  @include token(#{$classPrefix}maxWidth, max-width, $tokens);
+  @include token(#{$classPrefix}height, height, $tokens);
+  @include token(#{$classPrefix}minHeight, min-height, $tokens);
+  @include token(#{$classPrefix}maxHeight, max-height, $tokens);
+}
+
+// CSS-keyword токены для size-пропсов (auto, fit-content, max-content, min-content).
+// Позволяют использовать строковые значения в responsive-массивах:
+//   width={[null, 'auto', null]}  ->  класс m_width_auto
+//   height={[200, 'fit-content', null]}  ->  d_height_200 + m_height_fit_content
+$sizeKeywords: (
+  auto: auto,
+  fit_content: fit-content,
+  max_content: max-content,
+  min_content: min-content,
+) !default;
+
+@mixin sizeKeywordTokens($classPrefix) {
+  @each $key, $val in $sizeKeywords {
+    .#{$classPrefix}width_#{$key} { width: $val; }
+    .#{$classPrefix}minWidth_#{$key} { min-width: $val; }
+    .#{$classPrefix}maxWidth_#{$key} { max-width: $val; }
+    .#{$classPrefix}height_#{$key} { height: $val; }
+    .#{$classPrefix}minHeight_#{$key} { min-height: $val; }
+    .#{$classPrefix}maxHeight_#{$key} { max-height: $val; }
+  }
+}
+
+// CSS-keyword токены для space-пропсов (margin/padding). Пока нужен только auto.
+$spaceKeywords: (
+  auto: auto,
+) !default;
+
+@mixin spaceKeywordTokens($classPrefix) {
+  @each $key, $val in $spaceKeywords {
+    .#{$classPrefix}p_#{$key} { padding: $val; }
+    .#{$classPrefix}pt_#{$key} { padding-top: $val; }
+    .#{$classPrefix}pr_#{$key} { padding-right: $val; }
+    .#{$classPrefix}pb_#{$key} { padding-bottom: $val; }
+    .#{$classPrefix}pl_#{$key} { padding-left: $val; }
+
+    .#{$classPrefix}m_#{$key} { margin: $val; }
+    .#{$classPrefix}mt_#{$key} { margin-top: $val; }
+    .#{$classPrefix}mr_#{$key} { margin-right: $val; }
+    .#{$classPrefix}mb_#{$key} { margin-bottom: $val; }
+    .#{$classPrefix}ml_#{$key} { margin-left: $val; }
+  }
+}
+
+@mixin unitTokens($classPrefix, $prop, $unitKey, $unitCss, $tokens) {
+  @each $t in $tokens {
+    .#{$classPrefix}_#{$unitKey}_#{$t} { #{$prop}: #{$t}#{$unitCss}; }
+  }
+}
+
+// То же, что sizeTokens(), но для относительных единиц (vw/vh/dvh/% etc)
+// Пример класса: width_vw_100 => width: 100vw;
+@mixin sizeUnitTokens($classPrefix, $tokens, $units) {
+  @each $unitKey, $unitCss in $units {
+    @include unitTokens(#{$classPrefix}width, width, $unitKey, $unitCss, $tokens);
+    @include unitTokens(#{$classPrefix}minWidth, min-width, $unitKey, $unitCss, $tokens);
+    @include unitTokens(#{$classPrefix}maxWidth, max-width, $unitKey, $unitCss, $tokens);
+    @include unitTokens(#{$classPrefix}height, height, $unitKey, $unitCss, $tokens);
+    @include unitTokens(#{$classPrefix}minHeight, min-height, $unitKey, $unitCss, $tokens);
+    @include unitTokens(#{$classPrefix}maxHeight, max-height, $unitKey, $unitCss, $tokens);
+  }
+}
+
+// Набор spacing-токенов (Box/Section и т.д.)
+@mixin spaceTokens($classPrefix, $tokens) {
+  @include token(#{$classPrefix}p, padding, $tokens);
+  @include token(#{$classPrefix}pt, padding-top, $tokens);
+  @include token(#{$classPrefix}pr, padding-right, $tokens);
+  @include token(#{$classPrefix}pb, padding-bottom, $tokens);
+  @include token(#{$classPrefix}pl, padding-left, $tokens);
+
+  @include token(#{$classPrefix}m, margin, $tokens);
+  @include token(#{$classPrefix}mt, margin-top, $tokens);
+  @include token(#{$classPrefix}mr, margin-right, $tokens);
+  @include token(#{$classPrefix}mb, margin-bottom, $tokens);
+  @include token(#{$classPrefix}ml, margin-left, $tokens);
+}
+
+// Space shorthand классы: p_16_40_16_40 { padding: calc(...) calc(...) calc(...) calc(...); }
+@mixin spaceShorthandTokens($classPrefix, $shorthands) {
+  @each $key, $value in $shorthands {
+    .#{$classPrefix}p_#{$key} { padding: #{$value}; }
+    .#{$classPrefix}m_#{$key} { margin: #{$value}; }
+  }
+}
+
+// Background классы: bg_var--primary { background: var(--primary); }
+@mixin bgTokens($classPrefix, $map) {
+  @each $key, $value in $map {
+    .#{$classPrefix}bg_#{$key} { background: #{$value}; }
+  }
+}
+
+@mixin literalValueTokens($classPrefix, $prop, $map) {
+  @each $key, $value in $map {
+    .#{$classPrefix}_#{$key} { #{$prop}: #{$value}; }
+  }
+}
+
+@mixin colorTokens($classPrefix, $map) {
+  @each $key, $value in $map {
+    .#{$classPrefix}color_#{$key} { color: #{$value}; }
+  }
+}
+
+@mixin customPropertyTokens($classPrefix, $cssVarName, $map) {
+  @each $key, $value in $map {
+    .#{$classPrefix}_#{$key} { #{$cssVarName}: #{$value}; }
+  }
+}
+
+// Набор radius-токенов (Box и т.д.)
+@mixin radiusTokens($classPrefix, $tokens) {
+  @include token(#{$classPrefix}borderRadius, border-radius, $tokens);
+  @include token(#{$classPrefix}borderTopLeftRadius, border-top-left-radius, $tokens);
+  @include token(#{$classPrefix}borderTopRightRadius, border-top-right-radius, $tokens);
+  @include token(#{$classPrefix}borderBottomRightRadius, border-bottom-right-radius, $tokens);
+  @include token(#{$classPrefix}borderBottomLeftRadius, border-bottom-left-radius, $tokens);
+}
+
+// Генерирует классы для calc-строк (например, pt_header2, d_pb_footer2)
+// $classPrefix: префикс класса (pt_, d_pt_, m_pt_ и т.д.)
+// $prop: CSS-свойство (padding-top, margin-bottom, ...)
+// $calcStringMap: map вида (header2: 'calc(var(--header-height) * 2)', footer2: 'calc(var(--footer-height) * 2)')
+@mixin calcStringTokens($classPrefix, $prop, $calcStringMap) {
+  @each $key, $calcValue in $calcStringMap {
+    .#{$classPrefix}#{$key} { #{$prop}: #{$calcValue}; }
+  }
+}
+
+// ── Общие enum-карты (одна точка правды для Flex/Grid/Button и др.) ──
+
+$alignItems: (
+  stretch: stretch,
+  center: center,
+  flex_start: flex-start,
+  flex_end: flex-end,
+  start: start,
+  end: end,
+  baseline: baseline
+) !default;
+
+$justifyContent: (
+  flex_start: flex-start,
+  flex_end: flex-end,
+  start: start,
+  end: end,
+  center: center,
+  space_between: space-between,
+  space_around: space-around,
+  space_evenly: space-evenly
+) !default;
+
+$flexDirections: (
+  row: row,
+  row_reverse: row-reverse,
+  column: column,
+  column_reverse: column-reverse
+) !default;
+
+$flexWraps: (
+  nowrap: nowrap,
+  wrap: wrap,
+  wrap_reverse: wrap-reverse
+) !default;
+
+// ── Border tokens ───────────────────────────────────────
+// border-width: числовые (1, 2, ...) → calc(var(--rpx) * N)
+@mixin borderWidthTokens($classPrefix, $tokens) {
+  @each $t in $tokens {
+    .#{$classPrefix}borderWidth_#{$t} { border-width: calc(var(--rpx) * #{$t}); }
+  }
+}
+
+// border-style: enum (solid, dashed, dotted, none, ...)
+$borderStyles: (
+  solid: solid,
+  dashed: dashed,
+  dotted: dotted,
+  double: double,
+  none: none,
+) !default;
+
+@mixin borderStyleTokens($classPrefix) {
+  @each $k, $v in $borderStyles {
+    .#{$classPrefix}borderStyle_#{$k} { border-style: $v; }
+  }
+}
+
+// border-color: строковые ключи, как bg (var--primary → border-color: var(--primary))
+@mixin borderColorTokens($classPrefix, $map) {
+  @each $key, $value in $map {
+    .#{$classPrefix}borderColor_#{$key} { border-color: #{$value}; }
+  }
+}
+
+// Обёртка для генерации responsive-классов по брейкпоинтам.
+@mixin withBreakpoints() {
+  @each $bp, $mq in $breakpoints {
+    @media #{$mq} {
+      @content($bp);
+    }
+  }
+}
+

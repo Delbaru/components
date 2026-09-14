@@ -1,0 +1,20 @@
+// Стопка тостов: фиксирована у нижней кромки окна и не перехватывает клики — сам тост их
+// возвращает себе. Центрируем РАСТЯЖКОЙ (left/right + align), а не трансформом: у узла, которому
+// анимация вправе назначить свой `transform`, своего быть не должно (Frontend.md §12).
+.Toast {
+    position: fixed;
+    right: 0;
+    bottom: calc(32 * var(--rpx));
+    left: 0;
+    // Выше модалки (у неё 1000): подтверждение действия, начатого в диалоге, обязано быть видно.
+    z-index: 1100;
+    pointer-events: none;
+}
+
+.card {
+    max-width: calc(560 * var(--rpx));
+    border: calc(1 * var(--rpx)) solid var(--gray-light);
+    // Своего токена у тени нет — та же формула, что у поповера и сайдбара.
+    box-shadow: 0 calc(8 * var(--rpx)) calc(32 * var(--rpx)) rgb(0 0 0 / 8%);
+    pointer-events: auto;
+}

@@ -1,0 +1,53 @@
+//
+// Скелетон: серая полоса с бегущим бликом.
+//
+// Здесь ровно то, что пропсом не выражается (§9.1): псевдоэлемент блика, его `transform`,
+// `overflow` и бесконечные кадры.
+//
+
+.Skeleton {
+    // Период — переменной блока, а не токеном: токены транзишнов описывают ОТКЛИК на действие
+    // (0.3–1 с), а это фоновое дыхание, у него своя длительность (§8.5).
+    --skeleton-period: 1600ms;
+
+    position: relative;
+    overflow: hidden;
+
+    // Блик — псевдоэлемент, а не второй узел: он декор, его не читает скринридер и он не должен
+    // попадать в раскладку.
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            var(--white-100) 45%,
+            var(--white-100) 55%,
+            transparent 100%
+        );
+        opacity: 0.55;
+        animation: skeletonSweep var(--skeleton-period) ease-in-out infinite;
+    }
+
+    // Бесконечное движение обязано выключаться настройкой ОС — это тот самый «конкретный случай»,
+    // ради которого §9.5 разрешает медиа-запрос.
+    @media (prefers-reduced-motion: reduce) {
+        &::after {
+            animation: none;
+            opacity: 0.3;
+            transform: none;
+        }
+    }
+}
+
+@keyframes skeletonSweep {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
+}
