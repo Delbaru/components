@@ -20,6 +20,7 @@ import { Button } from '../Button';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
+import { resolveSvgAssetSource } from '../core/base/svg-asset';
 import styles from './RichTextarea.module.scss';
 import BoldIconAsset from './assets/b.svg';
 import ItalicIconAsset from './assets/i.svg';
@@ -35,30 +36,6 @@ type ActiveFormats = {
   listType: 'bullet' | 'number' | null;
   isLink: boolean;
 };
-
-function normalizeSvgAssetPath(path: string) {
-  if (!path) {
-    return path;
-  }
-
-  if (/^(https?:)?\/\//i.test(path) || path.startsWith('data:') || path.startsWith('/')) {
-    return path;
-  }
-
-  return `/${path.replace(/^\.\//, '')}`;
-}
-
-function resolveSvgAssetSource(asset: unknown) {
-  if (typeof asset === 'string') {
-    return normalizeSvgAssetPath(asset);
-  }
-
-  if (asset && typeof asset === 'object' && 'src' in asset && typeof asset.src === 'string') {
-    return normalizeSvgAssetPath(asset.src);
-  }
-
-  return '';
-}
 
 function findMatchingParent(node: any, matcher: (currentNode: any) => boolean) {
   let currentNode = node;
@@ -97,12 +74,12 @@ function normalizeLink(url: string): string {
   return `https://${trimmedUrl}`;
 }
 
-const toolbarBoldIconSrc = resolveSvgAssetSource(BoldIconAsset);
-const toolbarItalicIconSrc = resolveSvgAssetSource(ItalicIconAsset);
-const toolbarUnderlineIconSrc = resolveSvgAssetSource(UnderlineIconAsset);
-const toolbarUnorderedListIconSrc = resolveSvgAssetSource(UnorderedListIconAsset);
-const toolbarOrderedListIconSrc = resolveSvgAssetSource(OrderedListIconAsset);
-const toolbarLinkIconSrc = resolveSvgAssetSource(LinkIconAsset);
+const toolbarBoldIconSrc = resolveSvgAssetSource(BoldIconAsset) ?? '';
+const toolbarItalicIconSrc = resolveSvgAssetSource(ItalicIconAsset) ?? '';
+const toolbarUnderlineIconSrc = resolveSvgAssetSource(UnderlineIconAsset) ?? '';
+const toolbarUnorderedListIconSrc = resolveSvgAssetSource(UnorderedListIconAsset) ?? '';
+const toolbarOrderedListIconSrc = resolveSvgAssetSource(OrderedListIconAsset) ?? '';
+const toolbarLinkIconSrc = resolveSvgAssetSource(LinkIconAsset) ?? '';
 
 function ToolbarIconButton({
   iconSrc,
