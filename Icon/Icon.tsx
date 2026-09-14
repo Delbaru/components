@@ -1,194 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, type CSSProperties, type SVGProps, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useMemo, type CSSProperties, type SVGProps } from 'react';
 import type React from 'react';
 import styles from './Icon.module.scss';
-import { boxLayout, cx, createLayoutClasses, resolveRadiusInput, resolveResponsive, sanitizeSvgMarkup, shouldUseNextLink, splitRootDomProps, stateProps as buildStateProps, stateLinkProps, tokenStyles, type BorderStyleProps, type ComponentStateValue, type GrowProps, type RadiusInput, type ResponsiveSpaceValue, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef, useMergedRefs } from '../core';
+import { boxLayout, cx, createLayoutClasses, resolveRadiusInput, resolveResponsive, shouldUseNextLink, splitRootDomProps, stateProps as buildStateProps, stateLinkProps, tokenStyles, type BorderStyleProps, type ComponentStateValue, type GrowProps, type RadiusInput, type ResponsiveSpaceValue, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef, useMergedRefs } from '../core';
 import { Flex } from '../Flex';
-import { useAnchoredFloating } from '../hooks/useAnchoredFloating';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
+import { IconTooltipWithPortal, type IconTooltipDirection } from './IconTooltip';
+import { hasIconSource, parseAspectRatio, resolveIconSource, type IconComponent, type IconSource, type ResolvedIconSource } from './svg';
 import { useIconSwap, componentSwapKey, type IconAnimate } from './swap';
+import { useFetchedSvg, type FetchedSvgState } from './useFetchedSvg';
 
 const c = createLayoutClasses([styles, tokenStyles]);
 
-const SAFE_SVG_PAINT_PATTERNS = [
-  /^(?:none|currentColor|transparent|inherit|context-fill|context-stroke)$/i,
-  /^#[0-9a-f]{3,8}$/i,
-  /^(?:rgb|rgba|hsl|hsla)\(\s*[-\d.%\s,]+\)$/i,
-  /^var\(\s*--[\w-]+\s*(?:,\s*[^()]+)?\)$/i,
-  /^url\(\s*['"]?#[-\w]+['"]?\s*\)$/i,
-  /^[a-z]+$/i,
-] as const;
-
-const SAFE_SVG_STROKE_WIDTH_PATTERN = /^(?:\d+|\d*\.\d+)(?:px|em|rem|%)?$/i;
-
-function sanitizeSvgPaintValue(value: string): string | undefined {
-  const normalized = value.trim();
-  if (!normalized) return undefined;
-  return SAFE_SVG_PAINT_PATTERNS.some((pattern) => pattern.test(normalized)) ? normalized : undefined;
-}
-
-function sanitizeSvgStrokeWidthValue(value: string): string | undefined {
-  const normalized = value.trim();
-  if (!normalized) return undefined;
-  return SAFE_SVG_STROKE_WIDTH_PATTERN.test(normalized) ? normalized : undefined;
-}
-
-function rewriteSvgPaintAttributes(content: string, normalizeContent = false): string {
-  return content
-    .replace(/\bstroke-width\s*=\s*["']([^"']*)["']/gi, (_match: string, value: string) => {
-      const safeValue = sanitizeSvgStrokeWidthValue(value);
-
-      if (normalizeContent) {
-        return safeValue
-          ? `stroke-width="var(--icon-stroke-width, ${safeValue})"`
-          : 'stroke-width="var(--icon-stroke-width)"';
-      }
-
-      return safeValue ? `stroke-width="${safeValue}"` : '';
-    })
-    .replace(/\bstroke\s*=\s*["']([^"']*)["']/gi, (_match: string, value: string) => {
-      if (value.trim().toLowerCase() === 'none') return 'stroke="none"';
-
-      const safeValue = sanitizeSvgPaintValue(value);
-
-      if (normalizeContent) {
-        return safeValue
-          ? `stroke="var(--icon-stroke, ${safeValue})"`
-          : 'stroke="var(--icon-stroke)"';
-      }
-
-      return safeValue ? `stroke="${safeValue}"` : '';
-    })
-    .replace(/\bfill\s*=\s*["']([^"']*)["']/gi, (_match: string, value: string) => {
-      if (value.trim().toLowerCase() === 'none') return 'fill="none"';
-
-      const safeValue = sanitizeSvgPaintValue(value);
-
-      if (normalizeContent) {
-        return safeValue
-          ? `fill="var(--icon-fill, ${safeValue})"`
-          : 'fill="var(--icon-fill)"';
-      }
-
-      return safeValue ? `fill="${safeValue}"` : '';
-    });
-}
-
-/** Подменяет stroke/fill в контенте на CSS-переменные, сохраняя исходный цвет как fallback. */
-function normalizeSvgContent(content: string): string {
-  return rewriteSvgPaintAttributes(content, true);
-}
-
-function parseSvg(text: string, normalizeContent = false): { content: string; viewBox?: string; rootFill?: string } {
-  const sanitizedText = sanitizeSvgMarkup(text);
-  const svgMatch = sanitizedText.match(/<svg([^>]*)>([\s\S]*?)<\/svg>/i);
-  if (svgMatch) {
-    const [, attributes = '', inner = ''] = svgMatch;
-    const viewBox = attributes.match(/viewBox=["']([^"']+)["']/i)?.[1];
-    const fill = attributes.match(/\bfill=["']([^"']+)["']/i)?.[1];
-    return {
-      content: normalizeContent ? normalizeSvgContent(inner) : rewriteSvgPaintAttributes(inner),
-      viewBox,
-      rootFill: fill ? sanitizeSvgPaintValue(fill) : undefined,
-    };
-  }
-
-  throw new Error('Invalid SVG response');
-}
-
-type ParsedSvg = { content: string; viewBox?: string; rootFill?: string };
-
-const svgFetchCache = new Map<string, Promise<ParsedSvg>>();
-// Синхронный кэш уже разобранных SVG. Позволяет отрисовать иконку в первом же рендере
-// (без вспышки null → content), если тот же файл уже грузился ранее на клиенте.
-const svgResolvedCache = new Map<string, ParsedSvg>();
-// Реестр инлайн-иконок: сырой <svg>-текст, впечённый в бандл на этапе сборки
-// (см. tools/icons/generate-inline-manifest.mjs). Ключ — итоговый URL вида '/icons/...'.
-// Даёт синхронную отрисовку в первом кадре и в SSR, без рантайм-fetch.
-const inlineSvgRegistry = new Map<string, string>();
-
-/**
- * Регистрирует инлайн-иконки (URL → сырой SVG-текст). Вызывается один раз при старте
- * приложения сгенерированным модулем. Идемпотентно — повторные ключи перезаписываются.
- */
-export function registerInlineIcons(icons: Record<string, string>): void {
-  for (const [key, svg] of Object.entries(icons)) {
-    inlineSvgRegistry.set(key, svg);
-  }
-}
-
-function svgCacheKey(url: string, normalizeContent: boolean): string {
-  return `${url}::${normalizeContent ? 'normalized' : 'raw'}`;
-}
-
-function getResolvedSvg(url: string | null, normalizeContent: boolean): ParsedSvg | null {
-  if (!url) return null;
-
-  const cacheKey = svgCacheKey(url, normalizeContent);
-  const cached = svgResolvedCache.get(cacheKey);
-  if (cached) return cached;
-
-  // Инлайн-иконка из бандла: разбираем синхронно один раз и кладём в кэш.
-  // Если запись битая — деградируем к обычному fetch-пути (ниже), не роняя рендер.
-  const inlineRaw = inlineSvgRegistry.get(url);
-  if (inlineRaw != null) {
-    try {
-      const parsed = parseSvg(inlineRaw, normalizeContent);
-      svgResolvedCache.set(cacheKey, parsed);
-      return parsed;
-    } catch {
-      /* fall through to fetch */
-    }
-  }
-
-  return null;
-}
-
-function fetchSvgCached(url: string, normalizeContent = false): Promise<ParsedSvg> {
-  const cacheKey = svgCacheKey(url, normalizeContent);
-
-  const cached = svgFetchCache.get(cacheKey);
-  if (cached) return cached;
-
-  const request = fetch(url)
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`Failed to load SVG: ${url}`);
-      }
-
-      return res.text();
-    })
-    .then((text) => {
-      const parsed = parseSvg(text, normalizeContent);
-      svgResolvedCache.set(cacheKey, parsed);
-      return parsed;
-    })
-    .catch((error) => {
-      svgFetchCache.delete(cacheKey);
-      throw error;
-    });
-
-  svgFetchCache.set(cacheKey, request);
-  return request;
-}
-
-// Тип для SVG компонента, который возвращает SVGR
-export type IconComponent = React.FC<React.SVGProps<SVGSVGElement>>;
-
-export type IconSource = {
-  src?: string | IconComponent;
-  name?: string;
-  component?: IconComponent;
-};
-
 // `r` у SVG — радиус окружности; у Icon это радиус коробки (кортежем), поэтому родной убран.
 type IconBaseSvgProps = Omit<SVGProps<SVGSVGElement>, 'width' | 'height' | 'color' | 'rotate' | 'strokeWidth' | 'r'>;
-type IconSourceInput = string | IconComponent | IconSource | undefined;
-type FetchedSvgState = { content: string | null; viewBox?: string; rootFill?: string };
-type ResolvedIconSource = { url: string | null; component?: IconComponent };
 type IconElementProps = IconBaseSvgProps & Record<string, unknown>;
 
 type IconRootSizeProps = {
@@ -209,159 +36,6 @@ type IconRootStyleProps = {
   rootBg?: ResponsiveValue<string>;
   rootClassName?: string;
 };
-
-function isIconComponentSource(source: unknown): source is IconComponent {
-  return typeof source === 'function'
-    || (typeof source === 'object' && source !== null && '$$typeof' in source);
-}
-
-function resolveIconUrl(source: string): string {
-  const value = source
-    .trim()
-    .replace(/^\.\//, '')
-    .replace(/^public\//, '');
-
-  if (!value) return value;
-  if (/^(https?:)?\/\//i.test(value) || value.startsWith('data:')) return value;
-  if (value.startsWith('/')) return value;
-  if (value.startsWith('icons/')) return `/${value}`;
-  if (value.endsWith('.svg')) return `/icons/${value}`;
-
-  return `/icons/${value}.svg`;
-}
-
-function resolveIconSource(source?: IconSourceInput): ResolvedIconSource {
-  if (!source) return { url: null };
-  if (typeof source === 'string') return { url: resolveIconUrl(source) };
-  if (isIconComponentSource(source)) return { component: source, url: null };
-
-  return {
-    component: source.component ?? (isIconComponentSource(source.src) ? source.src : undefined),
-    url: typeof source.src === 'string'
-      ? resolveIconUrl(source.src)
-      : (source.name ? `/icons/${source.name}.svg` : null),
-  };
-}
-
-function hasIconSource(source: ResolvedIconSource): boolean {
-  return Boolean(source.component || source.url);
-}
-
-function parseAspectRatio(viewBox?: string): CSSProperties['aspectRatio'] | undefined {
-  if (!viewBox) return undefined;
-
-  const [, , widthRaw, heightRaw] = viewBox.trim().split(/[\s,]+/);
-  const width = Number(widthRaw);
-  const height = Number(heightRaw);
-
-  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
-    return undefined;
-  }
-
-  return `${width} / ${height}`;
-}
-
-function useFetchedSvg(url: string | null, normalizeContent = false): FetchedSvgState {
-  const [state, setState] = useState<FetchedSvgState>(
-    () => getResolvedSvg(url, normalizeContent) ?? { content: null, viewBox: undefined, rootFill: undefined }
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-
-    if (!url) {
-      setState({ content: null, viewBox: undefined, rootFill: undefined });
-      return () => { cancelled = true; };
-    }
-
-    // Уже разобранный SVG берём синхронно — без повторного fetch и без вспышки пустого состояния.
-    const resolved = getResolvedSvg(url, normalizeContent);
-    if (resolved) {
-      setState(resolved);
-      return () => { cancelled = true; };
-    }
-
-    setState({ content: null, viewBox: undefined, rootFill: undefined });
-
-    fetchSvgCached(url, normalizeContent)
-      .then(({ content, viewBox, rootFill }) => {
-        if (!cancelled) {
-          setState({ content, viewBox, rootFill });
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setState({ content: null, viewBox: undefined, rootFill: undefined });
-        }
-      });
-
-    return () => { cancelled = true; };
-  }, [url, normalizeContent]);
-
-  return state;
-}
-
-type IconTooltipWithPortalProps = {
-  children: React.ReactElement;
-  tooltip: React.ReactNode;
-  direction: NonNullable<IconProps['tooltipDirection']>;
-  gap: number;
-};
-
-function IconTooltipWithPortal({ children, tooltip, direction, gap }: IconTooltipWithPortalProps) {
-  const anchorRef = useRef<HTMLSpanElement | null>(null);
-  const floatingRef = useRef<HTMLElement | null>(null);
-  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
-  const [isActive, setIsActive] = useState(false);
-  const { placement, isPositioned, style: floatingStyle } = useAnchoredFloating({
-    anchorRef,
-    floatingRef,
-    isActive,
-    placement: direction,
-    align: 'center',
-    gap,
-    viewportPadding: 8,
-  });
-
-  useEffect(() => {
-    setPortalNode(document.body);
-  }, []);
-
-  const handleBlur = (event: React.FocusEvent<HTMLSpanElement>) => {
-    const nextFocusedNode = event.relatedTarget as Node | null;
-    if (!nextFocusedNode || !event.currentTarget.contains(nextFocusedNode)) {
-      setIsActive(false);
-    }
-  };
-
-  return (
-    <>
-      <span
-        ref={anchorRef}
-        className={styles.IconTooltipWrapper}
-        style={{ '--tooltip-gap': `${gap}px` } as CSSProperties}
-        onMouseEnter={() => setIsActive(true)}
-        onMouseLeave={() => setIsActive(false)}
-        onFocus={() => setIsActive(true)}
-        onBlur={handleBlur}
-      >
-        {children}
-      </span>
-      {portalNode && createPortal(
-        <span
-          ref={floatingRef}
-          className={styles.IconTooltip}
-          style={floatingStyle}
-          data-placement={placement}
-          {...buildStateProps(isActive && isPositioned && 'active')}
-        >
-          {tooltip}
-        </span>,
-        portalNode
-      )}
-    </>
-  );
-}
 
 export interface IconProps extends IconBaseSvgProps, SizeInput, RadiusInput, IconRootSizeProps, IconRootStyleProps, BorderStyleProps, GrowProps, SharedMotionProps {
   'data-point-events'?: string;
@@ -411,7 +85,7 @@ export interface IconProps extends IconBaseSvgProps, SizeInput, RadiusInput, Ico
   strokeWidth?: ResponsiveValue<number | string>;
   state?: ComponentStateValue;
   tooltip?: React.ReactNode;
-  tooltipDirection?: 'right' | 'left' | 'top' | 'bottom';
+  tooltipDirection?: IconTooltipDirection;
   tooltipGap?: number;
 
   linkState?: StateLinkInput;
