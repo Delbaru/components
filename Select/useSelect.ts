@@ -350,7 +350,10 @@ export function useSelect(ref: Ref<HTMLDivElement> | undefined, config: SelectCo
             }
 
             if (e.key === 'Escape') {
+                // Escape открытого списка закрывает только его: всплыв до окна-модалки, он закрывал
+                // окно целиком вместе с введённой формой. Закрытый список Escape окну отпускает.
                 e.preventDefault();
+                e.stopPropagation();
                 closeDropdown();
                 return;
             }
