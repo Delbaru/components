@@ -28,6 +28,7 @@ export function useInView<T extends Element>(
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (!entry) return;
         setState({
           isInView: entry.isIntersecting,
           ratio: entry.intersectionRatio,

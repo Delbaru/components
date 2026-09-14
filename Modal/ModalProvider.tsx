@@ -44,6 +44,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
       const index = prev.findIndex((item) => item.id === id);
       if (index === -1) return prev;
       const item = prev[index];
+      if (!item) return prev;
       item.options.onClose?.();
       setTimeout(() => {
         setStack((p) => p.filter((x) => x.id !== id));
@@ -79,6 +80,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     setStack((prev) => {
       if (prev.length === 0) return prev;
       const top = prev[prev.length - 1];
+      if (!top) return prev;
       top.options.onClose?.();
       const idToRemove = top.id;
       setTimeout(() => {

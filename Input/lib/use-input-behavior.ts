@@ -512,20 +512,23 @@ export function useInputBehavior({
 
       let nextValue: number;
 
-      if (boundedOptions.length > 0) {
+      const firstOption = boundedOptions[0];
+      const lastOption = boundedOptions[boundedOptions.length - 1];
+
+      if (firstOption !== undefined && lastOption !== undefined) {
         if (!Number.isFinite(numericValue)) {
-          nextValue = delta > 0 ? boundedOptions[0] : boundedOptions[boundedOptions.length - 1];
+          nextValue = delta > 0 ? firstOption : lastOption;
         } else {
           const exactIndex = boundedOptions.indexOf(numericValue);
 
           if (exactIndex >= 0) {
             const nextIndex = Math.min(Math.max(exactIndex + delta, 0), boundedOptions.length - 1);
-            nextValue = boundedOptions[nextIndex];
+            nextValue = boundedOptions[nextIndex] ?? lastOption;
           } else if (delta > 0) {
-            nextValue = boundedOptions.find((option) => option > numericValue) ?? boundedOptions[boundedOptions.length - 1];
+            nextValue = boundedOptions.find((option) => option > numericValue) ?? lastOption;
           } else {
             const reversedOptions = [...boundedOptions].reverse();
-            nextValue = reversedOptions.find((option) => option < numericValue) ?? boundedOptions[0];
+            nextValue = reversedOptions.find((option) => option < numericValue) ?? firstOption;
           }
         }
       } else {

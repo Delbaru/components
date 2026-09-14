@@ -87,12 +87,13 @@ function parseSvg(text: string, normalizeContent = false): { content: string; vi
   const sanitizedText = sanitizeSvgMarkup(text);
   const svgMatch = sanitizedText.match(/<svg([^>]*)>([\s\S]*?)<\/svg>/i);
   if (svgMatch) {
-    const viewBoxMatch = svgMatch[1].match(/viewBox=["']([^"']+)["']/i);
-    const fillMatch = svgMatch[1].match(/\bfill=["']([^"']+)["']/i);
+    const [, attributes = '', inner = ''] = svgMatch;
+    const viewBox = attributes.match(/viewBox=["']([^"']+)["']/i)?.[1];
+    const fill = attributes.match(/\bfill=["']([^"']+)["']/i)?.[1];
     return {
-      content: normalizeContent ? normalizeSvgContent(svgMatch[2]) : rewriteSvgPaintAttributes(svgMatch[2]),
-      viewBox: viewBoxMatch ? viewBoxMatch[1] : undefined,
-      rootFill: fillMatch ? sanitizeSvgPaintValue(fillMatch[1]) : undefined,
+      content: normalizeContent ? normalizeSvgContent(inner) : rewriteSvgPaintAttributes(inner),
+      viewBox,
+      rootFill: fill ? sanitizeSvgPaintValue(fill) : undefined,
     };
   }
 
@@ -115,8 +116,8 @@ const inlineSvgRegistry = new Map<string, string>();
  * приложения сгенерированным модулем. Идемпотентно — повторные ключи перезаписываются.
  */
 export function registerInlineIcons(icons: Record<string, string>): void {
-  for (const key in icons) {
-    inlineSvgRegistry.set(key, icons[key]);
+  for (const [key, svg] of Object.entries(icons)) {
+    inlineSvgRegistry.set(key, svg);
   }
 }
 
@@ -150,28 +151,29 @@ function getResolvedSvg(url: string | null, normalizeContent: boolean): ParsedSv
 function fetchSvgCached(url: string, normalizeContent = false): Promise<ParsedSvg> {
   const cacheKey = svgCacheKey(url, normalizeContent);
 
-  if (!svgFetchCache.has(cacheKey)) {
-    const request = fetch(url)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`Failed to load SVG: ${url}`);
-        }
+  const cached = svgFetchCache.get(cacheKey);
+  if (cached) return cached;
 
-        return res.text();
-      })
-      .then((text) => {
-        const parsed = parseSvg(text, normalizeContent);
-        svgResolvedCache.set(cacheKey, parsed);
-        return parsed;
-      })
-      .catch((error) => {
-        svgFetchCache.delete(cacheKey);
-        throw error;
-      });
+  const request = fetch(url)
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Failed to load SVG: ${url}`);
+      }
 
-    svgFetchCache.set(cacheKey, request);
-  }
-  return svgFetchCache.get(cacheKey)!;
+      return res.text();
+    })
+    .then((text) => {
+      const parsed = parseSvg(text, normalizeContent);
+      svgResolvedCache.set(cacheKey, parsed);
+      return parsed;
+    })
+    .catch((error) => {
+      svgFetchCache.delete(cacheKey);
+      throw error;
+    });
+
+  svgFetchCache.set(cacheKey, request);
+  return request;
 }
 
 // Тип для SVG компонента, который возвращает SVGR

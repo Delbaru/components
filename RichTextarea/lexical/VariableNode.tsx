@@ -38,7 +38,7 @@ export type SerializedVariableNode = Spread<
 // (фон, скругление, иконка) навешиваем CSS-классом и data-атрибутом — их Lexical
 // при обновлении DOM не трогает, поэтому переприменяем и в createDOM, и в updateDOM.
 function decorateVariableElement(element: HTMLElement, node: VariableNode): void {
-    element.classList.add(styles.VariableChip);
+    if (styles.VariableChip) element.classList.add(styles.VariableChip);
     element.setAttribute('data-variable-key', node.getVariableKey());
 
     const iconSource = resolveSvgAssetSource(node.getIcon());
@@ -60,15 +60,15 @@ export class VariableNode extends TextNode {
     __color?: string;
     __icon?: string;
 
-    static getType(): string {
+    static override getType(): string {
         return 'variable';
     }
 
-    static clone(node: VariableNode): VariableNode {
+    static override clone(node: VariableNode): VariableNode {
         return new VariableNode(node.__label, node.__variableKey, node.__color, node.__icon, node.__key);
     }
 
-    static importJSON(serializedNode: SerializedVariableNode): VariableNode {
+    static override importJSON(serializedNode: SerializedVariableNode): VariableNode {
         const node = $createVariableNode({
             key: serializedNode.variableKey,
             label: serializedNode.label ?? serializedNode.text,
@@ -91,21 +91,21 @@ export class VariableNode extends TextNode {
         this.__icon = icon;
     }
 
-    createDOM(config: EditorConfig): HTMLElement {
+    override createDOM(config: EditorConfig): HTMLElement {
         const element = super.createDOM(config);
         decorateVariableElement(element, this);
 
         return element;
     }
 
-    updateDOM(prevNode: this, dom: HTMLElement, config: EditorConfig): boolean {
+    override updateDOM(prevNode: this, dom: HTMLElement, config: EditorConfig): boolean {
         const isUpdated = super.updateDOM(prevNode, dom, config);
         decorateVariableElement(dom, this);
 
         return isUpdated;
     }
 
-    exportJSON(): SerializedVariableNode {
+    override exportJSON(): SerializedVariableNode {
         return {
             ...super.exportJSON(),
             type: 'variable',
@@ -119,11 +119,11 @@ export class VariableNode extends TextNode {
 
     // Атомарность токена: курсор не встаёт внутрь, ввод рядом не «прилипает»
     // к переменной, а Backspace/Delete удаляют её целиком (режим token).
-    canInsertTextBefore(): boolean {
+    override canInsertTextBefore(): boolean {
         return false;
     }
 
-    canInsertTextAfter(): boolean {
+    override canInsertTextAfter(): boolean {
         return false;
     }
 

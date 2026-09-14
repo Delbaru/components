@@ -33,7 +33,7 @@ test('каждая промежуточная цифра держится ров
     let store = '';
 
     steps.forEach((expected, index) => {
-        store = roundTrip(store, '916123'[index]);
+        store = roundTrip(store, '916123'.charAt(index));
         assert.equal(store, expected);
     });
 });

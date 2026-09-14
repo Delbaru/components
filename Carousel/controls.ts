@@ -64,7 +64,7 @@ function resolveNearestCarouselNode(node: HTMLElement | null): CarouselRootNode 
     const carouselNodes = currentNode.querySelectorAll<CarouselRootNode>('[data-carousel-root][data-carousel-id]');
 
     if (carouselNodes.length === 1) {
-      return carouselNodes[0];
+      return carouselNodes[0] ?? null;
     }
 
     currentNode = currentNode.parentElement;

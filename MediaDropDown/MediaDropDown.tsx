@@ -43,7 +43,9 @@ export interface MediaDropDownProps {
     disabled?: boolean;
 }
 
-const MEDIA_TYPES: { type: MediaType; label: string; icon: string; hint: string; accept?: string }[] = [
+type MediaTypeOption = { type: MediaType; label: string; icon: string; hint: string; accept?: string };
+
+const MEDIA_TYPES: [MediaTypeOption, ...MediaTypeOption[]] = [
     {
         type: 'image',
         label: 'Изображение',

@@ -1,3 +1,5 @@
+import type { EventHandler as ReactEventHandler, SyntheticEvent } from 'react';
+
 const STATE_ATTRIBUTE = 'state';
 
 export type ComponentStateName = string;
@@ -137,13 +139,13 @@ export function useLinkedHoverState(state: ComponentStateValue, isHovered: boole
 // stateLinkProps — universal handler builder for linkState prop
 // ---------------------------------------------------------------------------
 
-type EventHandler = ((...args: any[]) => void) | undefined;
+type EventHandler = ReactEventHandler<SyntheticEvent> | undefined;
 
 function mergeHandlers(...fns: EventHandler[]): EventHandler {
-  const defined = fns.filter(Boolean) as ((...args: any[]) => void)[];
+  const defined = fns.filter((fn): fn is ReactEventHandler<SyntheticEvent> => Boolean(fn));
   if (defined.length === 0) return undefined;
   if (defined.length === 1) return defined[0];
-  return (...args: any[]) => { for (const fn of defined) fn(...args); };
+  return (event) => { for (const fn of defined) fn(event); };
 }
 
 function normalizeLinks(input: StateLinkInput): StateLink[] {
@@ -164,12 +166,12 @@ function normalizeLinks(input: StateLinkInput): StateLink[] {
 export function stateLinkProps(
   input: StateLinkInput | undefined,
   userHandlers?: Record<string, EventHandler>,
-): Record<string, any> {
+): Record<string, EventHandler | string> {
   const uh = userHandlers ?? {};
 
   // No links — just pass user handlers through
   if (!input) {
-    const result: Record<string, any> = {};
+    const result: Record<string, EventHandler | string> = {};
     for (const [key, handler] of Object.entries(uh)) {
       if (handler) result[key] = handler;
     }
@@ -184,7 +186,7 @@ export function stateLinkProps(
   const activeLinks = byTrigger('active');
   const focusLinks = byTrigger('focus');
 
-  const result: Record<string, any> = {};
+  const result: Record<string, EventHandler | string> = {};
 
   // data attribute with all target IDs (useful for CSS / debugging)
   const targetIds = [...new Set(links.map((l) => l.target))].join(' ');

@@ -92,13 +92,6 @@ type ModalSurfaceProps = LayoutSpaceProps & RadiusPropsShort & SizePropsShort & 
 
 export type ModalProps = Omit<ModalSurfaceProps, 'open' | 'onClose'>;
 
-function useBodyScrollLock(open: boolean) {
-  useEffect(() => {
-    if (!open) return;
-    const prevOverflow = document.body.style.overflow;
-  }, [open]);
-}
-
 const ModalSurface = forwardRef<HTMLDivElement, ModalSurfaceProps>(
   (
     {
@@ -174,8 +167,6 @@ const ModalSurface = forwardRef<HTMLDivElement, ModalSurfaceProps>(
     const previousActiveElement = useRef<HTMLElement | null>(null);
     const [entered, setEntered] = useState(false);
     const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
-
-    useBodyScrollLock(open);
 
     useEffect(() => {
       if (open) {

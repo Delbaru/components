@@ -50,7 +50,7 @@ const c = createLayoutClasses([styles, tokenStyles]);
 
 // Реестр анимаций (CSS-keyframes в Flex.module.scss). Явная мапа вместо вычисляемого
 // доступа к styles — типобезопасно и не зависит от того, как затипизирован CSS-модуль.
-const animationClasses: Record<FlexAnimation, string> = {
+const animationClasses: Record<FlexAnimation, string | undefined> = {
   fadeIn: styles.anim_fadeIn,
   fadeInUp: styles.anim_fadeInUp,
   fadeInDown: styles.anim_fadeInDown,

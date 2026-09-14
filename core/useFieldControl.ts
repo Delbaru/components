@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState, useRef, useImperativeHandle, useCallback, type ForwardedRef } from 'react';
+import { useId, useState, useRef, useImperativeHandle, useCallback, type Ref } from 'react';
 
 const DEFAULT_EMPTY_MESSAGE = 'Поле обязательно для заполнения';
 
@@ -15,7 +15,7 @@ export interface FieldControlConfig {
 }
 
 export function useFieldControl<E extends HTMLElement>(
-    ref: ForwardedRef<E>,
+    ref: Ref<E | null> | undefined,
     config: FieldControlConfig
 ) {
     const {
@@ -32,7 +32,7 @@ export function useFieldControl<E extends HTMLElement>(
     const id = idProp ?? generatedId;
 
     const innerRef = useRef<E>(null);
-    useImperativeHandle(ref, () => innerRef.current!, []);
+    useImperativeHandle<E | null, E | null>(ref, () => innerRef.current, []);
 
     const isControlled = valueProp !== undefined;
     const [uncontrolledValue, setUncontrolledValue] = useState('');

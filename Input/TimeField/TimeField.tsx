@@ -8,7 +8,7 @@ import styles from './TimeField.module.scss';
 interface TimeFieldProps {
   inputRef: React.Ref<HTMLInputElement>;
   inputProps: React.InputHTMLAttributes<HTMLInputElement>;
-  fieldClassName: string;
+  fieldClassName?: string;
   showMask: boolean;
   maskValue: string;
   maskSuffix: string;

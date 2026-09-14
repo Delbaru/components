@@ -2,7 +2,7 @@
 // Внутри UI-компонентов импортируем общие утилиты отсюда, например `import { ... } from '../core'`.
 
 // base (общие утилиты — пригодятся любым компонентам)
-export { resolveResponsive } from './base/responsive';
+export { getBreakpointIndex, resolveResponsive, resolveResponsiveAtBreakpoint } from './base/responsive';
 export type { ResponsiveValue } from './base/responsive';
 export { cx, css } from './base/cn';
 export type { ClassValue } from './base/cn';

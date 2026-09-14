@@ -187,7 +187,7 @@ function TextSlideSwap({ content, options }: TextAnimationContext<TextSlideOptio
   // Ячейки по порядку текущего текста: [префикс-статика][изменившаяся середина][суффикс-статика].
   const cells: { node: ReactNode; space: boolean }[] = [];
   const pushStatic = (key: string, i: number) =>
-    cells.push({ node: staticCell(key, currentChars[i]), space: currentChars[i] === ' ' });
+    cells.push({ node: staticCell(key, currentChars[i] ?? ''), space: currentChars[i] === ' ' });
 
   for (let i = 0; i < prefix; i++) pushStatic(`p${i}`, i);
   if (previousChars === null) {
@@ -195,7 +195,7 @@ function TextSlideSwap({ content, options }: TextAnimationContext<TextSlideOptio
   } else if (sameLen) {
     for (let i = prefix; i < curMidEnd; i++) {
       if (previousChars[i] === currentChars[i]) pushStatic(`m${i}`, i);
-      else cells.push({ node: swapCellNode(`m${i}`, previousChars[i], currentChars[i]), space: currentChars[i] === ' ' });
+      else cells.push({ node: swapCellNode(`m${i}`, previousChars[i] ?? '', currentChars[i] ?? ''), space: currentChars[i] === ' ' });
     }
     for (let i = curMidEnd; i < currentChars.length; i++) pushStatic(`s${i}`, i);
   } else {

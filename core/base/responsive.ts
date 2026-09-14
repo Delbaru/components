@@ -33,3 +33,21 @@ export const resolveResponsive = <T,>(value: ResponsiveValue<T>): [T | null, T |
   return [desktop, mobile, tablet];
 };
 
+/** Индекс брейкпоинта по ширине окна: 0 — desktop (≥1024), 1 — mobile (≤767), 2 — tablet. */
+export const getBreakpointIndex = (viewportWidth: number): 0 | 1 | 2 => {
+  if (viewportWidth <= 767) return 1;
+  if (viewportWidth <= 1023) return 2;
+  return 0;
+};
+
+/** Значение на одном брейкпоинте (0 — desktop, 1 — mobile, 2 — tablet) с запасным вариантом. */
+export const resolveResponsiveAtBreakpoint = <T,>(
+  value: ResponsiveValue<T> | undefined,
+  fallback: T,
+  breakpointIndex: 0 | 1 | 2
+): T => {
+  if (value === undefined) return fallback;
+
+  return resolveResponsive(value)[breakpointIndex] ?? fallback;
+};
+

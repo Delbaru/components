@@ -266,6 +266,7 @@ export function useParallaxMotion(parallax: ParallaxInput | undefined) {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (!entry) return;
         isVisibleRef.current = entry.isIntersecting;
         if (entry.isIntersecting) scheduleAnimation();
       },

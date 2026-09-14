@@ -87,7 +87,8 @@ const parseAspect = (value?: string | null): number | null => {
   const parts = value.split(/[/:]/);
   if (parts.length !== 2) throw new Error(`[Img] aspectRatio must be "w/h". Got: ${value}`);
 
-  const [w, h] = parts.map(Number);
+  const w = Number(parts[0]);
+  const h = Number(parts[1]);
   if (!Number.isFinite(w) || !Number.isFinite(h) || h === 0) {
     throw new Error(`[Img] aspectRatio parts must be finite numbers. Got: ${value}`);
   }

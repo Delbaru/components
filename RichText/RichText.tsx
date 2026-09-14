@@ -4,29 +4,11 @@ import styles from './RichText.module.scss';
 
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { cx, createLayoutClasses, buildClampStyle, decodeHtmlEntities, growStyle, inlineGrowClassName, needsInlineGrow, radiusClasses, responsiveValueHasFullClassCoverage, sanitizeRichTextHtml, stripHtmlTags, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, resolveRadiusInput, type GrowProps, type RadiusPropsShort, type StateLinkInput, type ResponsiveValue, type SizeValue } from '../core';
-import { resolveResponsive } from '../core/base/responsive';
+import { cx, createLayoutClasses, getBreakpointIndex, resolveResponsiveAtBreakpoint, buildClampStyle, decodeHtmlEntities, growStyle, inlineGrowClassName, needsInlineGrow, radiusClasses, responsiveValueHasFullClassCoverage, sanitizeRichTextHtml, stripHtmlTags, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, resolveRadiusInput, type GrowProps, type RadiusPropsShort, type StateLinkInput, type ResponsiveValue, type SizeValue } from '../core';
 import { renderLexicalContent } from './LexicalRenderer';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
 const c = createLayoutClasses([styles, tokenStyles]);
-
-function getBreakpointIndex(viewportWidth: number): 0 | 1 | 2 {
-  if (viewportWidth <= 767) return 1;
-  if (viewportWidth <= 1023) return 2;
-  return 0;
-}
-
-function resolveResponsiveAtBreakpoint<T>(
-  value: ResponsiveValue<T> | undefined,
-  fallback: T,
-  breakpointIndex: 0 | 1 | 2,
-): T {
-  if (value === undefined) return fallback;
-
-  const resolved = resolveResponsive(value);
-  return (resolved[breakpointIndex] ?? fallback) as T;
-}
 
 type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 type Block =
@@ -65,16 +47,12 @@ export type AnimationInput =
   | [AnimationKey, TextSlideOptions | TextClipOptions];
 
 function parseAnimation(animation: ResponsiveValue<AnimationInput> | undefined): {
-  animation: ResponsiveValue<AnimationKey>;
-  textSlideOptions: ResponsiveValue<TextSlideOptions | undefined>;
-  textClipOptions: ResponsiveValue<TextClipOptions | undefined>;
+  animation: ResponsiveValue<AnimationKey> | undefined;
+  textSlideOptions: ResponsiveValue<TextSlideOptions | undefined> | undefined;
+  textClipOptions: ResponsiveValue<TextClipOptions | undefined> | undefined;
 } {
   if (animation === undefined) {
-    return {
-      animation: undefined as unknown as ResponsiveValue<AnimationKey>,
-      textSlideOptions: undefined as unknown as ResponsiveValue<TextSlideOptions | undefined>,
-      textClipOptions: undefined as unknown as ResponsiveValue<TextClipOptions | undefined>,
-    };
+    return { animation: undefined, textSlideOptions: undefined, textClipOptions: undefined };
   }
 
   const normalize = (v: AnimationInput): { key: AnimationKey; options?: TextSlideOptions | TextClipOptions } => {
@@ -124,7 +102,7 @@ function parseListContent(content: string): string[] {
   const liRegex = /<li>([\s\S]*?)<\/li>/gi;
   let match;
   while ((match = liRegex.exec(content)) !== null) {
-    items.push(match[1].trim());
+    items.push((match[1] ?? '').trim());
   }
   return items;
 }
@@ -151,15 +129,15 @@ function parseRichText(content: string): Block[] {
       const parts = before.split(BR_REGEX).map((s) => s.trim()).filter(Boolean);
       if (parts.length) blocks.push({ type: 'paragraph', parts });
     }
-    const tag = match[1];
+    const [, tag = '', body = ''] = match;
     if (tag.startsWith('h')) {
       const level = parseInt(tag.slice(1)) as HeadingLevel;
-      blocks.push({ type: 'heading', level, content: match[2].trim() });
+      blocks.push({ type: 'heading', level, content: body.trim() });
     } else if (tag === 'p') {
-      const parts = match[2].split(BR_REGEX).map((s) => s.trim()).filter(Boolean);
+      const parts = body.split(BR_REGEX).map((s) => s.trim()).filter(Boolean);
       if (parts.length) blocks.push({ type: 'paragraph', parts });
     } else if (tag === 'ul' || tag === 'ol') {
-      const items = parseListContent(match[2]);
+      const items = parseListContent(body);
       blocks.push({ type: 'list', tag, items });
     }
     lastIndex = re.lastIndex;
@@ -359,12 +337,12 @@ export function LexicalText({ content, variant = 'default', w, h, animation, row
       const hs = itemRefs.current.map(el => el?.offsetHeight || 0);
       setHeights(hs);
       if (isTextSlide) {
-        const cum = hs.reduce((acc, h, i) => {
+        const cum = hs.reduce((acc, h) => {
           const prev = acc[acc.length - 1] || 0;
           return [...acc, prev + h];
         }, [] as number[]);
         setCumHeights(cum);
-        setContainerHeight(hs[resolvedTextSlideOpts!.currentStep] || 0);
+        setContainerHeight(hs[resolvedTextSlideOpts?.currentStep ?? 0] || 0);
       }
     }
   }, [isTextSlide, isTextClip, resolvedTextSlideOpts?.steps, resolvedTextSlideOpts?.currentStep, resolvedTextClipOpts?.steps]);
@@ -386,10 +364,11 @@ export function LexicalText({ content, variant = 'default', w, h, animation, row
       }, 0);
       return () => clearTimeout(t);
     }
+    return undefined;
   }, [resolvedTextClipOpts?.currentStep, displayedStep, resolvedTextClipOpts]);
 
   if (isTextSlide) {
-    const translateY = cumHeights[resolvedTextSlideOpts!.currentStep - 1] || 0;
+    const translateY = cumHeights[(resolvedTextSlideOpts?.currentStep ?? 0) - 1] || 0;
     return (
       <div
         ref={setRootRef}
@@ -403,10 +382,10 @@ export function LexicalText({ content, variant = 'default', w, h, animation, row
             height: containerHeight,
             position: 'relative',
             transform: `translateY(-${translateY}px)`,
-            transition: `height ${resolvedTextSlideOpts!.duration || 1}s ease, transform ${resolvedTextSlideOpts!.duration || 1}s ease`,
+            transition: `height ${resolvedTextSlideOpts.duration || 1}s ease, transform ${resolvedTextSlideOpts.duration || 1}s ease`,
           }}
         >
-          {resolvedTextSlideOpts!.steps.map((stepContent, index) => {
+          {resolvedTextSlideOpts.steps.map((stepContent, index) => {
             const blocks = parseRichText(decodeHtmlEntities(stepContent));
             return (
               <div
@@ -441,12 +420,12 @@ export function LexicalText({ content, variant = 'default', w, h, animation, row
         <div
           className={styles.clipContainer}
           style={{
-            height: maxHeight || resolvedTextClipOpts!.clipHeight || 'auto',
+            height: maxHeight || resolvedTextClipOpts.clipHeight || 'auto',
             clipPath,
-            transition: `clip-path ${(resolvedTextClipOpts!.duration || 1)}s ease`,
+            transition: `clip-path ${(resolvedTextClipOpts.duration || 1)}s ease`,
           }}
         >
-          {resolvedTextClipOpts!.steps.map((stepContent, index) => {
+          {resolvedTextClipOpts.steps.map((stepContent, index) => {
             const blocks = parseRichText(decodeHtmlEntities(stepContent));
             return (
               <div

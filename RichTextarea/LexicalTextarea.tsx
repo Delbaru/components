@@ -22,7 +22,7 @@ import {
   COMMAND_PRIORITY_LOW,
   TextNode,
   type LexicalEditor,
-  type LexicalNode,
+  type SerializedEditorState,
 } from 'lexical';
 import type { CSSProperties, MutableRefObject } from 'react';
 import { forwardRef, useCallback, useEffect, useId, useImperativeHandle, useMemo, useRef, useState } from 'react';
@@ -48,13 +48,15 @@ import { LexicalTextareaCounter, LexicalTextareaToolbar } from './LexicalTextare
 import { $createVariableNode, $isVariableNode, VariableNode, type VariableNodePayload } from './lexical/VariableNode';
 import styles from './RichTextarea.module.scss';
 
-export type LexicalTextareaContent = {
-  root?: {
-    children?: unknown[];
-    [key: string]: unknown;
-  };
-  [key: string]: unknown;
-};
+export type LexicalTextareaContent =
+  | SerializedEditorState
+  | {
+      root?: {
+        children?: unknown[];
+        [key: string]: unknown;
+      };
+      [key: string]: unknown;
+    };
 
 export interface LexicalTextareaVariable extends VariableNodePayload {}
 
@@ -195,8 +197,10 @@ function findVariableTokenMatchAt(
 ): VariableTokenMatch | undefined {
   const pairedTokenMatch = /^@([^@\n]+)@/u.exec(textContent.slice(startOffset));
 
-  if (pairedTokenMatch && pairedTokenMatch[1] === pairedTokenMatch[1].trim()) {
-    const variable = variableLookup.get(normalizeVariableToken(pairedTokenMatch[1]));
+  const pairedToken = pairedTokenMatch?.[1];
+
+  if (pairedTokenMatch && pairedToken !== undefined && pairedToken === pairedToken.trim()) {
+    const variable = variableLookup.get(normalizeVariableToken(pairedToken));
 
     if (variable) {
       return {
@@ -273,7 +277,7 @@ function hasSerializedContent(
 function buildChangePayload(
   editorState: ReturnType<LexicalEditor['getEditorState']>
 ): LexicalTextareaChangePayload {
-  const json = editorState.toJSON() as unknown as LexicalTextareaContent;
+  const json: LexicalTextareaContent = editorState.toJSON();
   const plainText = editorState.read(() => $getRoot().getTextContent()).replace(/\u00a0/g, ' ');
   const normalizedText = plainText.trim();
 
@@ -380,52 +384,6 @@ function appendFormattedText(
 
 function isHtmlString(content: string) {
   return /<\s*\/?.+?>/.test(content);
-}
-
-function appendHtmlNode(
-  node: Node,
-  paragraph: ReturnType<typeof $createParagraphNode>,
-  variableLookup: Map<string, LexicalTextareaVariable>,
-  formats: TextFormats = {}
-) {
-  if (node.nodeType === Node.TEXT_NODE) {
-    appendFormattedText(paragraph, node.textContent ?? '', variableLookup, formats);
-    return;
-  }
-
-  if (node.nodeType !== Node.ELEMENT_NODE) {
-    return;
-  }
-
-  const element = node as HTMLElement;
-  const tagName = element.tagName.toLowerCase();
-  const nextFormats = { ...formats };
-
-  if (tagName === 'b' || tagName === 'strong') {
-    nextFormats.bold = true;
-  }
-
-  if (tagName === 'i' || tagName === 'em') {
-    nextFormats.italic = true;
-  }
-
-  if (tagName === 'u') {
-    nextFormats.underline = true;
-  }
-
-  if (tagName === 'br') {
-    const nextParagraph = $createParagraphNode();
-    $getRoot().append(paragraph);
-    $getRoot().append(nextParagraph);
-    return;
-  }
-
-  if (tagName === 'p' || tagName === 'div') {
-    element.childNodes.forEach((child) => appendHtmlNode(child, paragraph, variableLookup, formats));
-    return;
-  }
-
-  element.childNodes.forEach((child) => appendHtmlNode(child, paragraph, variableLookup, nextFormats));
 }
 
 function parseHtmlContent(content: string, variableLookup: Map<string, LexicalTextareaVariable>) {

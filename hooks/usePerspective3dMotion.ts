@@ -413,6 +413,7 @@ export function usePerspective3dMotion(perspective3d: Perspective3dInput | undef
 
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (!entry) return;
         isVisibleRef.current = entry.isIntersecting;
         if (entry.isIntersecting) scheduleAnimation();
       },

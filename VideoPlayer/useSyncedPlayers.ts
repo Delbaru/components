@@ -24,7 +24,7 @@ export function useSyncedPlayers(players: VideoPlayerController[], options: UseS
     const playersRef = useRef<VideoPlayerController[]>(players);
     playersRef.current = players;
 
-    const masterRef = useRef<VideoPlayerController>(master);
+    const masterRef = useRef<VideoPlayerController | undefined>(master);
     masterRef.current = master;
 
     // Групповое play/pause: если оно у плеера разошлось с групповым — значит пользователь его переключил,
@@ -93,7 +93,10 @@ export function useSyncedPlayers(players: VideoPlayerController[], options: UseS
     // Дрифт-коррекция: на тик опорных часов подтягиваем разошедшихся ведомых (seek помечаем синхро-флагом,
     // чтобы он не разослался обратно).
     useEffect(() => {
-        return masterRef.current.subscribeTime((masterTime) => {
+        const current = masterRef.current;
+        if (!current) return undefined;
+
+        return current.subscribeTime((masterTime) => {
             const previous = applyingSeekRef.current;
             applyingSeekRef.current = true;
 

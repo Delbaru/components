@@ -104,7 +104,7 @@ function Layer({ text, mode, staticPrefix, staticSuffix }: LayerProps) {
           );
         }
 
-        const start = starts[tokenIdx];
+        const start = starts[tokenIdx] ?? 0;
         return (
           <span key={`w-${tokenIdx}`} className={styles.word}>
             {Array.from(token).map((ch, i) => {

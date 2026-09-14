@@ -249,11 +249,11 @@ export const needsInlineAspectRatio = <T extends AspectRatioValue>(
   aspectRatio: ResponsiveValue<T> | undefined
 ): boolean => Array.isArray(aspectRatio);
 
-export const inlineAspectRatioClassName = (): string => tokenStyles.inlineAspectRatio;
+export const inlineAspectRatioClassName = (): string | undefined => tokenStyles.inlineAspectRatio;
 
 export const needsInlineGrow = (grow: ResponsiveValue<number> | undefined): boolean => Array.isArray(grow);
 
-export const inlineGrowClassName = (): string => tokenStyles.inlineFlexGrow;
+export const inlineGrowClassName = (): string | undefined => tokenStyles.inlineFlexGrow;
 
 export const growStyle = (grow: ResponsiveValue<number> | undefined): CSSProperties => {
   if (grow === undefined) return {};

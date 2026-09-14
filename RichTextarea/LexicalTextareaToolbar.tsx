@@ -6,6 +6,7 @@ import {
   $getSelection,
   $isRangeSelection,
   FORMAT_TEXT_COMMAND,
+  type LexicalNode,
 } from 'lexical';
 import { $createLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import {
@@ -37,7 +38,10 @@ type ActiveFormats = {
   isLink: boolean;
 };
 
-function findMatchingParent(node: any, matcher: (currentNode: any) => boolean) {
+function findMatchingParent<T extends LexicalNode>(
+  node: LexicalNode | null,
+  matcher: (currentNode: LexicalNode) => currentNode is T
+): T | null {
   let currentNode = node;
 
   while (currentNode) {

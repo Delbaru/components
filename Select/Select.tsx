@@ -183,7 +183,7 @@ function isPrimitiveNode(node: React.ReactNode): node is string | number {
     return typeof node === 'string' || typeof node === 'number';
 }
 
-function renderSelectNode(node: React.ReactNode, textClassName: string): React.ReactNode {
+function renderSelectNode(node: React.ReactNode, textClassName: string | undefined): React.ReactNode {
     if (isPrimitiveNode(node)) {
         return (
             <Text variant={['p', 'p', 'p']} className={textClassName} color="inherit">
@@ -224,8 +224,10 @@ function getFocusedOptionIndex(
 ): number {
     if (options.length === 0) return -1;
 
-    if (multiple && selectedOptions.length > 0) {
-        const firstSelectedIndex = options.findIndex((option) => defaultEqual(option.value, selectedOptions[0].value));
+    const firstSelected = selectedOptions[0];
+
+    if (multiple && firstSelected) {
+        const firstSelectedIndex = options.findIndex((option) => defaultEqual(option.value, firstSelected.value));
         return firstSelectedIndex >= 0 ? firstSelectedIndex : 0;
     }
 
@@ -362,7 +364,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps<string>>(
                     for (let nextIndex = index + 1; nextIndex < flatItems.length; nextIndex += 1) {
                         const nextItem = flatItems[nextIndex];
 
-                        if (nextItem.type === 'group') {
+                        if (!nextItem || nextItem.type === 'group') {
                             break;
                         }
 

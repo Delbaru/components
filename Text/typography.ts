@@ -10,7 +10,7 @@ type Breakpoint = 'd' | 'm' | 't';
 type InlineLetterSpacingCssVar = `--inline-letter-spacing-${Breakpoint}`;
 type InlineLetterSpacingStyle = CSSProperties & Partial<Record<InlineLetterSpacingCssVar, string>>;
 
-const inlineLetterSpacingClassMap: Record<Breakpoint, string> = {
+const inlineLetterSpacingClassMap: Record<Breakpoint, string | undefined> = {
   d: styles.inlineLetterSpacingD,
   m: styles.inlineLetterSpacingM,
   t: styles.inlineLetterSpacingT,
@@ -59,7 +59,8 @@ export function resolveLetterSpacing(
   ] as const).forEach(([breakpoint, value]) => {
     if (typeof value !== 'number' || !Number.isFinite(value) || letterSpacingClassKey(value)) return;
 
-    classes.push(inlineLetterSpacingClassMap[breakpoint]);
+    const letterSpacingClass = inlineLetterSpacingClassMap[breakpoint];
+    if (letterSpacingClass) classes.push(letterSpacingClass);
     style[inlineLetterSpacingVarMap[breakpoint]] = `calc(${value} * var(--rpx))`;
   });
 

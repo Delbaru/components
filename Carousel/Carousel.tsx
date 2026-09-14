@@ -24,6 +24,7 @@ import {
   aspectRatioStyle,
   createLayoutClasses,
   cx,
+  getBreakpointIndex,
   growStyle,
   inlineAspectRatioClassName,
   inlineGrowClassName,
@@ -31,6 +32,7 @@ import {
   needsInlineAspectRatio,
   needsInlineGrow,
   resolveResponsive,
+  resolveResponsiveAtBreakpoint,
   stateLinkProps,
   tokenStyles,
   type ResponsiveValue,
@@ -61,23 +63,6 @@ function assignCarouselApiRef(apiRef: CarouselApiRef | undefined, value: Carouse
   }
 
   apiRef.current = value;
-}
-
-function getBreakpointIndex(viewportWidth: number): 0 | 1 | 2 {
-  if (viewportWidth <= 767) return 1;
-  if (viewportWidth <= 1023) return 2;
-  return 0;
-}
-
-function resolveResponsiveAtBreakpoint<T>(
-  value: ResponsiveValue<T> | undefined,
-  fallback: T,
-  breakpointIndex: 0 | 1 | 2
-): T {
-  if (value === undefined) return fallback;
-
-  const resolved = resolveResponsive(value);
-  return (resolved[breakpointIndex] ?? fallback) as T;
 }
 
 function hasScrollableSlides(slideCount: number, slidesPerView: SlidesPerViewValue): boolean {
