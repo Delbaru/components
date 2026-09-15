@@ -38,13 +38,15 @@ function TextSlideSequence({ options }: { options: SequenceOptions }) {
   }, [options.steps, options.currentStep]);
 
   const translateY = cumHeights[options.currentStep - 1] || 0;
+  // Измеренная высота — значение рантайма: класса утилиты под него нет, поэтому стилем.
   const stageStyle = {
+    height: `${containerHeight}px`,
     transform: `translateY(-${translateY}px)`,
     '--slide-dur': options.duration ? `${options.duration}s` : undefined,
   } as CSSProperties;
 
   return (
-    <Flex className={'ui-slide'} h={`${containerHeight}px`} style={stageStyle}>
+    <Flex className={'ui-slide'} style={stageStyle}>
       {options.steps.map((step, index) => (
         <span
           key={step.slice(0, 60)}

@@ -37,6 +37,12 @@ const TONE: Record<ToastTone, { glyph: string; fill: string }> = {
   error: { glyph: '/icons/ui/cross/style-7/cross.svg', fill: 'var(--red)' },
 };
 
+/** Заливка кружка тоста — полным кортежем: проп респонсивный. */
+const fillOf = (tone: ToastTone = 'success'): [string, string, string] => {
+  const { fill } = TONE[tone];
+  return [fill, fill, fill];
+};
+
 type ToastItem = ToastOptions & { id: string; open: boolean };
 
 type ToastContextValue = { show: (options: ToastOptions) => void };
@@ -123,7 +129,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 rootH={[32, null, null]}
                 rootMinW={[32, null, null]}
                 rootR={[999, null, null]}
-                rootBg={TONE[item.tone ?? 'success'].fill}
+                rootBg={fillOf(item.tone)}
                 stroke='var(--white-100)'
                 aria-hidden
               />

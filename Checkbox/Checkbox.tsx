@@ -96,29 +96,29 @@ export function Checkbox({
                 скаляр печатает класс без брейкпоинт-префикса и потому действует на всех
                 ширинах. С кортежем ниже 1024 не было ни ширины, ни высоты, ни радиуса — то
                 есть квадрат схлопывался в точку (§12 «Экран, который живёт НИЖЕ 1024»). */}
-            <Flex gap={gap ?? 8} align={alignItems} grow={1} minW={0}>
+            <Flex gap={gap ?? [8, 8, 8]} align={[alignItems, alignItems, alignItems]} grow={[1, 1, 1]} minW={[0, 0, 0]}>
                 <input ref={setInputRef} id={id} type="checkbox" className={styles.Input} {...inputProps} />
 
                 <Flex
                     className={styles.Box}
-                    w={size ?? 24}
-                    h={size ?? 24}
-                    r={8}
-                    align='center'
-                    justify='center'
+                    w={size ?? [24, 24, 24]}
+                    h={size ?? [24, 24, 24]}
+                    r={[8, 8, 8]}
+                    align={['center', 'center', 'center']}
+                    justify={['center', 'center', 'center']}
                     // Цвет нити — через переменную с ПРЕЖНИМ дефолтом: класс квадрата
                     // принадлежит этому модулю и хэшируется, то есть с call-site его не
                     // перебить ничем (§12 «отдай правило ПЕРЕМЕННОЙ, а не спорь
                     // специфичностью»). Публичной части нужен `hair` — там квадрат стоит в
                     // ряду с полями на такой же нити.
-                    border='calc(1 * var(--rpx)) solid var(--checkbox-box-border, var(--gray))'
+                    border={['calc(1 * var(--rpx)) solid var(--checkbox-box-border, var(--gray))', 'calc(1 * var(--rpx)) solid var(--checkbox-box-border, var(--gray))', 'calc(1 * var(--rpx)) solid var(--checkbox-box-border, var(--gray))']}
                     aria-hidden
                     {...stateProps(isChecked && 'active')}
                 >
                     <Icon
                         src="/icons/ui/check/succsess_check_black.svg"
-                        w={iconSize ?? 16}
-                        h={iconSize ?? 16}
+                        w={iconSize ?? [16, 16, 16]}
+                        h={iconSize ?? [16, 16, 16]}
                         fill='var(--white-100)'
                         className={styles.icon}
                         aria-hidden

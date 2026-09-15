@@ -1,4 +1,4 @@
-import type { ResponsiveValue } from '../base/responsive';
+import type { ResponsiveInput } from '../base/responsive';
 import { utilityClasses, type ResponsiveUtilityValue } from '../utilities/classes';
 import { resolveUtility } from '../utilities/registry';
 import { responsiveClasses } from './responsive-classes';
@@ -15,9 +15,9 @@ export interface LayoutClassOptions {
 
 export interface ClassBuilder {
   /** Проп утилиты (`gap`, `columns`, `w`, `p`…) или класс модуля компонента (`variant`, `size`). */
-  value: (prefix: string, value: ResponsiveValue<unknown> | undefined) => string[];
+  value: (prefix: string, value: ResponsiveInput<unknown> | undefined) => string[];
   /** Класс модуля со своим ключом значения (`slides-per-view_1-5`). */
-  key: <T>(prefix: string, value: ResponsiveValue<T> | undefined, toKey: (v: T) => string | undefined) => string[];
+  key: <T>(prefix: string, value: ResponsiveInput<T> | undefined, toKey: (v: T) => string | undefined) => string[];
 }
 
 /** Класс модуля есть только у целого неотрицательного числа (`height_56`); остальное — утилите. */

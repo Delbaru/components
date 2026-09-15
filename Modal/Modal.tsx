@@ -9,7 +9,7 @@ import {
   type KeyboardEvent,
 } from 'react';
 import styles from './Modal.module.scss';
-import { boxLayout, createLayoutClasses, cx, useMergedRefs, type GrowProps, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type SizePropsShort, type SpaceValue, type StateLinkInput, type WithRef } from '../core';
+import { boxLayout, createLayoutClasses, cx, useMergedRefs, type GrowProps, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveInput, type ResponsiveValue, type SizePropsShort, type SpaceValue, type StateLinkInput, type WithRef } from '../core';
 import { Flex } from '../Flex';
 import { useModalRuntime } from './ModalProvider';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
@@ -31,7 +31,7 @@ interface ModalSurfaceProps extends LayoutSpaceProps, RadiusPropsShort, SizeProp
   overlayStyle?: CSSProperties;
 
   preset?: ResponsiveValue<PresetKey>;
-  animation?: ResponsiveValue<'fadeInUp' | 'fadeInDown'>;
+  animation?: ResponsiveInput<'fadeInUp' | 'fadeInDown'>;
 
   closeOnOverlayClick?: boolean;
 
@@ -82,7 +82,7 @@ function ModalSurface({
   style: panelStyle,
   rootStyle,
   overlayStyle,
-  preset = 'default',
+  preset = ['default', 'default', 'default'],
   animation,
   closeOnOverlayClick = true,
   overflowVisible = false,
@@ -162,8 +162,8 @@ function ModalSurface({
       data-entered={entered}
       role="presentation"
       aria-hidden={!open}
-      align={alignItems ?? 'center'}
-      justify={justifyContent ?? 'center'}
+      align={alignItems ?? ['center', 'center', 'center']}
+      justify={justifyContent ?? ['center', 'center', 'center']}
       style={rootStyle}
     >
       <div

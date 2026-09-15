@@ -270,7 +270,7 @@ export function Select({
             {...restProps}
         >
             {label && (
-                <Flex dir={['row', 'row', 'row']} gap={required ? 4 : 0}>
+                <Flex dir={['row', 'row', 'row']} gap={required ? [4, 4, 4] : [0, 0, 0]}>
                     <Text variant={['small', 'small', 'small']} color={labelColor}>
                         {label}
                     </Text>

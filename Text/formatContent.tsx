@@ -15,7 +15,7 @@ const splitByBr = (value: string): (string | React.ReactElement)[] => {
  */
 export function resolveTextContent(
   children: React.ReactNode,
-  format: ResponsiveValue<TextFormat> = 'default'
+  format: ResponsiveValue<TextFormat> = ['default', 'default', 'default']
 ): React.ReactNode {
   if (typeof children !== 'string') return children;
 

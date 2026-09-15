@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode } from 'react';
 
-import type { ResponsiveValue } from '../../core';
+import type { ResponsiveInput } from '../../core';
 import { animationRegistry } from './registry';
 import type { AnimationInput, AnimationKey, AnimationOptions, TextAnimationContext } from './types';
 
@@ -12,7 +12,7 @@ export interface ResolvedAnimation {
 
 // Разбор пропа `animate`/`animation` в пару (ключ, опции). responsive-форма [d, m, t] — берём desktop
 // (рендер всё равно одноключевой); одиночное значение — ключ или [ключ, опции].
-function parse(input: ResponsiveValue<AnimationInput> | undefined): { key?: AnimationKey; options?: AnimationOptions } {
+function parse(input: ResponsiveInput<AnimationInput> | undefined): { key?: AnimationKey; options?: AnimationOptions } {
   if (input == null) return {};
 
   const normalize = (v: AnimationInput): { key: AnimationKey; options?: AnimationOptions } =>
@@ -33,7 +33,7 @@ function parse(input: ResponsiveValue<AnimationInput> | undefined): { key?: Anim
  * Pure (без хуков) — Text вызывает один раз и либо рендерит `Inner`, либо контент как есть.
  */
 export function resolveAnimation(
-  input: ResponsiveValue<AnimationInput> | undefined,
+  input: ResponsiveInput<AnimationInput> | undefined,
   content: ReactNode
 ): ResolvedAnimation {
   const { key, options } = parse(input);

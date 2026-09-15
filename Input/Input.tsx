@@ -376,7 +376,7 @@ export function Input({
                     <Flex
                         transitionKey={loading ? 'skeleton' : 'value'}
                         animation='fadeIn'
-                        w='100%'
+                        w={['100%', '100%', '100%']}
                     >
                     {loading ? (
                         <Skeleton h={[16, null, null]} />
@@ -459,10 +459,10 @@ export function Input({
                         // класса вовсе, и глаз схлопывался в точку. В макете окна входа он
                         // там 20, но 24 — общий размер значка поля, и разница в четыре
                         // единицы не стоит второй оси у атома.
-                        rootW={24}
-                        rootH={24}
-                        w={24}
-                        h={24}
+                        rootW={[24, 24, 24]}
+                        rootH={[24, 24, 24]}
+                        w={[24, 24, 24]}
+                        h={[24, 24, 24]}
                         rootClassName={styles.passwordToggle}
                         role='button'
                         tabIndex={0}
@@ -487,7 +487,7 @@ export function Input({
                         w={[24, null, null]}
                         h={[24, null, null]}
                         rootR={[16, null, null]}
-                        rootBg='var(--background)'
+                        rootBg={['var(--background)', 'var(--background)', 'var(--background)']}
                         rootClassName={styles.dateToggle}
                         data-input-action='true'
                         onMouseDown={(event) => event.preventDefault()}

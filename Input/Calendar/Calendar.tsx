@@ -103,7 +103,7 @@ export function Calendar({
           w={[18, null, null]}
           h={[18, null, null]}
           rootR={[8, null, null]}
-          rootBg='var(--white-100)'
+          rootBg={['var(--white-100)', 'var(--white-100)', 'var(--white-100)']}
           border={['calc(1 * var(--rpx)) solid var(--gray-light)', null, null]}
           onClick={() => setVisibleMonth((currentMonth) => datePicker.addMonth(currentMonth, -1))}
           rootClassName={cx(styles.btn, styles.prev)}
@@ -162,7 +162,7 @@ export function Calendar({
           w={[18, null, null]}
           h={[18, null, null]}
           rootR={[8, null, null]}
-          rootBg='var(--white-100)'
+          rootBg={['var(--white-100)', 'var(--white-100)', 'var(--white-100)']}
           border={['calc(1 * var(--rpx)) solid var(--gray-light)', null, null]}
           onClick={() => setVisibleMonth((currentMonth) => datePicker.addMonth(currentMonth, 1))}
           rootClassName={cx(styles.btn, styles.next)}
@@ -170,7 +170,7 @@ export function Calendar({
       </Flex>
 
       {isMonthPickerActive ? (
-        <Grid columns={3} gap={[8, 8, 8]}>
+        <Grid columns={[3, 3, 3]} gap={[8, 8, 8]}>
           {datePicker.MONTH_LABELS.map((monthLabel, monthIndex) => {
             const isCurrentVisibleMonth = monthIndex === visibleMonthIndex;
 
@@ -196,7 +196,7 @@ export function Calendar({
         </Grid>
       ) : (
         <>
-          <Grid columns={7}>
+          <Grid columns={[7, 7, 7]}>
             {datePicker.WEEKDAY_LABELS.map((weekday) => (
               <Flex
                 key={weekday}
@@ -210,7 +210,7 @@ export function Calendar({
             ))}
           </Grid>
 
-          <Grid columns={7} gap={[4, 4, 4]}>
+          <Grid columns={[7, 7, 7]} gap={[4, 4, 4]}>
             {calendarDays.map((day) => {
               const isCurrentMonthDay = day.getMonth() === visibleMonth.getMonth();
               const isDisabledDay = isDateDisabled(day);

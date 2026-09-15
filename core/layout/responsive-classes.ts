@@ -1,4 +1,4 @@
-import { resolveResponsive, type ResponsiveValue } from '../base/responsive';
+import { resolveResponsive, type ResponsiveInput } from '../base/responsive';
 
 /**
  * Классы из CSS-модуля КОМПОНЕНТА (варианты кнопки, пресеты модалки, размеры полей): модуль
@@ -8,7 +8,7 @@ import { resolveResponsive, type ResponsiveValue } from '../base/responsive';
 export const responsiveClasses = <T,>(
   styles: Readonly<Record<string, string>>,
   prefix: string,
-  value: ResponsiveValue<T> | undefined,
+  value: ResponsiveInput<T> | undefined,
   toKey: (v: T) => string | undefined
 ): string[] => {
   if (value === undefined) return [];

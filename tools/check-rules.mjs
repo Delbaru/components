@@ -18,9 +18,9 @@ export const RULES = {
   'unanimated-conditional': { ext: /\.tsx$/, test: (line) => /(&&|\?)\s*\($/.test(line.trimEnd()), hint: 'collapse / transitionKey' },
   'off-grid-number': {
     ext: /\.tsx$/,
+    // Одно место — одно нарушение: полный кортеж `[6, 6, 6]` — это одно число, а не три.
     count: (line) => [...line.matchAll(new RegExp(`\\b(?:${GRID_PROPS})=\\{(\\[[^\\]]*\\]|-?\\d+)\\}`, 'g'))]
-      .flatMap((m) => m[1].replace(/'[^']*'|"[^"]*"/g, '').match(/-?\d+/g) ?? [])
-      .filter((n) => Math.abs(Number(n)) % 4 !== 0).length,
+      .reduce((total, m) => total + new Set((m[1].replace(/'[^']*'|"[^"]*"/g, '').match(/-?\d+/g) ?? []).filter((n) => Math.abs(Number(n)) % 4 !== 0)).size, 0),
     hint: 'размер кратный 4',
   },
   'raw-transition': {

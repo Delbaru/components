@@ -310,8 +310,8 @@ export function MediaDropDown({
                     >
                         <Icon
                             name={selectedMedia.icon}
-                            w={20}
-                            h={20}
+                            w={[20, 20, 20]}
+                            h={[20, 20, 20]}
                             className={styles.TriggerIcon}
                         />
                     </Flex>
@@ -336,16 +336,16 @@ export function MediaDropDown({
                             {previewIsPlay ? (
                                 <Icon
                                     src={SkipNextOutlineIcon}
-                                    w={16}
-                                    h={16}
+                                    w={[16, 16, 16]}
+                                    h={[16, 16, 16]}
                                     fill="currentColor"
                                     className={styles.PlayIcon}
                                 />
                             ) : (
                                 <Icon
                                     src="/icons/ui/eye/style-1/eye.svg"
-                                    w={20}
-                                    h={20}
+                                    w={[20, 20, 20]}
+                                    h={[20, 20, 20]}
                                     fill="currentColor"
                                     className={styles.PreviewIcon}
                                 />
@@ -361,8 +361,8 @@ export function MediaDropDown({
                         >
                             <Icon
                                 src="/icons/ui/delete/style-1/delete.svg"
-                                w={20}
-                                h={20}
+                                w={[20, 20, 20]}
+                                h={[20, 20, 20]}
                                 stroke="currentColor"
                                 className={styles.ClearIcon}
                             />
@@ -370,8 +370,8 @@ export function MediaDropDown({
                     ) : null}
                     <Icon
                         name="ui/arrows/arrow-2/arrow"
-                        w={16}
-                        h={16}
+                        w={[16, 16, 16]}
+                        h={[16, 16, 16]}
                         className={styles.Arrow}
                     />
                 </Flex>
@@ -394,8 +394,8 @@ export function MediaDropDown({
                                     >
                                         <Icon
                                             name={media.icon}
-                                            w={16}
-                                            h={16}
+                                            w={[16, 16, 16]}
+                                            h={[16, 16, 16]}
                                             className={styles.TypeIcon}
                                         />
                                         <Text variant={['dop', 'dop', 'dop']} className={styles.TypeLabel}>
@@ -410,8 +410,8 @@ export function MediaDropDown({
                             <button type="button" className={styles.FileButton} onClick={handleFileClick}>
                                 <Icon
                                     name="ui/upload/style-2/upload"
-                                    w={16}
-                                    h={16}
+                                    w={[16, 16, 16]}
+                                    h={[16, 16, 16]}
                                     className={styles.UploadIcon}
                                 />
                                 <Text variant={['dop', 'dop', 'dop']} className={styles.UploadLabel}>

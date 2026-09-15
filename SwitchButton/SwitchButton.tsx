@@ -66,9 +66,9 @@ export function SwitchButton({
       style={{ ...(motionStyle ?? null), ...style }}
       {...stateProps(state, isDisabled && 'disabled')}
     >
-      <Flex gap={gap ?? 8} align="center">
+      <Flex gap={gap ?? [8, 8, 8]} align={["center", "center", "center"]}>
         <input ref={ref} id={id} type="checkbox" className={styles.Input} {...props} />
-        <Flex align="center" className={styles.Track} aria-hidden>
+        <Flex align={["center", "center", "center"]} className={styles.Track} aria-hidden>
           <span className={styles.Thumb} />
         </Flex>
         {children}

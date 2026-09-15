@@ -36,7 +36,7 @@ export function CarouselNav({ className, carouselId }: CarouselNavProps) {
                         h={[40, 20, null]}
                         rootW={[132, 68, null]}
                         rootH={[80, 36, null]}
-                        rootBg='var(--black-70)'
+                        rootBg={['var(--black-70)', 'var(--black-70)', 'var(--black-70)']}
                         rootR={[40, 40, null]}
                         onClick={() => snapshot.api?.prev()}
                         aria-disabled={prevDisabled}
@@ -52,7 +52,7 @@ export function CarouselNav({ className, carouselId }: CarouselNavProps) {
                         h={[40, 20, null]}
                         rootW={[132, 68, null]}
                         rootH={[80, 36, null]}
-                        rootBg='var(--black-70)'
+                        rootBg={['var(--black-70)', 'var(--black-70)', 'var(--black-70)']}
                         rootR={[40, 40, null]}
                         onClick={() => snapshot.api?.next()}
                         aria-disabled={nextDisabled}

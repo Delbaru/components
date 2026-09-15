@@ -4,7 +4,7 @@ import styles from './RichText.module.scss';
 
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { cx, createLayoutClasses, getBreakpointIndex, resolveResponsiveAtBreakpoint, buildClampStyle, decodeHtmlEntities, radiusClasses, sanitizeRichTextHtml, stripHtmlTags, sizeClasses, stateLinkProps, resolveRadiusInput, type GrowProps, type RadiusPropsShort, type StateLinkInput, type ResponsiveValue, type SizeValue } from '../core';
+import { cx, createLayoutClasses, getBreakpointIndex, resolveResponsiveAtBreakpoint, buildClampStyle, decodeHtmlEntities, radiusClasses, sanitizeRichTextHtml, stripHtmlTags, sizeClasses, stateLinkProps, resolveRadiusInput, type GrowProps, type RadiusPropsShort, type StateLinkInput, type ResponsiveInput, type ResponsiveValue, type SizeValue } from '../core';
 import { renderLexicalContent } from './LexicalRenderer';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
@@ -46,10 +46,10 @@ export type AnimationInput =
   | [AnimationKey]
   | [AnimationKey, TextSlideOptions | TextClipOptions];
 
-function parseAnimation(animation: ResponsiveValue<AnimationInput> | undefined): {
-  animation: ResponsiveValue<AnimationKey> | undefined;
-  textSlideOptions: ResponsiveValue<TextSlideOptions | undefined> | undefined;
-  textClipOptions: ResponsiveValue<TextClipOptions | undefined> | undefined;
+function parseAnimation(animation: ResponsiveInput<AnimationInput> | undefined): {
+  animation: ResponsiveInput<AnimationKey> | undefined;
+  textSlideOptions: ResponsiveInput<TextSlideOptions | undefined> | undefined;
+  textClipOptions: ResponsiveInput<TextClipOptions | undefined> | undefined;
 } {
   if (animation === undefined) {
     return { animation: undefined, textSlideOptions: undefined, textClipOptions: undefined };
@@ -83,9 +83,9 @@ function parseAnimation(animation: ResponsiveValue<AnimationInput> | undefined):
       x != null && Array.isArray(x) && x.length >= 2 ? (x[1] as TextSlideOptions | TextClipOptions) : undefined
     ) as [TextSlideOptions | TextClipOptions | undefined, TextSlideOptions | TextClipOptions | undefined, TextSlideOptions | TextClipOptions | undefined];
     return {
-      animation: keys as ResponsiveValue<AnimationKey>,
-      textSlideOptions: options.map(o => o && (o as TextSlideOptions)) as ResponsiveValue<TextSlideOptions | undefined>,
-      textClipOptions: options.map(o => o && (o as TextClipOptions)) as ResponsiveValue<TextClipOptions | undefined>,
+      animation: keys as ResponsiveInput<AnimationKey>,
+      textSlideOptions: options.map(o => o && (o as TextSlideOptions)) as ResponsiveInput<TextSlideOptions | undefined>,
+      textClipOptions: options.map(o => o && (o as TextClipOptions)) as ResponsiveInput<TextClipOptions | undefined>,
     };
   }
 
@@ -217,7 +217,7 @@ export interface LexicalTextProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   variant?: ResponsiveValue<LexicalTextVariant>;
   w?: ResponsiveValue<SizeValue>;
   h?: ResponsiveValue<SizeValue>;
-  animation?: ResponsiveValue<AnimationInput>;
+  animation?: ResponsiveInput<AnimationInput>;
   rows?: ResponsiveValue<number>;
   ellipsis?: boolean;
   bg?: string;
@@ -228,7 +228,7 @@ export interface LexicalTextProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   linkState?: StateLinkInput;
 }
 
-export function LexicalText({ content, variant = 'default', w, h, animation, rows, ellipsis, bg, color, r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR, grow, perspective3d, parallax, className = '', style, linkState, onMouseEnter, onMouseLeave, ...props }: LexicalTextProps) {
+export function LexicalText({ content, variant = ['default', 'default', 'default'], w, h, animation, rows, ellipsis, bg, color, r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR, grow, perspective3d, parallax, className = '', style, linkState, onMouseEnter, onMouseLeave, ...props }: LexicalTextProps) {
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
   const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
   const setRootRef = useCallback((node: HTMLDivElement | null) => {

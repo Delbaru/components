@@ -522,8 +522,8 @@ export function Icon({
         borderL={borderL}
         grow={grow}
         state={state}
-        align="center"
-        justify="center"
+        align={["center", "center", "center"]}
+        justify={["center", "center", "center"]}
         style={hasMotion ? (motionStyle as CSSProperties) : undefined}
         {...linkedHandlers}
       >

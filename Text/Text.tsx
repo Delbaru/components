@@ -5,7 +5,7 @@ import Link from 'next/link';
 import type React from 'react';
 import { useRef, type CSSProperties } from 'react';
 
-import { boxLayout, buildClampStyle, createLayoutClasses, cx, normalizeComponentState, resolveLinkProps, shouldUseNextLink, splitBoxLayout, stateLinkProps, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
+import { boxLayout, buildClampStyle, createLayoutClasses, cx, normalizeComponentState, resolveLinkProps, shouldUseNextLink, splitBoxLayout, stateLinkProps, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveInput, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { resolveAnimation } from './animations/resolveAnimation';
 import type { AnimationInput } from './animations/types';
@@ -29,7 +29,7 @@ export interface TextProps
   children?: React.ReactNode;
   style?: CSSProperties;
   format?: ResponsiveValue<TextFormat>;
-  animate?: ResponsiveValue<AnimationInput>;
+  animate?: ResponsiveInput<AnimationInput>;
   required?: boolean;
 
   newTab?: boolean;
@@ -38,7 +38,7 @@ export interface TextProps
 
   as?: keyof React.JSX.IntrinsicElements;
   variant?: ResponsiveValue<VariantKey>;
-  animation?: ResponsiveValue<AnimationInput>;
+  animation?: ResponsiveInput<AnimationInput>;
 
   fontSize?: ResponsiveValue<number>;
   fontWeight?: ResponsiveValue<number>;
@@ -61,7 +61,7 @@ export interface TextProps
 export function Text({
   ref,
   as = 'div',
-  variant = 'p',
+  variant = ['p', 'p', 'p'],
   animation,
   animate,
   fontSize,
@@ -81,7 +81,7 @@ export function Text({
   className = '',
   style,
   children,
-  format = 'default',
+  format = ['default', 'default', 'default'],
   required = false,
   linkState,
   onMouseEnter,

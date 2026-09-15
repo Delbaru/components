@@ -1,6 +1,6 @@
 import type { ClassBuilder } from '../layout/layout-classes';
 import type { ResponsiveSpaceValue, SpaceValue } from '../layout/space';
-import type { ResponsiveValue } from './responsive';
+import { resolveResponsive, type ResponsiveInput } from './responsive';
 import { borderClasses, layoutSpaceClasses, radiusClasses, sizeClasses, type BorderStyleProps, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort } from './shared-props';
 
 /**
@@ -8,8 +8,8 @@ import { borderClasses, layoutSpaceClasses, radiusClasses, sizeClasses, type Bor
  * (Input, Textarea, Select и аналогичных).
  */
 export interface FieldLayoutProps extends LayoutSpaceProps, RadiusPropsShort, SizePropsShort, BorderStyleProps {
-    variant?: ResponsiveValue<string>;
-    size?: ResponsiveValue<string>;
+    variant?: ResponsiveInput<string>;
+    size?: ResponsiveInput<string>;
     bg?: string;
     color?: string;
     placeholderColor?: string;
@@ -54,15 +54,16 @@ const extractLeftFromEntry = (entry: unknown): number | string | null | undefine
  */
 export function fieldHelperPaddingLeft(
     p: ResponsiveSpaceValue | undefined,
-    pl: ResponsiveValue<SpaceValue> | undefined
-): ResponsiveValue<SpaceValue> | undefined {
-    if (pl !== undefined) return pl;
+    pl: ResponsiveInput<SpaceValue> | undefined
+): [SpaceValue | null, SpaceValue | null, SpaceValue | null] | undefined {
+    if (pl !== undefined) return resolveResponsive(pl);
     if (p === undefined) return undefined;
-    if (!Array.isArray(p)) return p as ResponsiveValue<SpaceValue>;
+    if (!Array.isArray(p)) return [p, p, p];
 
     // shorthand [top, right, bottom, left]
     if (p.length === 4 && p.every(isSpaceToken)) {
-        return p[3] as SpaceValue;
+        const left = p[3] as SpaceValue;
+        return [left, left, left];
     }
 
     // responsive array [desktop, mobile, tablet]
@@ -74,5 +75,5 @@ export function fieldHelperPaddingLeft(
     const t = tRaw === undefined ? d : (tRaw ?? null);
 
     if (d === null && m === null && t === null) return undefined;
-    return [d, m, t] as ResponsiveValue<SpaceValue>;
+    return [d, m, t];
 }

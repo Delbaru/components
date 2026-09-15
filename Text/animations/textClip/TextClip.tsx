@@ -45,15 +45,15 @@ export function TextClip({ options }: TextAnimationContext<TextClipOptions>) {
   if (!options) return null;
 
   const maxHeight = heights.length > 0 ? Math.max(...heights) : 0;
-  // Измеренная высота — реальные px (h={число} ушёл бы в calc(N*rpx)), поэтому строкой.
-  const height = maxHeight ? `${maxHeight}px` : options.clipHeight ?? 'auto';
+  // Измеренная высота — значение рантайма: класса утилиты под него нет, поэтому стилем.
   const stageStyle = {
+    height: maxHeight ? `${maxHeight}px` : options.clipHeight ?? 'auto',
     clipPath,
     '--clip-dur': options.duration ? `${options.duration}s` : undefined,
   } as CSSProperties;
 
   return (
-    <Flex className={'ui-clip'} h={height} style={stageStyle}>
+    <Flex className={'ui-clip'} style={stageStyle}>
       {options.steps.map((step, index) => (
         <span
           key={step.slice(0, 60)}

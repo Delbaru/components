@@ -4,7 +4,21 @@
 
 // Доп. правило: `null` внутри массива означает "не трогать этот брейкпоинт"
 // (то есть не генерировать класс/стиль и оставить значение от базового стиля/variant).
-export type ResponsiveValue<T> = T | [(T | null)?, (T | null)?, (T | null)?];
+/** Значение на входе помощников ядра: скаляр, короткий или полный кортеж. */
+export type ResponsiveInput<T> = T | [(T | null)?, (T | null)?, (T | null)?];
+
+declare global {
+  /**
+   * Правила проекта. `{ strictTuple: true }` в его глобальной декларации требует полный кортеж
+   * `[desktop, mobile, tablet]` на каждом респонсив-пропе: скаляр и короткий кортеж — ошибка типов.
+   */
+  interface UiRules {}
+}
+
+type StrictTuple = UiRules extends { strictTuple: true } ? true : false;
+
+/** Значение респонсив-пропа. */
+export type ResponsiveValue<T> = StrictTuple extends true ? [T | null, T | null, T | null] : ResponsiveInput<T>;
 
 /**
  * Нормализует ResponsiveValue к тройке [desktop, mobile, tablet].
@@ -18,7 +32,7 @@ export type ResponsiveValue<T> = T | [(T | null)?, (T | null)?, (T | null)?];
  * - resolveResponsive([24, 12]) -> [24, 12, 24]
  * - resolveResponsive([null, 16, 16]) -> [null, 16, 16]  // desktop пропускаем
  */
-export const resolveResponsive = <T,>(value: ResponsiveValue<T>): [T | null, T | null, T | null] => {
+export const resolveResponsive = <T,>(value: ResponsiveInput<T>): [T | null, T | null, T | null] => {
   if (!Array.isArray(value)) return [value, value, value];
 
   const [d0, m0, t0] = value;
@@ -42,7 +56,7 @@ export const getBreakpointIndex = (viewportWidth: number): 0 | 1 | 2 => {
 
 /** Значение на одном брейкпоинте (0 — desktop, 1 — mobile, 2 — tablet) с запасным вариантом. */
 export const resolveResponsiveAtBreakpoint = <T,>(
-  value: ResponsiveValue<T> | undefined,
+  value: ResponsiveInput<T> | undefined,
   fallback: T,
   breakpointIndex: 0 | 1 | 2
 ): T => {

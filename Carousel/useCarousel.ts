@@ -64,7 +64,7 @@ export function useCarousel(ref: Ref<HTMLDivElement> | undefined, config: Carous
       return slidesPerView.map((value) => (value === null || value === undefined ? null : toKey(value as number | 'auto')));
     }
 
-    return toKey(slidesPerView as number | 'auto');
+    return toKey(slidesPerView as unknown as number | 'auto');
   }, [slidesPerView]);
 
   // Строка, а не массив: кортеж пропа литералом новый на каждом рендере родителя, и эффект
