@@ -1,18 +1,18 @@
 // Ширину коробки задаёт невидимый близнец с ИТОГОВЫМ значением, а бегущее число лежит поверх
 // абсолютом: пока счётчик тикает, сосед справа стоит на месте, а в покое размер тот же, что без
 // анимации. Разбор (и почему `tabular-nums` тут не работает) — Frontend.md §12 «Счётчик».
-.counter {
+.ui-counter {
     position: relative;
     display: inline-block;
     font-variant-numeric: lining-nums tabular-nums !important;
 
-    .reserve {
+    .ui-counter-reserve {
         visibility: hidden;
     }
 
     // `nowrap` только здесь: близнец в потоке переносится ровно как переносился текст до правки,
     // а бегущее число, оказавшись на кадр шире итогового, выйдет за кромку, а не встанет в две строки.
-    .value {
+    .ui-counter-value {
         position: absolute;
         inset: 0;
         white-space: nowrap;

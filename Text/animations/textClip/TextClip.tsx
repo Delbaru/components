@@ -3,8 +3,6 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 
-import styles from './textClip.module.scss';
-
 import { Flex } from '../../../Flex';
 import type { TextAnimationContext } from '../types';
 import type { TextClipOptions } from './types';
@@ -55,12 +53,12 @@ export function TextClip({ options }: TextAnimationContext<TextClipOptions>) {
   } as CSSProperties;
 
   return (
-    <Flex className={styles.clipStage} h={height} style={stageStyle}>
+    <Flex className={'ui-clip'} h={height} style={stageStyle}>
       {options.steps.map((step, index) => (
         <span
           key={step.slice(0, 60)}
           ref={(el) => { itemRefs.current[index] = el; }}
-          className={styles.clipItem}
+          className={'ui-clip-item'}
           style={{ opacity: index === displayedStep ? 1 : 0 }}
         >
           {step}

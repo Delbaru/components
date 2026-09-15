@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import type React from 'react';
 
-import styles from './Icon.module.scss';
 import { stateProps as buildStateProps } from '../core';
 import { useAnchoredFloating } from '../hooks/useAnchoredFloating';
 
@@ -47,7 +46,7 @@ export function IconTooltipWithPortal({ children, tooltip, direction, gap }: Ico
     <>
       <span
         ref={anchorRef}
-        className={styles.IconTooltipWrapper}
+        className={'ui-icon-tooltip-wrapper'}
         style={{ '--tooltip-gap': `${gap}px` } as CSSProperties}
         onMouseEnter={() => setIsActive(true)}
         onMouseLeave={() => setIsActive(false)}
@@ -59,7 +58,7 @@ export function IconTooltipWithPortal({ children, tooltip, direction, gap }: Ico
       {portalNode && createPortal(
         <span
           ref={floatingRef}
-          className={styles.IconTooltip}
+          className={'ui-icon-tooltip'}
           style={floatingStyle}
           data-placement={placement}
           {...buildStateProps(isActive && isPositioned && 'active')}

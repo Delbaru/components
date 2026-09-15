@@ -1,8 +1,8 @@
-:where(.Text) {
+:where(.ui-text) {
   margin: 0;
 }
 
-.Text {
+.ui-text {
   &[href] {
     text-decoration: none;
     outline: none !important;
@@ -14,11 +14,11 @@
 // Цвет ссылки — низкоспецифичным :where (как margin выше), чтобы color-проп (утилити-класс,
 // 0,1,0) перекрывал его без inline/!important. Без color ссылка остаётся var(--text)
 // (author-origin бьёт UA-цвет ссылки при любой специфичности).
-:where(.Text[href]) {
+:where(.ui-text[href]) {
   color: var(--text);
 }
 
-.required::after {
+.ui-text-required::after {
   content: '*';
   display: inline-block;
   margin-left: calc(4 * var(--rpx));
@@ -29,7 +29,7 @@
   color: var(--red);
 }
 
-.clamp {
+.ui-text-clamp {
   display: -webkit-box;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -40,7 +40,7 @@
   -webkit-line-clamp: var(--text-rows-d, 1);
 }
 
-.ellipsis {
+.ui-text-ellipsis {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -51,14 +51,14 @@
 // (core/utilities). Анимации (textSlide/textClip/textReveal/counter) — в своих плагинах.
 
 @media (max-width: 767px) {
-  .clamp {
+  .ui-text-clamp {
     line-clamp: var(--text-rows-m, var(--text-rows-d, 1));
     -webkit-line-clamp: var(--text-rows-m, var(--text-rows-d, 1));
   }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
-  .clamp {
+  .ui-text-clamp {
     line-clamp: var(--text-rows-t, var(--text-rows-d, 1));
     -webkit-line-clamp: var(--text-rows-t, var(--text-rows-d, 1));
   }

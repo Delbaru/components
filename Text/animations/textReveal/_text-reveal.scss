@@ -1,6 +1,6 @@
 // Стек двух текстовых слоёв (уходящий + въезжающий) в одной grid-ячейке: высоту/ширину держит grid
 // автоматически (без JS-измерений), оба слоя лежат друг на друге и анимируются одновременно.
-.viewport {
+.ui-reveal {
   display: inline-grid;
   position: relative; // база для absolute-слоя ухода
   vertical-align: top;
@@ -22,42 +22,42 @@
 
   // Перенос наследуется от host-Text: по умолчанию normal (многострочный текст течёт и переносится по
   // родителю — grid сам shrink-to-fit'ится), а whiteSpace='nowrap' на Text форсит однострочный лейбл.
-  // Внутри слова перенос запрещён (.word).
-  .layer {
+  // Внутри слова перенос запрещён (.ui-reveal-word).
+  .ui-reveal-layer {
     grid-area: 1 / 1;
   }
 
   // Уходящий слой убираем из расчёта ширины трека: пусть размер вьюпорта задаёт ТОЛЬКО входящий слой —
   // тогда контейнер встаёт на ширину нового текста сразу (в такт буквам), а не схлопывается рывком в конце,
   // когда previous удаляется по таймеру. Абсолют лежит в той же точке 1/1 и спокойно уезжает вверх с затуханием.
-  .out {
+  .ui-reveal-out {
     position: absolute;
     top: 0;
     left: 0;
   }
 
   // Слово целиком (не переносим по буквам); пробел — отдельный токен, между словами перенос строки можно.
-  .word {
+  .ui-reveal-word {
     display: inline-block;
     white-space: nowrap;
   }
 
-  .space {
+  .ui-reveal-space {
     display: inline-block;
     white-space: pre;
   }
 
-  .char {
+  .ui-reveal-char {
     display: inline-block;
   }
 
   // Задержка буквы = нормализованный порядок --t ∈ [0,1] × общий разброс --reveal-span (капнут по длине).
   // --t раздаёт рендер по порядку чтения, а на многострочном плагин переписывает его на диагональ.
-  // will-change/backface ставим ТОЛЬКО на время анимации (.in/.out): в покое буква не должна висеть в
-  // отдельном GPU-слое, иначе текст растеризуется grayscale-сглаживанием (не субпиксельным) и выглядит
-  // мыльным рядом с обычным текстом. CSS-анимация сама промоутит слой на время проигрывания и сбрасывает его.
+  // will-change/backface ставим ТОЛЬКО на время анимации (.ui-reveal-in/.ui-reveal-out): в покое буква не
+  // должна висеть в отдельном GPU-слое, иначе текст растеризуется grayscale-сглаживанием (не субпиксельным) и
+  // выглядит мыльным рядом с обычным текстом. CSS-анимация сама промоутит слой на время проигрывания.
 
-  // Анимируем ТОЛЬКО изменившиеся символы (несут data-reveal-char). Общий префикс/суффикс — статичные .char
+  // Анимируем ТОЛЬКО изменившиеся символы (несут data-reveal-char). Общий префикс/суффикс — статичные буквы
   // без атрибута: не анимируются и не участвуют в волне (задержки раскладываются только по меняющейся части).
 
   // Въезд: буква поднимается снизу с затуханием. backwards держит from-кадр до старта (учитывая задержку).
@@ -65,24 +65,24 @@
   // входящий символ имеют ~одинаковый --t, поэтому базовый сдвиг гасит наложение ПОПОЗИЦИОННО (буква гаснет →
   // на её место въезжает новая), не удлиняя переход почти совсем. Форма прозрачности (см. keyframes) делает
   // так, что старый исчезает в первой половине своего кадра, а новый проявляется во второй.
-  .in .char[data-reveal-char] {
+  .ui-reveal-in .ui-reveal-char[data-reveal-char] {
     will-change: transform, opacity;
     backface-visibility: hidden;
-    animation: splitTextRevealIn var(--reveal-dur, var(--t-d-fast)) var(--t-t-f-cubic-bezier) backwards;
+    animation: ui-reveal-enter var(--reveal-dur, var(--t-d-fast)) var(--t-t-f-cubic-bezier) backwards;
     animation-delay: calc(var(--reveal-in-delay, 0s) + var(--t, 0) * var(--reveal-span, 0s));
   }
 
   // Уход: буква уезжает вверх с затуханием. forwards держит конечный кадр до размонтирования слоя.
-  .out .char[data-reveal-char] {
+  .ui-reveal-out .ui-reveal-char[data-reveal-char] {
     will-change: transform, opacity;
     backface-visibility: hidden;
-    animation: splitTextRevealOut var(--reveal-dur, var(--t-d-fast)) var(--t-t-f-cubic-bezier) forwards;
+    animation: ui-reveal-leave var(--reveal-dur, var(--t-d-fast)) var(--t-t-f-cubic-bezier) forwards;
     animation-delay: calc(var(--t, 0) * var(--reveal-span, 0s));
   }
 
   // Статичные символы уходящего слоя — только позиционные спейсеры (реальный текст рисует входящий слой),
   // прячем их, чтобы не было двойного рендера поверх статики входящего.
-  .out .char:not([data-reveal-char]) {
+  .ui-reveal-out .ui-reveal-char:not([data-reveal-char]) {
     visibility: hidden;
   }
 }
@@ -90,7 +90,7 @@
 // Прозрачность СМЕЩЕНА, чтобы старый и новый символ на одной позиции не были видимы одновременно (переход не
 // «грязнит»): старый гаснет к 55% своего кадра, новый держится невидимым до 45% и проявляется во второй
 // половине. transform (подъём) идёт по всему кадру ровно — промежуточные ключи задают только opacity.
-@keyframes splitTextRevealIn {
+@keyframes ui-reveal-enter {
   0% {
     opacity: 0;
     transform: translateY(var(--reveal-shift, 0.3em));
@@ -106,7 +106,7 @@
   }
 }
 
-@keyframes splitTextRevealOut {
+@keyframes ui-reveal-leave {
   0% {
     opacity: 1;
     transform: translateY(0);
@@ -123,11 +123,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .viewport {
+  .ui-reveal {
     transition: none;
 
-    .in .char,
-    .out .char {
+    .ui-reveal-in .ui-reveal-char,
+    .ui-reveal-out .ui-reveal-char {
       animation: none;
     }
   }

@@ -1,11 +1,11 @@
 // Клип-сцена: единый Flex-бокс (высота пропом h) — клипует (overflow), держит контекст для absolute-шагов
 // (position) и анимирует clip-path. Длительность приходит CSS-переменной --clip-dur (дефолт — токен).
-.clipStage {
+.ui-clip {
   position: relative;
   overflow: hidden;
   transition: clip-path var(--clip-dur, var(--t-d-very-slow)) var(--t-t-f-ease);
 
-  .clipItem {
+  .ui-clip-item {
     position: absolute;
     top: 0;
     left: 0;

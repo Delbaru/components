@@ -2,13 +2,12 @@
 
 import { type CSSProperties } from 'react';
 import type React from 'react';
-import styles from './Box.module.scss';
 import { boxLayout, createLayoutClasses, cx, splitBoxLayout, stateLinkProps, useMergedRefs, type BoxLayoutProps, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
 type JustifyContentKey = 'start' | 'end' | 'center' | 'space_between' | 'space_around' | 'space_evenly';
 
-const c = createLayoutClasses(styles);
+const c = createLayoutClasses();
 
 export interface BoxProps extends React.HTMLAttributes<HTMLDivElement>, BoxLayoutProps, SharedMotionProps {
   children?: React.ReactNode;
@@ -40,7 +39,7 @@ export function Box({
     <div
       ref={setRefs}
       {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
-      className={cx(styles.Box, ...layout, ...c.value('justify', justify), className)}
+      className={cx('ui-box', ...layout, ...c.value('justify', justify), className)}
       style={{ ...(motionStyle ?? null), ...style }}
       {...rest}
     >

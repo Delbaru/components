@@ -1,17 +1,15 @@
-@use '../core/scss-utils' as utils;
-
-.IconRoot {
+.ui-icon-root {
     display: inline-flex;
 }
 
-.IconWrapper {
+.ui-icon-wrapper {
     position: relative;
     display: inline-flex;
     flex-shrink: 0;
     line-height: 0;
     vertical-align: middle;
 
-    .Icon {
+    .ui-icon {
         transition: var(--transition-btn, var(--t-fast));
 
         path,
@@ -51,25 +49,25 @@
     }
 }
 
-:global(button:disabled) .Icon[data-icon-root='true'],
-:global(button:disabled) .IconWrapper[data-icon-root='true'],
-:global(button:disabled) .IconRoot[data-icon-root='true'] {
+button:disabled .ui-icon[data-icon-root='true'],
+button:disabled .ui-icon-wrapper[data-icon-root='true'],
+button:disabled .ui-icon-root[data-icon-root='true'] {
     filter: var(--disable-filter-for-icon);
 }
 
-.IconLink {
+.ui-icon-link {
     display: inline-flex;
     align-items: center;
     text-decoration: none;
     color: inherit;
 }
 
-.IconTooltipWrapper {
+.ui-icon-tooltip-wrapper {
     display: inline-flex;
     vertical-align: middle;
 }
 
-.IconTooltip {
+.ui-icon-tooltip {
     position: fixed;
     left: var(--floating-left);
     top: var(--floating-top);
@@ -108,7 +106,7 @@
 }
 
 // Стили для обычной иконки (без wrapper). Дефолт цвета — в компоненте, не в SVG.
-.Icon {
+.ui-icon {
     --transition-btn: var(--t-fast);
     --icon-stroke-width: inherit;
     --icon-stroke-width-d: inherit;
@@ -138,21 +136,21 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .Icon[data-icon-loading='true'] {
+    .ui-icon[data-icon-loading='true'] {
         opacity: 1;
     }
 }
 
 // responsive rotate (order: desktop / mobile / tablet)
 @media (max-width: 767px) {
-    .Icon {
+    .ui-icon {
         transform: var(--perspective3d-transform,) rotate(var(--rotate-m, var(--rotate-d, 0deg)));
         stroke-width: var(--icon-stroke-width-m, var(--icon-stroke-width-d, inherit));
     }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
-    .Icon {
+    .ui-icon {
         transform: var(--perspective3d-transform,) rotate(var(--rotate-t, var(--rotate-d, 0deg)));
         stroke-width: var(--icon-stroke-width-t, var(--icon-stroke-width-d, inherit));
     }

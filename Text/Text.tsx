@@ -5,8 +5,6 @@ import Link from 'next/link';
 import type React from 'react';
 import { useRef, type CSSProperties } from 'react';
 
-import styles from './Text.module.scss';
-
 import { boxLayout, buildClampStyle, createLayoutClasses, cx, normalizeComponentState, resolveLinkProps, shouldUseNextLink, splitBoxLayout, stateLinkProps, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { resolveAnimation } from './animations/resolveAnimation';
@@ -21,7 +19,7 @@ type FontFamilyKey = 'primary' | 'secondary' | 'inherit';
 type TextAlignValue = 'left' | 'right' | 'center' | 'justify' | 'start' | 'end';
 type WhiteSpaceValue = 'normal' | 'nowrap' | 'pre' | 'pre-wrap' | 'pre-line' | 'break-spaces';
 
-const c = createLayoutClasses(styles);
+const c = createLayoutClasses();
 
 export interface TextProps
   extends Omit<React.HTMLAttributes<HTMLElement>, 'color'>,
@@ -146,13 +144,13 @@ export function Text({
 
   // clamp/ellipsis/required не сочетаются с анимациями — добавляем их только в неанимированном пути.
   const classNames = anim.active
-    ? cx(styles.Text, ...coreClasses, className)
+    ? cx('ui-text', ...coreClasses, className)
     : cx(
-        styles.Text,
+        'ui-text',
         ...coreClasses,
-        required && styles.required,
-        hasRows && styles.clamp,
-        hasSingleLineEllipsis && styles.ellipsis,
+        required && 'ui-text-required',
+        hasRows && 'ui-text-clamp',
+        hasSingleLineEllipsis && 'ui-text-ellipsis',
         className
       );
 

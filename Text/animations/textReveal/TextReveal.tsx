@@ -2,8 +2,6 @@
 
 import { useLayoutEffect, useMemo, useRef, type CSSProperties } from 'react';
 
-import styles from './textReveal.module.scss';
-
 import { cx } from '../../../core';
 import { flattenAnimatableText } from '../flattenText';
 import { useTextSwap, prefersReducedMotion, commonAffixes } from './useTextSwap';
@@ -92,13 +90,13 @@ function Layer({ text, mode, staticPrefix, staticSuffix }: LayerProps) {
     <span
       data-reveal-layer=""
       data-reveal-mode={mode}
-      className={cx(styles.layer, mode === 'in' && styles.in, mode === 'out' && styles.out)}
+      className={cx('ui-reveal-layer', mode === 'in' && 'ui-reveal-in', mode === 'out' && 'ui-reveal-out')}
       aria-hidden={mode === 'out' ? true : undefined}
     >
       {tokens.map((token, tokenIdx) => {
         if (IS_WS.test(token)) {
           return (
-            <span key={`s-${tokenIdx}`} className={styles.space}>
+            <span key={`s-${tokenIdx}`} className={'ui-reveal-space'}>
               {token}
             </span>
           );
@@ -106,13 +104,13 @@ function Layer({ text, mode, staticPrefix, staticSuffix }: LayerProps) {
 
         const start = starts[tokenIdx] ?? 0;
         return (
-          <span key={`w-${tokenIdx}`} className={styles.word}>
+          <span key={`w-${tokenIdx}`} className={'ui-reveal-word'}>
             {Array.from(token).map((ch, i) => {
               const gi = start + i;
               // Статичный символ (общий край) не несёт data-reveal-char → не анимируется и не участвует в волне.
               const isStatic = gi < staticPrefix || gi >= total - staticSuffix;
               return (
-                <span key={i} {...(isStatic ? null : { 'data-reveal-char': '' })} className={styles.char}>
+                <span key={i} {...(isStatic ? null : { 'data-reveal-char': '' })} className={'ui-reveal-char'}>
                   {ch}
                 </span>
               );
@@ -301,7 +299,7 @@ export function TextReveal({ content, options }: TextAnimationContext<TextReveal
   const affixes = previous !== null ? commonAffixes(previous, current) : { prefix: 0, suffix: 0 };
 
   return (
-    <span ref={viewportRef} className={styles.viewport} style={vars}>
+    <span ref={viewportRef} className={'ui-reveal'} style={vars}>
       {previous !== null && (
         <Layer key={`out-${generation}`} text={previous} mode="out" staticPrefix={affixes.prefix} staticSuffix={affixes.suffix} />
       )}

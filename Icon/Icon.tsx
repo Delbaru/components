@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useMemo, type CSSProperties, type SVGProps } from 'react';
 import type React from 'react';
-import styles from './Icon.module.scss';
 import { boxLayout, cx, createLayoutClasses, resolveRadiusInput, resolveResponsive, shouldUseNextLink, splitRootDomProps, stateProps as buildStateProps, stateLinkProps, type BorderStyleProps, type ComponentStateValue, type GrowProps, type RadiusInput, type ResponsiveSpaceValue, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef, useMergedRefs } from '../core';
 import { Flex } from '../Flex';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
@@ -12,7 +11,7 @@ import { hasIconSource, parseAspectRatio, resolveIconSource, type IconComponent,
 import { useIconSwap, componentSwapKey, type IconAnimate } from './swap';
 import { useFetchedSvg, type FetchedSvgState } from './useFetchedSvg';
 
-const c = createLayoutClasses(styles);
+const c = createLayoutClasses();
 
 // `r` у SVG — радиус окружности; у Icon это радиус коробки (кортежем), поэтому родной убран.
 type IconBaseSvgProps = Omit<SVGProps<SVGSVGElement>, 'width' | 'height' | 'color' | 'rotate' | 'strokeWidth' | 'r'>;
@@ -205,7 +204,7 @@ export function Icon({
   const linkRel = rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined);
   const useNextLink = shouldUseNextLink(href, target);
   const linkProps = href
-    ? { href, target, rel: linkRel, className: styles.IconLink, 'data-point-events': dataPointEvents }
+    ? { href, target, rel: linkRel, className: 'ui-icon-link', 'data-point-events': dataPointEvents }
     : null;
   const wrapLink = (content: React.ReactNode) =>
     linkProps ? (useNextLink ? <Link {...linkProps}>{content}</Link> : <a {...linkProps}>{content}</a>) : content;
@@ -390,7 +389,7 @@ export function Icon({
         <LayerComponent
           ref={layer === 'default' ? setSvgRefs : undefined}
           data-icon-layer={layer}
-          className={styles.Icon}
+          className={'ui-icon'}
           style={commonSvgStyle}
           {...layerProps}
         />
@@ -403,7 +402,7 @@ export function Icon({
       <svg
         ref={layer === 'default' ? setSvgRefs : undefined}
         data-icon-layer={layer}
-        className={styles.Icon}
+        className={'ui-icon'}
         style={commonSvgStyle}
         fill={fill == null ? fetched.rootFill : undefined}
         viewBox={fetched.viewBox || (layer === 'default' ? elementProps.viewBox : undefined)}
@@ -425,7 +424,7 @@ export function Icon({
         {...(contentRootProps as Record<string, unknown> ?? null)}
         data-point-events={dataPointEvents}
         data-icon-root="true"
-        className={cx(styles.Icon, ...commonClasses)}
+        className={cx('ui-icon', ...commonClasses)}
         style={{
           ...commonSvgStyle,
           ...commonStyles,
@@ -442,7 +441,7 @@ export function Icon({
       ...(contentRootProps as Record<string, unknown> ?? null),
       'data-point-events': dataPointEvents,
       ...(rootStateProps ?? null),
-      className: cx(styles.IconWrapper, ...commonClasses),
+      className: cx('ui-icon-wrapper', ...commonClasses),
       style: {
         ...(stackAspectRatio ? { aspectRatio: stackAspectRatio } : null),
         ...commonStyles,
@@ -467,7 +466,7 @@ export function Icon({
         data-point-events={dataPointEvents}
         data-icon-root="true"
         data-icon-loading={svgContent ? undefined : 'true'}
-        className={cx(styles.Icon, ...commonClasses)}
+        className={cx('ui-icon', ...commonClasses)}
         style={{
           ...commonSvgStyle,
           ...commonStyles,
@@ -498,7 +497,7 @@ export function Icon({
         data-point-events={dataPointEvents}
         data-icon-root="true"
         className={cx(
-          styles.IconRoot,
+          'ui-icon-root',
           resolvedRootClassName,
           ...c.value('bg', resolvedRootBg),
         )}

@@ -2,13 +2,11 @@
 
 import type React from 'react';
 
-import styles from './Section.module.scss';
-
 import { type CSSProperties } from 'react';
 import { boxLayout, createLayoutClasses, cx, splitBoxLayout, stateLinkProps, useMergedRefs, type BoxLayoutProps, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
-const c = createLayoutClasses(styles);
+const c = createLayoutClasses();
 
 /** Коробка секции — подмножество общей: из отступов только вертикальные. */
 type SectionBoxKey = 'bg' | 'mt' | 'mb' | 'pt' | 'pb' | 'w' | 'minW' | 'maxW' | 'h' | 'minH' | 'maxH' | 'aspectRatio' | 'grow';
@@ -30,7 +28,7 @@ export function Section({ ref, children, className = '', style, perspective3d, p
     <section
       ref={setRefs}
       {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
-      className={cx(styles.Section, ...layout, className)}
+      className={cx('ui-section', ...layout, className)}
       style={{ ...(motionStyle ?? null), ...style }}
       {...rest}
     >

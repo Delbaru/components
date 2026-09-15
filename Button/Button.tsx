@@ -142,7 +142,7 @@ export function Button({
         onBlur: handleBlur,
       })}
       className={cx(
-        styles.Button,
+        'ui-button',
         ...c.value('variant', variant),
         ...c.value('size', size),
         ...c.value('justify', justifyContent),
@@ -167,7 +167,7 @@ export function Button({
     const tooltipNode = portalNode ? createPortal(
       <span
         ref={tooltipRef}
-        className={styles.ButtonTooltip}
+        className={'ui-button-tooltip'}
         style={tooltipStyle}
         role='tooltip'
         aria-hidden={!isTooltipActive || !isTooltipPositioned}
@@ -181,7 +181,7 @@ export function Button({
 
     result = (
       <span
-        className={styles.ButtonTooltipWrapper}
+        className={'ui-button-tooltip-wrapper'}
       >
         {result}
         {tooltipNode}

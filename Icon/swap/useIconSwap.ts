@@ -2,8 +2,6 @@
 
 import { createElement, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
-import styles from './iconSwap.module.scss';
-
 import { cx } from '../../core';
 import type { IconAnimate, IconSwapOptions } from './types';
 
@@ -123,10 +121,10 @@ export function useIconSwap(
   if (swap.outgoing != null) {
     return createElement(
       'span',
-      { className: styles.viewport, style: vars },
+      { className: 'ui-swap', style: vars },
       createElement(
         'span',
-        { key: `out-${swap.generation}`, className: cx(styles.layer, styles.swapOut), 'aria-hidden': true },
+        { key: `out-${swap.generation}`, className: cx('ui-swap-layer', 'ui-swap-out'), 'aria-hidden': true },
         swap.outgoing
       )
     );
@@ -138,10 +136,10 @@ export function useIconSwap(
 
   return createElement(
     'span',
-    { className: styles.viewport, style: vars },
+    { className: 'ui-swap', style: vars },
     createElement(
       'span',
-      { key: `in-${swap.generation}`, className: cx(styles.layer, swap.entering && styles.swapIn) },
+      { key: `in-${swap.generation}`, className: cx('ui-swap-layer', swap.entering && 'ui-swap-in') },
       current
     )
   );

@@ -2,13 +2,11 @@
 
 import type React from 'react';
 
-import styles from './Container.module.scss';
-
 import { type CSSProperties } from 'react';
 import { boxLayout, createLayoutClasses, cx, splitBoxLayout, stateLinkProps, useMergedRefs, type AspectRatioProps, type BorderStyleProps, type GrowProps, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
-const c = createLayoutClasses(styles);
+const c = createLayoutClasses();
 
 export interface ContainerProps extends React.HTMLAttributes<HTMLDivElement>, LayoutSpaceProps, SizePropsShort, RadiusPropsShort, BorderStyleProps, AspectRatioProps, GrowProps, SharedMotionProps {
   children?: React.ReactNode;
@@ -38,7 +36,7 @@ export function Container({
     <div
       ref={setRefs}
       {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
-      className={cx(styles.Container, ...layout, className)}
+      className={cx('ui-container', ...layout, className)}
       style={{ ...(motionStyle ?? null), ...style }}
       {...rest}
     >

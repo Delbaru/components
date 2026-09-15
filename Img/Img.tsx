@@ -4,12 +4,11 @@ import Image, { type ImageProps } from 'next/image';
 import { useMemo, useState, type CSSProperties } from 'react';
 import type React from 'react';
 
-import styles from './Img.module.scss';
 import { boxLayout, createLayoutClasses, cx, resolveResponsive, sizeClasses, splitRootDomProps, stateLinkProps, useMergedRefs, type GrowProps, type RadiusInput, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef } from '../core';
 import { useFancybox } from '../hooks/useFancybox';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
-const c = createLayoutClasses(styles);
+const c = createLayoutClasses();
 
 type ObjectFitKey = 'contain' | 'cover' | 'fill' | 'none' | 'scale_down';
 
@@ -282,7 +281,7 @@ export function Img({
       data-point-events={dataPointEvents}
       {...(rootProps as React.HTMLAttributes<HTMLSpanElement>)}
       {...stateLinkProps(linkState, motionHandlers)}
-      className={cx(styles.Img, ...sizeClasses(c, wrapperSizeProps), ...layout, className)}
+      className={cx('ui-img', ...sizeClasses(c, wrapperSizeProps), ...layout, className)}
       style={{
         ...(motionStyle ?? null),
         ...style,
@@ -293,7 +292,7 @@ export function Img({
           href={fancyboxHref ?? undefined}
           data-fancybox={fancyboxGroup}
           data-caption={normalizedAlt || undefined}
-          className={styles.Link}
+          className={'ui-img-link'}
           draggable={false}
           aria-label={fancyboxAriaLabel}
         >
@@ -307,9 +306,9 @@ export function Img({
               sizes="5vw"
               quality={normalizedQuality}
               className={cx(
-                styles.Image,
-                styles.Blur,
-                isLoaded && styles.BlurHidden,
+                'ui-img-image',
+                'ui-img-blur',
+                isLoaded && 'ui-img-blur-hidden',
                 ...c.value('objectFit', objectFit ?? 'cover'),
                 ...c.value('objectPosition', objectPosition ?? 'center'),
               )}
@@ -323,7 +322,7 @@ export function Img({
             sizes={computedSizes}
             quality={normalizedQuality}
             className={cx(
-              styles.Image,
+              'ui-img-image',
               ...c.value('objectFit', objectFit ?? 'cover'),
               ...c.value('objectPosition', objectPosition ?? 'center'),
             )}
@@ -343,9 +342,9 @@ export function Img({
               sizes="5vw"
               quality={normalizedQuality}
               className={cx(
-                styles.Image,
-                styles.Blur,
-                isLoaded && styles.BlurHidden,
+                'ui-img-image',
+                'ui-img-blur',
+                isLoaded && 'ui-img-blur-hidden',
                 ...c.value('objectFit', objectFit ?? 'cover'),
                 ...c.value('objectPosition', objectPosition ?? 'center'),
               )}
@@ -359,7 +358,7 @@ export function Img({
             sizes={computedSizes}
             quality={normalizedQuality}
             className={cx(
-              styles.Image,
+              'ui-img-image',
               ...c.value('objectFit', objectFit ?? 'cover'),
               ...c.value('objectPosition', objectPosition ?? 'center'),
             )}

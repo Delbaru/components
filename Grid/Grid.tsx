@@ -1,8 +1,6 @@
 'use client';
 
-
 import type React from 'react';
-import styles from './Grid.module.scss';
 import { boxLayout, createLayoutClasses, cx, splitBoxLayout, stateLinkProps, useMergedRefs, type AspectRatioProps, type BoxLayoutProps, type GrowProps, type LayoutSpaceProps, type ResponsiveValue, type SizeValue, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
@@ -37,7 +35,7 @@ type ItemAlignItemsKey =
 type AlignContentKey = 'start' | 'end' | 'center' | 'stretch' | 'space_between' | 'space_around' | 'space_evenly';
 type AutoFlowKey = 'row' | 'column' | 'dense' | 'row_dense' | 'column_dense';
 
-const c = createLayoutClasses(styles);
+const c = createLayoutClasses();
 
 export interface GridProps extends React.HTMLAttributes<HTMLDivElement>, BoxLayoutProps, SharedMotionProps {
   children?: React.ReactNode;
@@ -94,7 +92,7 @@ export function Grid({
     ref={setRefs}
     {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
     className={cx(
-      styles.Grid,
+      'ui-grid',
       ...layout,
       ...c.value('columns', columns),
       ...c.value('rows', rows),
@@ -225,8 +223,7 @@ export function GridItem({
       ref={setRefs}
       {...stateLinkProps(undefined, { onMouseEnter, onMouseLeave, ...motionHandlers })}
       className={cx(
-        styles.GridItem,
-        hasFlex && styles.GridItemFlex,
+        hasFlex && 'ui-grid-item-flex',
         ...c.value('colSpan', colSpan),
         ...c.value('rowSpan', rowSpan),
         ...c.value('colStart', colStart),

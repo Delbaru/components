@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useEffect, useState, type CSSProperties } from 'react';
 import type React from 'react';
-import styles from './Flex.module.scss';
 import { boxLayout, createLayoutClasses, cx, resolveLinkProps, shouldUseNextLink, splitBoxLayout, stateLinkProps, stateProps, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { usePresence } from '../hooks/usePresence';
@@ -17,19 +16,18 @@ type JustifyContentKey = 'start' | 'end' | 'center' | 'space_between' | 'space_a
 export type FlexEnterAnimation = 'fadeIn' | 'fadeInUp' | 'fadeInDown' | 'fadeInScale';
 export type FlexAnimation = FlexEnterAnimation | 'fadeOut' | 'fadeOutUp' | 'fadeOutDown' | 'fadeOutScale';
 
-const c = createLayoutClasses(styles);
+const c = createLayoutClasses();
 
-// Реестр анимаций (CSS-keyframes в Flex.module.scss). Явная мапа вместо вычисляемого
-// доступа к styles — типобезопасно и не зависит от того, как затипизирован CSS-модуль.
+// Реестр анимаций (keyframes в _flex.scss): значение пропа → глобальный класс.
 const animationClasses: Record<FlexAnimation, string | undefined> = {
-  fadeIn: styles.anim_fadeIn,
-  fadeInUp: styles.anim_fadeInUp,
-  fadeInDown: styles.anim_fadeInDown,
-  fadeInScale: styles.anim_fadeInScale,
-  fadeOut: styles.anim_fadeOut,
-  fadeOutUp: styles.anim_fadeOutUp,
-  fadeOutDown: styles.anim_fadeOutDown,
-  fadeOutScale: styles.anim_fadeOutScale,
+  fadeIn: 'ui-anim-fadeIn',
+  fadeInUp: 'ui-anim-fadeInUp',
+  fadeInDown: 'ui-anim-fadeInDown',
+  fadeInScale: 'ui-anim-fadeInScale',
+  fadeOut: 'ui-anim-fadeOut',
+  fadeOutUp: 'ui-anim-fadeOutUp',
+  fadeOutDown: 'ui-anim-fadeOutDown',
+  fadeOutScale: 'ui-anim-fadeOutScale',
 };
 
 // Exit — зеркало enter (для свопа через transitionKey): въезжает сверху → уходит вверх и т.д.
@@ -139,8 +137,8 @@ export function Flex({
       ref={setRefs}
       {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
       className={cx(
-        styles.Flex,
-        container && styles.container,
+        'ui-flex',
+        container && 'ui-flex-container',
         ...layout,
         ...c.value('gap', gap),
         ...c.value('rowGap', rowGap),
@@ -237,14 +235,14 @@ function CollapseWrap({ open, axis = 'row', collapseGap, fade, overflowVisibleWh
   return (
     <div
       ref={ref}
-      className={cx(styles.collapseWrap, fade && styles.collapseFade)}
+      className={cx('ui-collapse', fade && 'ui-collapse-fade')}
       data-axis={axis}
       data-open={visualOpen || undefined}
       inert={!visualOpen}
       onTransitionEnd={handleTransitionEnd}
       style={collapseStyle as CSSProperties}
     >
-      <div className={cx(styles.collapseInner, overflowVisibleWhenOpen && settledOpen && styles.collapseOverflowVisible)}>
+      <div className={cx('ui-collapse-inner', overflowVisibleWhenOpen && settledOpen && 'ui-collapse-visible')}>
         {children}
       </div>
     </div>

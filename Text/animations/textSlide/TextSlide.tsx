@@ -3,8 +3,6 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
-import styles from './textSlide.module.scss';
-
 import { cx } from '../../../core';
 import { Flex } from '../../../Flex';
 import { flattenAnimatableText } from '../flattenText';
@@ -46,12 +44,12 @@ function TextSlideSequence({ options }: { options: SequenceOptions }) {
   } as CSSProperties;
 
   return (
-    <Flex className={styles.slideStage} h={`${containerHeight}px`} style={stageStyle}>
+    <Flex className={'ui-slide'} h={`${containerHeight}px`} style={stageStyle}>
       {options.steps.map((step, index) => (
         <span
           key={step.slice(0, 60)}
           ref={(el) => { itemRefs.current[index] = el; }}
-          className={styles.textItem}
+          className={'ui-slide-item'}
           style={{ top: cumHeights[index - 1] || 0 }}
         >
           {step}
@@ -69,11 +67,11 @@ function TextSlideHover({ content, options }: TextAnimationContext<TextSlideOpti
   } as CSSProperties;
 
   return (
-    <span className={styles.textSlideHover} style={hoverStyle}>
-      <span className={styles.textHoverViewport}>
-        <span className={cx(styles.textHoverLayer, styles.textHoverBase)}>{content}</span>
+    <span className={'ui-slide-hover'} style={hoverStyle}>
+      <span className={'ui-slide-hover-viewport'}>
+        <span className={cx('ui-slide-hover-layer', 'ui-slide-hover-base')}>{content}</span>
 
-        <span aria-hidden="true" className={cx(styles.textHoverLayer, styles.textHoverAlt)}>{content}</span>
+        <span aria-hidden="true" className={cx('ui-slide-hover-layer', 'ui-slide-hover-alt')}>{content}</span>
       </span>
     </span>
   );
@@ -170,17 +168,17 @@ function TextSlideSwap({ content, options }: TextAnimationContext<TextSlideOptio
   const sameLen = previousChars !== null && prevLen === currentChars.length;
 
   const staticCell = (key: string, ch: string): ReactNode => (
-    <span key={key} className={styles.swapStatic}>{nbsp(ch)}</span>
+    <span key={key} className={'ui-slide-swap-static'}>{nbsp(ch)}</span>
   );
   // Ячейка свопа-одометра: новый символ (in) — в потоке, задаёт ширину покоя ячейки; старый (out) — абсолют
   // (data-swap-out, из раскладки выключен), уезжает вверх под клип. data-swap-cell/-in читает плагин, чтобы
   // измерить старую/новую ширину и вести ячейку между ними. Ключи слоёв на generation — чтобы CSS-keyframes
   // перезапускались на каждом свопе (сама ячейка по позиции переиспользуется).
   const swapCellNode = (key: string, outStr: string, inStr: string): ReactNode => (
-    <span key={key} data-swap-cell="" className={styles.swapCell}>
-      <span key={`out-${generation}`} data-swap-out="" className={styles.swapOut} aria-hidden="true">{nbsp(outStr)}</span>
+    <span key={key} data-swap-cell="" className={'ui-slide-swap-cell'}>
+      <span key={`out-${generation}`} data-swap-out="" className={'ui-slide-swap-out'} aria-hidden="true">{nbsp(outStr)}</span>
 
-      <span key={`in-${generation}`} data-swap-in="" className={styles.swapIn}>{nbsp(inStr)}</span>
+      <span key={`in-${generation}`} data-swap-in="" className={'ui-slide-swap-in'}>{nbsp(inStr)}</span>
     </span>
   );
 
@@ -212,7 +210,7 @@ function TextSlideSwap({ content, options }: TextAnimationContext<TextSlideOptio
   let wordKey = 0;
   const flushWord = () => {
     if (word.length === 0) return;
-    groups.push(<span key={`w${wordKey++}`} className={styles.swapWord}>{word}</span>);
+    groups.push(<span key={`w${wordKey++}`} className={'ui-slide-swap-word'}>{word}</span>);
     word = [];
   };
   cells.forEach((c) => {
@@ -222,7 +220,7 @@ function TextSlideSwap({ content, options }: TextAnimationContext<TextSlideOptio
   flushWord();
 
   return (
-    <span ref={viewportRef} className={styles.swapViewport} style={vars}>
+    <span ref={viewportRef} className={'ui-slide-swap'} style={vars}>
       {groups}
     </span>
   );

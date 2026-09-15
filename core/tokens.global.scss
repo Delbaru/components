@@ -4,6 +4,22 @@
 // глобальные стили проекта, поэтому имена не хешируются: в DOM видно ровно имя класса.
 @use './utilities';
 
+// Примитивы — глобальные ui-* после утилит: при равной специфичности побеждают утилиту, как прежние CSS-модули.
+@use '../Box/box';
+@use '../Button/button';
+@use '../Container/container';
+@use '../Flex/flex';
+@use '../Grid/grid';
+@use '../Icon/icon';
+@use '../Icon/swap/icon-swap';
+@use '../Img/img';
+@use '../Section/section';
+@use '../Text/text';
+@use '../Text/animations/counter/counter';
+@use '../Text/animations/textClip/text-clip';
+@use '../Text/animations/textReveal/text-reveal';
+@use '../Text/animations/textSlide/text-slide';
+
 // ── Краевой fade скролл-контейнеров (mask + scroll-driven animations) ─────────────────────────
 // Утилита-класс .scrollFadeY (ось Y) / .scrollFadeX (ось X). Мягко гасит контент у краёв области
 // прокрутки CSS-маской — без псевдоэлементов и лишних слоёв, не ломает клики (маска рулит только
