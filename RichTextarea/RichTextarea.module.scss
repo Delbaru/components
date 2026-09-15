@@ -1,17 +1,172 @@
-.RichTextareaWrapper {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  transition: var(--t-fast);
-
-  .Field {
+@layer ui.components {
+  .RichTextareaWrapper {
+    position: relative;
     display: flex;
     flex-direction: column;
-    flex: 1 1 auto;
     transition: var(--t-fast);
-    position: relative;
-    cursor: text;
 
+    .Field {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      transition: var(--t-fast);
+      position: relative;
+      cursor: text;
+
+      .EditorShell {
+        position: relative;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+      }
+
+      .ContentEditable {
+        min-height: inherit;
+        outline: none;
+        border: none;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+
+        a {
+          color: var(--primary);
+          text-decoration: underline;
+        }
+
+        p,
+        ul,
+        ol,
+        blockquote {
+          margin-top: 0;
+
+          &:not(:last-child) {
+            margin-bottom: calc(2 * var(--rpx));
+          }
+        }
+
+        p:has([data-lexical-decorator='true']) > br:last-child {
+          display: none;
+        }
+      }
+
+      .Placeholder {
+        position: absolute;
+        inset: 0 auto auto 0;
+        pointer-events: none;
+        font: var(--font-p);
+      }
+
+      .ToolbarIconButton {
+        position: relative;
+        transition: var(--t-fast);
+        color: var(--black);
+        flex: 0 0 auto;
+
+        // Подсветка рисуется псевдоэлементом с отрицательным inset:
+        // выходит за пределы кнопки 20x20, не меняя её размер и отступы тулбара.
+        &::before {
+          content: '';
+          position: absolute;
+          inset: calc(-4 * var(--rpx));
+          border-radius: var(--s-8);
+          background: transparent;
+          transition: var(--t-fast);
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        > * {
+          position: relative;
+          z-index: 1;
+        }
+
+        &:hover {
+          color: var(--primary);
+
+          path {
+            fill: var(--white-100);
+          }
+
+          &::before {
+            background: var(--primary);
+          }
+        }
+
+        &[state~='active'] {
+          color: var(--primary);
+
+          path {
+            fill: var(--white-100);
+          }
+
+          &::before {
+            background: var(--primary);
+          }
+        }
+      }
+    }
+
+    // Переменная — это инлайн-текст (TextNode в режиме token), стилизованный под
+    // «пилюлю». display: inline (а не button/inline-block) важен: так нативное
+    // выделение, двойной/тройной клик и drag работают как с обычным текстом.
+    .VariableChip {
+      display: inline;
+      white-space: nowrap;
+      padding: 0 calc(6 * var(--rpx)) 0 var(--s-8);
+      border-radius: var(--s-8);
+      background: var(--primary-hover);
+      color: var(--primary);
+      cursor: pointer;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+
+      // Иконка переменной перед текстом через mask — перекрашивается в
+      // currentColor (совпадает с цветом подписи и инвертируется в выделении).
+      &::before {
+        content: '';
+        display: inline-block;
+        width: calc(13 * var(--rpx));
+        height: calc(13 * var(--rpx));
+        margin-right: calc(4 * var(--rpx));
+        vertical-align: -0.15em;
+        background-color: currentColor;
+        mask: var(--chip-icon) center / contain no-repeat;
+        -webkit-mask: var(--chip-icon) center / contain no-repeat;
+      }
+
+      // Крестик удаления справа. Это псевдоэлемент (в текстовом узле реальную
+      // кнопку внутрь не вставить), клик по его зоне ловится в редакторе и
+      // удаляет переменную (см. VariableSelectionPlugin).
+      &::after {
+        content: '';
+        display: inline-block;
+        width: calc(8 * var(--rpx));
+        height: calc(8 * var(--rpx));
+        margin-left: calc(5 * var(--rpx));
+        vertical-align: 0.05em;
+        background-color: currentColor;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7'%3E%3Cpath d='M6.5 0.5L0.5 6.5M0.5 0.5L6.5 6.5' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+        -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7'%3E%3Cpath d='M6.5 0.5L0.5 6.5M0.5 0.5L6.5 6.5' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+        opacity: 0.6;
+      }
+
+      &:hover::after {
+        opacity: 1;
+      }
+    }
+  }
+
+  .underline {
+    text-decoration: underline;
+  }
+}
+
+// Рамку поля задаёт проп `border` (утилита), поэтому фокус и ошибка — слоем выше утилит.
+@layer ui.states {
+  .RichTextareaWrapper .Field {
     &:focus-within {
       border-color: var(--primary);
     }
@@ -19,153 +174,5 @@
     &[data-state~='error'] {
       border-color: var(--error-color);
     }
-
-    .EditorShell {
-      position: relative;
-      flex: 1 1 auto;
-      min-height: 0;
-      overflow-y: auto;
-    }
-
-    .ContentEditable {
-      min-height: inherit;
-      outline: none;
-      border: none;
-      background: transparent;
-      color: inherit;
-      font: inherit;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      word-break: break-word;
-
-      a {
-        color: var(--primary);
-        text-decoration: underline;
-      }
-
-      p,
-      ul,
-      ol,
-      blockquote {
-        margin-top: 0;
-
-        &:not(:last-child) {
-          margin-bottom: calc(2 * var(--rpx));
-        }
-      }
-
-      p:has([data-lexical-decorator='true']) > br:last-child {
-        display: none;
-      }
-    }
-
-    .Placeholder {
-      position: absolute;
-      inset: 0 auto auto 0;
-      pointer-events: none;
-      font: var(--font-p);
-    }
-
-    .ToolbarIconButton {
-      position: relative;
-      transition: var(--t-fast);
-      color: var(--black);
-      flex: 0 0 auto;
-
-      // Подсветка рисуется псевдоэлементом с отрицательным inset:
-      // выходит за пределы кнопки 20x20, не меняя её размер и отступы тулбара.
-      &::before {
-        content: '';
-        position: absolute;
-        inset: calc(-4 * var(--rpx));
-        border-radius: var(--s-8);
-        background: transparent;
-        transition: var(--t-fast);
-        pointer-events: none;
-        z-index: 0;
-      }
-
-      > * {
-        position: relative;
-        z-index: 1;
-      }
-
-      &:hover {
-        color: var(--primary);
-
-        path {
-          fill: var(--white-100);
-        }
-
-        &::before {
-          background: var(--primary);
-        }
-      }
-
-      &[state~='active'] {
-        color: var(--primary);
-
-        path {
-          fill: var(--white-100);
-        }
-        
-        &::before {
-          background: var(--primary);
-        }
-      }
-    }
   }
-
-  // Переменная — это инлайн-текст (TextNode в режиме token), стилизованный под
-  // «пилюлю». display: inline (а не button/inline-block) важен: так нативное
-  // выделение, двойной/тройной клик и drag работают как с обычным текстом.
-  .VariableChip {
-    display: inline;
-    white-space: nowrap;
-    padding: 0 calc(6 * var(--rpx)) 0 var(--s-8);
-    border-radius: var(--s-8);
-    background: var(--primary-hover);
-    color: var(--primary);
-    cursor: pointer;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
-
-    // Иконка переменной перед текстом через mask — перекрашивается в
-    // currentColor (совпадает с цветом подписи и инвертируется в выделении).
-    &::before {
-      content: '';
-      display: inline-block;
-      width: calc(13 * var(--rpx));
-      height: calc(13 * var(--rpx));
-      margin-right: calc(4 * var(--rpx));
-      vertical-align: -0.15em;
-      background-color: currentColor;
-      mask: var(--chip-icon) center / contain no-repeat;
-      -webkit-mask: var(--chip-icon) center / contain no-repeat;
-    }
-
-    // Крестик удаления справа. Это псевдоэлемент (в текстовом узле реальную
-    // кнопку внутрь не вставить), клик по его зоне ловится в редакторе и
-    // удаляет переменную (см. VariableSelectionPlugin).
-    &::after {
-      content: '';
-      display: inline-block;
-      width: calc(8 * var(--rpx));
-      height: calc(8 * var(--rpx));
-      margin-left: calc(5 * var(--rpx));
-      vertical-align: 0.05em;
-      background-color: currentColor;
-      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7'%3E%3Cpath d='M6.5 0.5L0.5 6.5M0.5 0.5L6.5 6.5' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
-      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7'%3E%3Cpath d='M6.5 0.5L0.5 6.5M0.5 0.5L6.5 6.5' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
-      opacity: 0.6;
-    }
-
-    &:hover::after {
-      opacity: 1;
-    }
-  }
-}
-
-.underline {
-  text-decoration: underline;
 }

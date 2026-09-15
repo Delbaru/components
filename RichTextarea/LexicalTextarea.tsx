@@ -238,7 +238,7 @@ export function LexicalTextarea({
           <LinkPlugin validateUrl={isAllowedLink} />
           <OnChangePlugin ignoreSelectionChange onChange={handleEditorChange} />
 
-          <Box className={styles.EditorShell} minH={[180, null, null]}>
+          <Box className={styles.EditorShell}>
             <RichTextPlugin
               contentEditable={
                 <ContentEditable

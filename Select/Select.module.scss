@@ -1,381 +1,382 @@
 ﻿@use '../core/scss-utils' as utils;
 @use '../core/field-sizes' as fields;
 
-$sizes: fields.$height-values;
+@layer ui.components {
+  $sizes: fields.$height-values;
 
-.SelectWrapper {
-    position: relative;
-    transition: var(--t-fast);
+  .SelectWrapper {
+      position: relative;
+      transition: var(--t-fast);
 
-    .Select {
-        position: relative;
-        transition: var(--t-fast);
-        cursor: pointer;
+      .Select {
+          position: relative;
+          transition: var(--t-fast);
+          cursor: pointer;
 
-        .SelectTrigger {
-            min-width: 0;
-            cursor: inherit;
-            outline: none;
-        }
+          .SelectTrigger {
+              min-width: 0;
+              cursor: inherit;
+              outline: none;
+          }
 
-        .TriggerContent {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            color: inherit;
-        }
+          .TriggerContent {
+              flex: 1;
+              min-width: 0;
+              display: flex;
+              align-items: center;
+              overflow: hidden;
+              color: inherit;
+          }
 
-        .TriggerText {
-            flex: 1;
-            min-width: 0;
-            color: inherit;
-            font: var(--font-p);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+          .TriggerText {
+              flex: 1;
+              min-width: 0;
+              color: inherit;
+              font: var(--font-p);
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+          }
 
-        .Chevron {
-            flex-shrink: 0;
-            pointer-events: none;
-            transition:
-                transform var(--t-d-fast);
-        }
+          .Chevron {
+              flex-shrink: 0;
+              pointer-events: none;
+              transition:
+                  transform var(--t-d-fast);
+          }
 
-        .DropdownWrapper {
-            z-index: 10;
-            position: absolute;
-            top: calc(100% - var(--rpx));
-            left: calc(-1 * var(--rpx));
-            width: calc(100% + var(--rpx) * 2);
-            display: grid;
-            grid-template-rows: 0fr;
-            overflow: hidden;
-            pointer-events: none;
-            // will-change: grid-template-rows убран — layout-свойства не промоутятся в отдельный слой,
-            // хинт бесполезен (только зря держит бюджет композитора).
-            transition:
-                grid-template-rows var(--t-d-fast);
-        }
+          .DropdownWrapper {
+              z-index: 10;
+              position: absolute;
+              top: calc(100% - var(--rpx));
+              left: calc(-1 * var(--rpx));
+              width: calc(100% + var(--rpx) * 2);
+              display: grid;
+              grid-template-rows: 0fr;
+              overflow: hidden;
+              pointer-events: none;
+              // will-change: grid-template-rows убран — layout-свойства не промоутятся в отдельный слой,
+              // хинт бесполезен (только зря держит бюджет композитора).
+              transition:
+                  grid-template-rows var(--t-d-fast);
+          }
 
-        .DropdownInner {
-            min-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(calc(-10 * var(--rpx)));
-            will-change: transform, opacity;
-            transition:
-                transform var(--t-d-fast),
-                opacity var(--t-d-fast);
-        }
+          .DropdownInner {
+              min-height: 0;
+              overflow: hidden;
+              opacity: 0;
+              transform: translateY(calc(-10 * var(--rpx)));
+              will-change: transform, opacity;
+              transition:
+                  transform var(--t-d-fast),
+                  opacity var(--t-d-fast);
+          }
 
-        .Dropdown {
-            background: var(--white-100);
-            border: calc(1 * var(--rpx)) solid var(--gray-light);
-            border-top: none;
-            // Скругления — ПЕРЕМЕННЫМИ, а не числами: пресет-обёртка вправе сказать, какой формы
-            // её выпадашка, а править ради этого правило атома нельзя — оно общее на все селекты
-            // приложения. Дефолты повторяют прежний вид один в один.
-            border-radius:
-                var(--select-dropdown-radius-top, 0) var(--select-dropdown-radius-top, 0)
-                var(--select-dropdown-radius, var(--s-16)) var(--select-dropdown-radius, var(--s-16));
-            overflow: hidden;
-            width: 100%;
-            max-height: calc(var(--select-height) * var(--select-visible-options));
-        }
+          .Dropdown {
+              background: var(--white-100);
+              border: calc(1 * var(--rpx)) solid var(--gray-light);
+              border-top: none;
+              // Скругления — ПЕРЕМЕННЫМИ, а не числами: пресет-обёртка вправе сказать, какой формы
+              // её выпадашка, а править ради этого правило атома нельзя — оно общее на все селекты
+              // приложения. Дефолты повторяют прежний вид один в один.
+              border-radius:
+                  var(--select-dropdown-radius-top, 0) var(--select-dropdown-radius-top, 0)
+                  var(--select-dropdown-radius, var(--s-16)) var(--select-dropdown-radius, var(--s-16));
+              overflow: hidden;
+              width: 100%;
+              max-height: calc(var(--select-height) * var(--select-visible-options));
+          }
 
-        // Прокрутка и полоса под неё включаются, ТОЛЬКО когда строк больше, чем помещается в
-        // окно списка (`data-scrolls` ставит сам компонент). `scrollbar-gutter: stable` резервирует
-        // место под полосу безусловно — у короткого списка это пустая колонка справа, которая
-        // читается как «здесь что-то прокручивается», хотя прокручивать нечего.
-        .DropdownScroll {
-            overflow: hidden;
-            width: 100%;
-            max-height: inherit;
+          // Прокрутка и полоса под неё включаются, ТОЛЬКО когда строк больше, чем помещается в
+          // окно списка (`data-scrolls` ставит сам компонент). `scrollbar-gutter: stable` резервирует
+          // место под полосу безусловно — у короткого списка это пустая колонка справа, которая
+          // читается как «здесь что-то прокручивается», хотя прокручивать нечего.
+          .DropdownScroll {
+              overflow: hidden;
+              width: 100%;
+              max-height: inherit;
 
-            &[data-scrolls] {
-                overflow-x: hidden;
-                overflow-y: auto;
-                overscroll-behavior: contain;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-gutter: stable;
-            }
+              &[data-scrolls] {
+                  overflow-x: hidden;
+                  overflow-y: auto;
+                  overscroll-behavior: contain;
+                  -webkit-overflow-scrolling: touch;
+                  scrollbar-gutter: stable;
+              }
 
-            &::-webkit-scrollbar-thumb {
-                background: var(--primary);
-            }
-        }
+              &::-webkit-scrollbar-thumb {
+                  background: var(--primary);
+              }
+          }
 
-        .GroupLabel {
-            padding: calc(12 * var(--rpx)) calc(16 * var(--rpx)) calc(4 * var(--rpx));
-            font-weight: 600;
-            pointer-events: none;
+          .GroupLabel {
+              padding: calc(12 * var(--rpx)) calc(16 * var(--rpx)) calc(4 * var(--rpx));
+              font-weight: 600;
+              pointer-events: none;
 
-            @media (min-width: 768px) and (max-width: 1023px) {
-                padding: calc(12 * var(--rpx)) calc(16 * var(--rpx)) calc(4 * var(--rpx));
-            }
+              @media (min-width: 768px) and (max-width: 1023px) {
+                  padding: calc(12 * var(--rpx)) calc(16 * var(--rpx)) calc(4 * var(--rpx));
+              }
 
-            @media (min-width: 1024px) {
-                padding: calc(12 * var(--rpx)) calc(24 * var(--rpx)) calc(4 * var(--rpx));
-            }
-        }
+              @media (min-width: 1024px) {
+                  padding: calc(12 * var(--rpx)) calc(24 * var(--rpx)) calc(4 * var(--rpx));
+              }
+          }
 
-        .Option {
-            cursor: pointer;
-            min-height: var(--select-height);
-            transition:
-                background var(--t-d-fast),
-                color var(--t-d-fast);
+          .Option {
+              cursor: pointer;
+              min-height: var(--select-height);
+              transition:
+                  background var(--t-d-fast),
+                  color var(--t-d-fast);
 
-            // Маркер множественного выбора. Рисунок повторяет квадрат атома `Checkbox`
-            // (24, r8, нить --gray, залитый --primary с белой галочкой), но живёт здесь:
-            // рамка и заливка ОБЯЗАНЫ переключаться состоянием строки, а проп `border`
-            // у Flex садится инлайном и без `!important` уже не перебивается (§9.3).
-            .OptionCheck {
-                flex-shrink: 0;
-                border: calc(1 * var(--rpx)) solid var(--gray);
-                transition:
-                    background var(--t-d-fast),
-                    border-color var(--t-d-fast);
+              // Маркер множественного выбора. Рисунок повторяет квадрат атома `Checkbox`
+              // (24, r8, нить --gray, залитый --primary с белой галочкой), но живёт здесь:
+              // рамка и заливка ОБЯЗАНЫ переключаться состоянием строки, а проп `border`
+              // у Flex садится инлайном и без `!important` уже не перебивается (§9.3).
+              .OptionCheck {
+                  flex-shrink: 0;
+                  border: calc(1 * var(--rpx)) solid var(--gray);
+                  transition:
+                      background var(--t-d-fast),
+                      border-color var(--t-d-fast);
 
-                .OptionCheckIcon {
-                    opacity: 0;
-                    transition: opacity var(--t-d-fast);
-                }
-            }
+                  .OptionCheckIcon {
+                      opacity: 0;
+                      transition: opacity var(--t-d-fast);
+                  }
+              }
 
-            .OptionContent {
-                flex: 1;
-                min-width: 0;
-                display: flex;
-                align-items: center;
-                overflow: visible;
-                color: inherit;
-            }
+              .OptionContent {
+                  flex: 1;
+                  min-width: 0;
+                  display: flex;
+                  align-items: center;
+                  overflow: visible;
+                  color: inherit;
+              }
 
-            .OptionLabel {
-                flex: 1;
-                min-width: 0;
-                color: inherit;
-                font: var(--font-p);
-                white-space: normal;
-                overflow: visible;
-                text-overflow: clip;
-                overflow-wrap: anywhere;
-            }
+              .OptionLabel {
+                  flex: 1;
+                  min-width: 0;
+                  color: inherit;
+                  font: var(--font-p);
+                  white-space: normal;
+                  overflow: visible;
+                  text-overflow: clip;
+                  overflow-wrap: anywhere;
+              }
 
-            &:hover,
-            &[state~='focused'],
-            &[state~='hover'],
-            &[state~='selected'] {
-                background: var(--gray-light);
-            }
+              &:hover,
+              &[state~='focused'],
+              &[state~='hover'],
+              &[state~='selected'] {
+                  background: var(--gray-light);
+              }
 
-            &[state~='selected'] .OptionCheck {
-                background: var(--primary);
-                border-color: var(--primary);
+              &[state~='selected'] .OptionCheck {
+                  background: var(--primary);
+                  border-color: var(--primary);
 
-                .OptionCheckIcon {
-                    opacity: 1;
-                }
-            }
-        }
+                  .OptionCheckIcon {
+                      opacity: 1;
+                  }
+              }
+          }
 
-        &[state~='error'] {
-            border-color: var(--error-color);
-        }
+          &[state~='error'] {
+              border-color: var(--error-color);
+          }
 
-        &[state~='open'] {
-            border-color: var(--primary);
-        }
+          &[state~='open'] {
+              border-color: var(--primary);
+          }
 
-        &[state~='disabled'] {
-            cursor: not-allowed;
+          &[state~='disabled'] {
+              cursor: not-allowed;
 
-            .TriggerText {
-                color: var(--secondary);
-            }
+              .TriggerText {
+                  color: var(--secondary);
+              }
 
-            .Chevron {
-                opacity: 0.4;
-            }
-        }
+              .Chevron {
+                  opacity: 0.4;
+              }
+          }
 
-        &[state~='open'] {
-            // Нижние углы триггера в раскрытом виде: по умолчанию их СРЕЗАЕТ в ноль, чтобы поле и
-            // список читались одной коробкой. Пилюле это не годится — она обязана остаться пилюлей,
-            // поэтому значение приходит переменной со скина, а не правится здесь.
-            border-bottom-left-radius: var(--select-open-radius, 0);
-            border-bottom-right-radius: var(--select-open-radius, 0);
+          &[state~='open'] {
+              // Нижние углы триггера в раскрытом виде: по умолчанию их СРЕЗАЕТ в ноль, чтобы поле и
+              // список читались одной коробкой. Пилюле это не годится — она обязана остаться пилюлей,
+              // поэтому значение приходит переменной со скина, а не правится здесь.
+              border-bottom-left-radius: var(--select-open-radius, 0);
+              border-bottom-right-radius: var(--select-open-radius, 0);
 
-            .Chevron {
-                transform: rotate(180deg);
-            }
+              .Chevron {
+                  transform: rotate(180deg);
+              }
 
-            .DropdownWrapper {
-                grid-template-rows: 1fr;
-                pointer-events: auto;
-            }
+              .DropdownWrapper {
+                  grid-template-rows: 1fr;
+                  pointer-events: auto;
+              }
 
-            .DropdownInner {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+              .DropdownInner {
+                  opacity: 1;
+                  transform: translateY(0);
+              }
+          }
 
-        &[state~='open'][state~='error'] {
-            border-color: var(--error-color) !important;
+          &[state~='open'][state~='error'] {
+              border-color: var(--error-color) !important;
 
-            .Dropdown {
-                border-color: var(--error-color);
-            }
-        }
-    }
+              .Dropdown {
+                  border-color: var(--error-color);
+              }
+          }
+      }
+  }
+
+  @mixin variant-classes($p: '') {
+      .#{$p}variant_primary {
+          &:hover:not([state~='disabled']),
+          &[state~='hover']:not([state~='disabled']),
+          &[state~='open']:not([state~='disabled']) {
+              border-color: var(--gray-light);
+          }
+      }
+
+      .#{$p}variant_primaryFill {
+          border: var(--rpx) solid var(--primary);
+          background: var(--primary);
+
+          &:hover:not([state~='disabled']),
+          &[state~='hover']:not([state~='disabled']),
+          &[state~='open']:not([state~='disabled']) {
+              border-color: var(--primary);
+          }
+
+          .TriggerText {
+              color: var(--black) !important;
+
+              @media (max-width: 767px) {
+                  font: var(--font-p1);
+                  text-transform: uppercase;
+                  font-weight: 700;
+              }
+          }
+
+          .Chevron {
+              path {
+                  stroke: var(--black);
+              }
+          }
+
+          @media (max-width: 767px) {
+              padding: calc(12 * var(--rpx)) calc(16 * var(--rpx));
+              padding-right: calc(28 * var(--rpx));
+          }
+
+          @media (min-width: 768px) and (max-width: 1023px) {
+              padding: calc(16 * var(--rpx));
+              padding-right: calc(32 * var(--rpx));
+          }
+
+          @media (min-width: 1024px) {
+              padding: calc(16 * var(--rpx)) calc(24 * var(--rpx));
+          }
+      }
+  }
+
+  @mixin size-classes($p: '') {
+      .#{$p}size_default {
+          width: var(--select-width);
+          height: var(--select-height);
+          min-height: var(--select-height);
+
+          @media (max-width: 767px) {
+              --select-width: calc(var(--rpx) * 290);
+              --select-height: calc(var(--rpx) * 56);
+          }
+
+          @media (min-width: 768px) and (max-width: 1023px) {
+              --select-width: calc(var(--rpx) * 290);
+              --select-height: calc(var(--rpx) * 56);
+          }
+
+          @media (min-width: 1024px) {
+              --select-width: calc(var(--rpx) * 290);
+              --select-height: calc(var(--rpx) * 56);
+          }
+      }
+
+      .#{$p}size_fullWidth {
+          width: var(--select-width);
+          height: var(--select-height);
+          min-height: var(--select-height);
+
+          @media (max-width: 767px) {
+              --select-width: 100%;
+              --select-height: calc(var(--rpx) * 56);
+          }
+
+          @media (min-width: 768px) and (max-width: 1023px) {
+              --select-width: 100%;
+              --select-height: calc(var(--rpx) * 56);
+          }
+
+          @media (min-width: 1024px) {
+              --select-width: 100%;
+              --select-height: calc(var(--rpx) * 56);
+          }
+      }
+  }
+
+  @mixin select-classes($bp: null) {
+      $p: if(sass($bp == null): ''; else: '#{$bp}_');
+
+      @each $t in $sizes {
+          .#{$p}height_#{$t} {
+              --select-height: calc(var(--rpx) * #{$t});
+              height: calc(var(--rpx) * #{$t});
+              min-height: calc(var(--rpx) * #{$t});
+          }
+      }
+
+      .#{$p}variant_primary .Option {
+          @media (max-width: 767px) {
+              padding: calc(12 * var(--rpx)) calc(16 * var(--rpx));
+          }
+
+          @media (min-width: 768px) and (max-width: 1023px) {
+              padding: calc(16 * var(--rpx));
+          }
+
+          @media (min-width: 1024px) {
+              padding: calc(16 * var(--rpx)) calc(24 * var(--rpx));
+          }
+      }
+
+      .#{$p}variant_primaryFill .Option {
+          @media (max-width: 767px) {
+              padding: calc(12 * var(--rpx)) calc(16 * var(--rpx));
+          }
+
+          @media (min-width: 768px) and (max-width: 1023px) {
+              padding: calc(16 * var(--rpx));
+          }
+
+          @media (min-width: 1024px) {
+              padding: calc(16 * var(--rpx)) calc(24 * var(--rpx));
+          }
+      }
+
+      @include variant-classes($p);
+      @include size-classes($p);
+  }
+
+  @include select-classes();
+
+  @include utils.withBreakpoints() using ($bp) {
+      @include select-classes($bp);
+  }
 }
-
-@mixin variant-classes($p: '') {
-    .#{$p}variant_primary {
-        &:hover:not([state~='disabled']),
-        &[state~='hover']:not([state~='disabled']),
-        &[state~='open']:not([state~='disabled']) {
-            border-color: var(--gray-light);
-        }
-    }
-
-    .#{$p}variant_primaryFill {
-        border: var(--rpx) solid var(--primary);
-        background: var(--primary);
-
-        &:hover:not([state~='disabled']),
-        &[state~='hover']:not([state~='disabled']),
-        &[state~='open']:not([state~='disabled']) {
-            border-color: var(--primary);
-        }
-
-        .TriggerText {
-            color: var(--black) !important;
-
-            @media (max-width: 767px) {
-                font: var(--font-p1);
-                text-transform: uppercase;
-                font-weight: 700;
-            }
-        }
-
-        .Chevron {
-            path {
-                stroke: var(--black);
-            }
-        }
-
-        @media (max-width: 767px) {
-            padding: calc(12 * var(--rpx)) calc(16 * var(--rpx));
-            padding-right: calc(28 * var(--rpx));
-        }
-
-        @media (min-width: 768px) and (max-width: 1023px) {
-            padding: calc(16 * var(--rpx));
-            padding-right: calc(32 * var(--rpx));
-        }
-
-        @media (min-width: 1024px) {
-            padding: calc(16 * var(--rpx)) calc(24 * var(--rpx));
-        }
-    }
-}
-
-@mixin size-classes($p: '') {
-    .#{$p}size_default {
-        width: var(--select-width);
-        height: var(--select-height);
-        min-height: var(--select-height);
-
-        @media (max-width: 767px) {
-            --select-width: calc(var(--rpx) * 290);
-            --select-height: calc(var(--rpx) * 56);
-        }
-
-        @media (min-width: 768px) and (max-width: 1023px) {
-            --select-width: calc(var(--rpx) * 290);
-            --select-height: calc(var(--rpx) * 56);
-        }
-
-        @media (min-width: 1024px) {
-            --select-width: calc(var(--rpx) * 290);
-            --select-height: calc(var(--rpx) * 56);
-        }
-    }
-
-    .#{$p}size_fullWidth {
-        width: var(--select-width);
-        height: var(--select-height);
-        min-height: var(--select-height);
-
-        @media (max-width: 767px) {
-            --select-width: 100%;
-            --select-height: calc(var(--rpx) * 56);
-        }
-
-        @media (min-width: 768px) and (max-width: 1023px) {
-            --select-width: 100%;
-            --select-height: calc(var(--rpx) * 56);
-        }
-
-        @media (min-width: 1024px) {
-            --select-width: 100%;
-            --select-height: calc(var(--rpx) * 56);
-        }
-    }
-}
-
-@mixin select-classes($bp: null) {
-    $p: if(sass($bp == null): ''; else: '#{$bp}_');
-
-    @each $t in $sizes {
-        .#{$p}height_#{$t} {
-            --select-height: calc(var(--rpx) * #{$t});
-            height: calc(var(--rpx) * #{$t});
-            min-height: calc(var(--rpx) * #{$t});
-        }
-    }
-
-    .#{$p}variant_primary .Option {
-        @media (max-width: 767px) {
-            padding: calc(12 * var(--rpx)) calc(16 * var(--rpx));
-        }
-
-        @media (min-width: 768px) and (max-width: 1023px) {
-            padding: calc(16 * var(--rpx));
-        }
-
-        @media (min-width: 1024px) {
-            padding: calc(16 * var(--rpx)) calc(24 * var(--rpx));
-        }
-    }
-
-    .#{$p}variant_primaryFill .Option {
-        @media (max-width: 767px) {
-            padding: calc(12 * var(--rpx)) calc(16 * var(--rpx));
-        }
-
-        @media (min-width: 768px) and (max-width: 1023px) {
-            padding: calc(16 * var(--rpx));
-        }
-
-        @media (min-width: 1024px) {
-            padding: calc(16 * var(--rpx)) calc(24 * var(--rpx));
-        }
-    }
-
-    @include variant-classes($p);
-    @include size-classes($p);
-}
-
-@include select-classes();
-
-@include utils.withBreakpoints() using ($bp) {
-    @include select-classes($bp);
-}
-

@@ -1,316 +1,318 @@
-// Плеер: примитив Video как абсолютная подложка, поверх — слой захвата кликов и в колонку
-// (space-between) лейбл источника сверху + бар управления снизу. Токена под полупрозрачную тёмную
-// плашку и трек нет — как намеренное исключение (ср. blur/pill в эталоне) держим локальными
-// CSS-переменными на корне: media-scrim (плашка) и media-track (пустой трек).
-.Root {
-    --media-scrim: rgba(43, 47, 51, 0.88);
-    --media-track: rgba(255, 255, 255, 0.4);
-    --media-hover: rgba(255, 255, 255, 0.7);
+@layer ui.components {
+  // Плеер: примитив Video как абсолютная подложка, поверх — слой захвата кликов и в колонку
+  // (space-between) лейбл источника сверху + бар управления снизу. Токена под полупрозрачную тёмную
+  // плашку и трек нет — как намеренное исключение (ср. blur/pill в эталоне) держим локальными
+  // CSS-переменными на корне: media-scrim (плашка) и media-track (пустой трек).
+  .Root {
+      --media-scrim: rgba(43, 47, 51, 0.88);
+      --media-track: rgba(255, 255, 255, 0.4);
+      --media-hover: rgba(255, 255, 255, 0.7);
 
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow: hidden;
-    border-radius: calc(24 * var(--rpx));
-    user-select: none;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      border-radius: calc(24 * var(--rpx));
+      user-select: none;
 
-    .media {
-        position: absolute;
-        inset: 0;
-        z-index: 0;
-    }
+      .media {
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+      }
 
-    // Слой захвата кликов по видео (над медиа, под оверлеями).
-    .clickLayer {
-        position: absolute;
-        inset: 0;
-        z-index: 1;
-        cursor: pointer;
-    }
+      // Слой захвата кликов по видео (над медиа, под оверлеями).
+      .clickLayer {
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+          cursor: pointer;
+      }
 
-    // Общая полупрозрачная плашка (лейбл / бар управления).
-    .overlay {
-        position: relative;
-        z-index: 2;
-        display: inline-flex;
-        align-items: center;
-        margin: calc(8 * var(--rpx));
-        padding: calc(12 * var(--rpx)) calc(16 * var(--rpx));
-        border-radius: calc(16 * var(--rpx));
-        background: var(--media-scrim);
-        transition: opacity var(--t-d-normal) var(--t-t-f-ease), transform var(--t-d-normal) var(--t-t-f-ease);
-    }
+      // Общая полупрозрачная плашка (лейбл / бар управления).
+      .overlay {
+          position: relative;
+          z-index: 2;
+          display: inline-flex;
+          align-items: center;
+          margin: calc(8 * var(--rpx));
+          padding: calc(12 * var(--rpx)) calc(16 * var(--rpx));
+          border-radius: calc(16 * var(--rpx));
+          background: var(--media-scrim);
+          transition: opacity var(--t-d-normal) var(--t-t-f-ease), transform var(--t-d-normal) var(--t-t-f-ease);
+      }
 
-    .labelBar {
-        align-self: flex-start;
-        gap: calc(8 * var(--rpx));
-        // Лейбл источника — компактнее бара управления (как в макете: py 8, px 16).
-        padding: calc(8 * var(--rpx)) calc(16 * var(--rpx));
-    }
+      .labelBar {
+          align-self: flex-start;
+          gap: calc(8 * var(--rpx));
+          // Лейбл источника — компактнее бара управления (как в макете: py 8, px 16).
+          padding: calc(8 * var(--rpx)) calc(16 * var(--rpx));
+      }
 
-    .controlBar {
-        gap: calc(16 * var(--rpx));
-    }
+      .controlBar {
+          gap: calc(16 * var(--rpx));
+      }
 
-    // Автоскрытие: бар уезжает вниз, лейбл — вверх.
-    &.hidden {
-        cursor: none;
+      // Автоскрытие: бар уезжает вниз, лейбл — вверх.
+      &.hidden {
+          cursor: none;
 
-        .controlBar {
-            opacity: 0;
-            transform: translateY(calc(100% + calc(16 * var(--rpx))));
-            pointer-events: none;
-        }
+          .controlBar {
+              opacity: 0;
+              transform: translateY(calc(100% + calc(16 * var(--rpx))));
+              pointer-events: none;
+          }
 
-        .labelBar {
-            opacity: 0;
-            transform: translateY(calc(-100% - calc(16 * var(--rpx))));
-            pointer-events: none;
-        }
-    }
+          .labelBar {
+              opacity: 0;
+              transform: translateY(calc(-100% - calc(16 * var(--rpx))));
+              pointer-events: none;
+          }
+      }
 
-    // Кнопка бара: фикс-размер (flex:none) + микро-hover на своём слое (will-change), чтобы scale
-    // соседей не двигал.
-    .button {
-        display: inline-flex;
-        flex: none;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        margin: 0;
-        border: 0;
-        background: transparent;
-        appearance: none;
-        cursor: pointer;
-        transform-origin: center;
-        will-change: transform;
-        transition: opacity var(--t-d-fast) var(--t-t-f-ease), transform var(--t-d-fast) var(--t-t-f-ease);
+      // Кнопка бара: фикс-размер (flex:none) + микро-hover на своём слое (will-change), чтобы scale
+      // соседей не двигал.
+      .button {
+          display: inline-flex;
+          flex: none;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          margin: 0;
+          border: 0;
+          background: transparent;
+          appearance: none;
+          cursor: pointer;
+          transform-origin: center;
+          will-change: transform;
+          transition: opacity var(--t-d-fast) var(--t-t-f-ease), transform var(--t-d-fast) var(--t-t-f-ease);
 
-        &:hover {
-            opacity: 0.85;
-            transform: scale(1.1);
-        }
+          &:hover {
+              opacity: 0.85;
+              transform: scale(1.1);
+          }
 
-        &:active {
-            transform: scale(0.94);
-        }
-    }
+          &:active {
+              transform: scale(0.94);
+          }
+      }
 
-    // Плавная смена двух иконок (crossfade + scale) в фикс-боксе — ширина не скачет.
-    .iconSwap {
-        position: relative;
-        width: calc(24 * var(--rpx));
-        height: calc(24 * var(--rpx));
-    }
+      // Плавная смена двух иконок (crossfade + scale) в фикс-боксе — ширина не скачет.
+      .iconSwap {
+          position: relative;
+          width: calc(24 * var(--rpx));
+          height: calc(24 * var(--rpx));
+      }
 
-    .iconSwapItem {
-        position: absolute;
-        inset: 0;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity var(--t-d-normal) var(--t-t-f-ease), transform var(--t-d-normal) var(--t-t-f-ease);
-    }
+      .iconSwapItem {
+          position: absolute;
+          inset: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          transition: opacity var(--t-d-normal) var(--t-t-f-ease), transform var(--t-d-normal) var(--t-t-f-ease);
+      }
 
-    .iconSwap[data-active='a'] {
-        .iconSwapA {
-            opacity: 1;
-            transform: scale(1);
-        }
+      .iconSwap[data-active='a'] {
+          .iconSwapA {
+              opacity: 1;
+              transform: scale(1);
+          }
 
-        .iconSwapB {
-            opacity: 0;
-            transform: scale(0.5);
-        }
-    }
+          .iconSwapB {
+              opacity: 0;
+              transform: scale(0.5);
+          }
+      }
 
-    .iconSwap[data-active='b'] {
-        .iconSwapA {
-            opacity: 0;
-            transform: scale(0.5);
-        }
+      .iconSwap[data-active='b'] {
+          .iconSwapA {
+              opacity: 0;
+              transform: scale(0.5);
+          }
 
-        .iconSwapB {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
+          .iconSwapB {
+              opacity: 1;
+              transform: scale(1);
+          }
+      }
 
-    // Таймлайн: увеличенная зона захвата, внутри — тонкий трек с заполнением.
-    .timeline {
-        position: relative;
-        display: flex;
-        flex: 1;
-        align-items: center;
-        height: calc(20 * var(--rpx));
-        cursor: pointer;
-        touch-action: none;
-    }
+      // Таймлайн: увеличенная зона захвата, внутри — тонкий трек с заполнением.
+      .timeline {
+          position: relative;
+          display: flex;
+          flex: 1;
+          align-items: center;
+          height: calc(20 * var(--rpx));
+          cursor: pointer;
+          touch-action: none;
+      }
 
-    .track {
-        position: relative;
-        width: 100%;
-        height: calc(4 * var(--rpx));
-        border-radius: calc(999 * var(--rpx));
-        background: var(--media-track);
-        overflow: hidden;
-    }
+      .track {
+          position: relative;
+          width: 100%;
+          height: calc(4 * var(--rpx));
+          border-radius: calc(999 * var(--rpx));
+          background: var(--media-track);
+          overflow: hidden;
+      }
 
-    // Hover-заливка (0 → курсор) — «куда перематываешь». Под проигранной, поверх пустого трека,
-    // появляется по ховеру; ширина ставится императивно.
-    .hoverFill {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        width: 0;
-        border-radius: inherit;
-        background: var(--media-hover);
-        opacity: 0;
-        transition: opacity var(--t-d-fast) var(--t-t-f-ease);
-    }
+      // Hover-заливка (0 → курсор) — «куда перематываешь». Под проигранной, поверх пустого трека,
+      // появляется по ховеру; ширина ставится императивно.
+      .hoverFill {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 0;
+          border-radius: inherit;
+          background: var(--media-hover);
+          opacity: 0;
+          transition: opacity var(--t-d-fast) var(--t-t-f-ease);
+      }
 
-    .timeline:hover .hoverFill {
-        opacity: 1;
-    }
+      .timeline:hover .hoverFill {
+          opacity: 1;
+      }
 
-    .fill {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        width: 0;
-        border-radius: inherit;
-        background: var(--primary);
-    }
+      .fill {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 0;
+          border-radius: inherit;
+          background: var(--primary);
+      }
 
-    // Точка-playhead: текущая позиция (на конце проигранной части), всегда видна, на ховере чуть крупнее.
-    .timelineDot {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        width: calc(12 * var(--rpx));
-        height: calc(12 * var(--rpx));
-        border-radius: 50%;
-        background: var(--primary);
-        pointer-events: none;
-        transform: translate(-50%, -50%);
-        transition: transform var(--t-d-fast) var(--t-t-f-ease);
-    }
+      // Точка-playhead: текущая позиция (на конце проигранной части), всегда видна, на ховере чуть крупнее.
+      .timelineDot {
+          position: absolute;
+          top: 50%;
+          left: 0;
+          width: calc(12 * var(--rpx));
+          height: calc(12 * var(--rpx));
+          border-radius: 50%;
+          background: var(--primary);
+          pointer-events: none;
+          transform: translate(-50%, -50%);
+          transition: transform var(--t-d-fast) var(--t-t-f-ease);
+      }
 
-    .timeline:hover .timelineDot {
-        transform: translate(-50%, -50%) scale(1.25);
-    }
+      .timeline:hover .timelineDot {
+          transform: translate(-50%, -50%) scale(1.25);
+      }
 
-    // Превью кадра + время над курсором (позиция left ставится императивно, центрируем translateX).
-    .preview {
-        position: absolute;
-        bottom: calc(100% + calc(10 * var(--rpx)));
-        left: 0;
-        z-index: 3;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: calc(6 * var(--rpx));
-        padding: calc(6 * var(--rpx));
-        border-radius: calc(12 * var(--rpx));
-        background: var(--media-scrim);
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transform: translate(-50%, calc(4 * var(--rpx)));
-        transition: opacity var(--t-d-fast) var(--t-t-f-ease), transform var(--t-d-fast) var(--t-t-f-ease);
-    }
+      // Превью кадра + время над курсором (позиция left ставится императивно, центрируем translateX).
+      .preview {
+          position: absolute;
+          bottom: calc(100% + calc(10 * var(--rpx)));
+          left: 0;
+          z-index: 3;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: calc(6 * var(--rpx));
+          padding: calc(6 * var(--rpx));
+          border-radius: calc(12 * var(--rpx));
+          background: var(--media-scrim);
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+          transform: translate(-50%, calc(4 * var(--rpx)));
+          transition: opacity var(--t-d-fast) var(--t-t-f-ease), transform var(--t-d-fast) var(--t-t-f-ease);
+      }
 
-    .preview[data-visible='true'] {
-        opacity: 1;
-        visibility: visible;
-        transform: translate(-50%, 0);
-    }
+      .preview[data-visible='true'] {
+          opacity: 1;
+          visibility: visible;
+          transform: translate(-50%, 0);
+      }
 
-    .previewVideo {
-        display: block;
-        width: calc(160 * var(--rpx));
-        height: calc(90 * var(--rpx));
-        border-radius: calc(8 * var(--rpx));
-        background: var(--black);
-        object-fit: cover;
-    }
+      .previewVideo {
+          display: block;
+          width: calc(160 * var(--rpx));
+          height: calc(90 * var(--rpx));
+          border-radius: calc(8 * var(--rpx));
+          background: var(--black);
+          object-fit: cover;
+      }
 
-    // Каретка превью — треугольник, указывающий на курсор (left ставится императивно с офсетом).
-    .previewCaret {
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-left: calc(6 * var(--rpx)) solid transparent;
-        border-right: calc(6 * var(--rpx)) solid transparent;
-        border-top: calc(6 * var(--rpx)) solid var(--media-scrim);
-        transform: translateX(-50%);
-    }
+      // Каретка превью — треугольник, указывающий на курсор (left ставится императивно с офсетом).
+      .previewCaret {
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          width: 0;
+          height: 0;
+          border-left: calc(6 * var(--rpx)) solid transparent;
+          border-right: calc(6 * var(--rpx)) solid transparent;
+          border-top: calc(6 * var(--rpx)) solid var(--media-scrim);
+          transform: translateX(-50%);
+      }
 
-    // Громкость: вертикальный поповер вплотную к кнопке (contiguous hover — не мигает),
-    // плавное появление со сдвигом. Скрыт через pointer-events (не блокирует клики), не через display.
-    .volume {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-    }
+      // Громкость: вертикальный поповер вплотную к кнопке (contiguous hover — не мигает),
+      // плавное появление со сдвигом. Скрыт через pointer-events (не блокирует клики), не через display.
+      .volume {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+      }
 
-    .volumePopover {
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        display: flex;
-        justify-content: center;
-        padding: calc(12 * var(--rpx)) calc(10 * var(--rpx));
-        border-radius: calc(12 * var(--rpx));
-        background: var(--media-scrim);
-        opacity: 0;
-        pointer-events: none;
-        transform: translate(-50%, calc(6 * var(--rpx)));
-        transition: opacity var(--t-d-fast) var(--t-t-f-ease), transform var(--t-d-fast) var(--t-t-f-ease);
-    }
+      .volumePopover {
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          display: flex;
+          justify-content: center;
+          padding: calc(12 * var(--rpx)) calc(10 * var(--rpx));
+          border-radius: calc(12 * var(--rpx));
+          background: var(--media-scrim);
+          opacity: 0;
+          pointer-events: none;
+          transform: translate(-50%, calc(6 * var(--rpx)));
+          transition: opacity var(--t-d-fast) var(--t-t-f-ease), transform var(--t-d-fast) var(--t-t-f-ease);
+      }
 
-    .volume:hover .volumePopover,
-    .volume:focus-within .volumePopover {
-        opacity: 1;
-        pointer-events: auto;
-        transform: translate(-50%, 0);
-    }
+      .volume:hover .volumePopover,
+      .volume:focus-within .volumePopover {
+          opacity: 1;
+          pointer-events: auto;
+          transform: translate(-50%, 0);
+      }
 
-    .volumeTrack {
-        position: relative;
-        width: calc(4 * var(--rpx));
-        height: calc(80 * var(--rpx));
-        border-radius: calc(999 * var(--rpx));
-        background: var(--media-track);
-        cursor: pointer;
-        touch-action: none;
-    }
+      .volumeTrack {
+          position: relative;
+          width: calc(4 * var(--rpx));
+          height: calc(80 * var(--rpx));
+          border-radius: calc(999 * var(--rpx));
+          background: var(--media-track);
+          cursor: pointer;
+          touch-action: none;
+      }
 
-    .volumeFill {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        height: 0;
-        border-radius: inherit;
-        background: var(--white-100);
-    }
-}
+      .volumeFill {
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          height: 0;
+          border-radius: inherit;
+          background: var(--white-100);
+      }
+  }
 
-// Уважаем reduce-motion: без плавных переходов.
-@media (prefers-reduced-motion: reduce) {
-    .Root .overlay,
-    .Root .button,
-    .Root .iconSwapItem,
-    .Root .preview,
-    .Root .timelineDot,
-    .Root .hoverFill,
-    .Root .volumePopover {
-        transition: none;
-    }
+  // Уважаем reduce-motion: без плавных переходов.
+  @media (prefers-reduced-motion: reduce) {
+      .Root .overlay,
+      .Root .button,
+      .Root .iconSwapItem,
+      .Root .preview,
+      .Root .timelineDot,
+      .Root .hoverFill,
+      .Root .volumePopover {
+          transition: none;
+      }
+  }
 }

@@ -1,31 +1,33 @@
-.CarouselDots {
-    position: relative;
+@layer ui.components {
+  .CarouselDots {
+      position: relative;
 
-    .dot {
-        width: calc(10 * var(--rpx));
-        height: calc(10 * var(--rpx));
-        min-width: calc(10 * var(--rpx));
-        padding: 0;
-        border: 0;
-        border-radius: 50%;
-        background: var(--white-30);
-        transition:
-            width var(--t-d-fast) ease,
-            min-width var(--t-d-fast) ease,
-            background var(--t-d-fast) ease,
-            opacity var(--t-d-fast) ease;
-    
-        &:hover,
-        &[state~='hover'] {
-            opacity: 0.75;
-        }
-    
-        &[state~='active'] {
-            width: calc(32 * var(--rpx));
-            min-width: calc(32 * var(--rpx));
-            border-radius: calc(10 * var(--rpx));
-            background: var(--primary);
-            cursor: default;
-        }
-    }
+      .dot {
+          width: calc(10 * var(--rpx));
+          height: calc(10 * var(--rpx));
+          min-width: calc(10 * var(--rpx));
+          padding: 0;
+          border: 0;
+          border-radius: 50%;
+          background: var(--white-30);
+          transition:
+              width var(--t-d-fast) ease,
+              min-width var(--t-d-fast) ease,
+              background var(--t-d-fast) ease,
+              opacity var(--t-d-fast) ease;
+
+          &:hover,
+          &[state~='hover'] {
+              opacity: 0.75;
+          }
+
+          &[state~='active'] {
+              width: calc(32 * var(--rpx));
+              min-width: calc(32 * var(--rpx));
+              border-radius: calc(10 * var(--rpx));
+              background: var(--primary);
+              cursor: default;
+          }
+      }
+  }
 }

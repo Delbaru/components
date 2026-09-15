@@ -1,54 +1,56 @@
-// Фундамент всех тултипов: фикс-позиция от useAnchoredFloating + плавное появление/исчезновение.
-// Внешний вид (плашка/карточка) — отдельно: .surface или контент потребителя.
-.Tooltip {
-    position: fixed;
-    left: var(--floating-left);
-    top: var(--floating-top);
-    z-index: 10000;
+@layer ui.components {
+  // Фундамент всех тултипов: фикс-позиция от useAnchoredFloating + плавное появление/исчезновение.
+  // Внешний вид (плашка/карточка) — отдельно: .surface или контент потребителя.
+  .Tooltip {
+      position: fixed;
+      left: var(--floating-left);
+      top: var(--floating-top);
+      z-index: 10000;
 
-    pointer-events: none;
-    opacity: 0;
-    visibility: hidden;
-    transform: translate3d(0, 0, 0);
-    transition:
-        opacity var(--t-d-fast) var(--t-t-f-ease),
-        visibility var(--t-d-fast) var(--t-t-f-ease),
-        transform var(--t-d-fast) var(--t-t-f-ease);
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transform: translate3d(0, 0, 0);
+      transition:
+          opacity var(--t-d-fast) var(--t-t-f-ease),
+          visibility var(--t-d-fast) var(--t-t-f-ease),
+          transform var(--t-d-fast) var(--t-t-f-ease);
 
-    &[data-placement='right'] {
-        transform: translate3d(calc(-8 * var(--rpx)), 0, 0);
-    }
+      &[data-placement='right'] {
+          transform: translate3d(calc(-8 * var(--rpx)), 0, 0);
+      }
 
-    &[data-placement='left'] {
-        transform: translate3d(calc(8 * var(--rpx)), 0, 0);
-    }
+      &[data-placement='left'] {
+          transform: translate3d(calc(8 * var(--rpx)), 0, 0);
+      }
 
-    &[data-placement='top'] {
-        transform: translate3d(0, calc(8 * var(--rpx)), 0);
-    }
+      &[data-placement='top'] {
+          transform: translate3d(0, calc(8 * var(--rpx)), 0);
+      }
 
-    &[data-placement='bottom'] {
-        transform: translate3d(0, calc(-8 * var(--rpx)), 0);
-    }
+      &[data-placement='bottom'] {
+          transform: translate3d(0, calc(-8 * var(--rpx)), 0);
+      }
 
-    &[state~='active'] {
-        opacity: 1;
-        visibility: visible;
-        transform: translate3d(0, 0, 0);
-    }
-}
+      &[state~='active'] {
+          opacity: 1;
+          visibility: visible;
+          transform: translate3d(0, 0, 0);
+      }
+  }
 
-// Встроенная тёмная плашка (как в Input). Длинный текст переносится, а не растягивает всплывашку.
-.surface {
-    display: inline-flex;
-    align-items: center;
-    max-width: min(calc(420 * var(--rpx)), calc(100vw - 32 * var(--rpx)));
-    padding: calc(4 * var(--rpx)) calc(8 * var(--rpx));
-    border-radius: calc(8 * var(--rpx));
-    background: rgba(43, 47, 51, 0.8);
-    color: var(--white-100);
-    font: var(--font-dop);
-    text-align: center;
-    white-space: normal;
-    overflow-wrap: anywhere;
+  // Встроенная тёмная плашка (как в Input). Длинный текст переносится, а не растягивает всплывашку.
+  .surface {
+      display: inline-flex;
+      align-items: center;
+      max-width: min(calc(420 * var(--rpx)), calc(100vw - 32 * var(--rpx)));
+      padding: calc(4 * var(--rpx)) calc(8 * var(--rpx));
+      border-radius: calc(8 * var(--rpx));
+      background: rgba(43, 47, 51, 0.8);
+      color: var(--white-100);
+      font: var(--font-dop);
+      text-align: center;
+      white-space: normal;
+      overflow-wrap: anywhere;
+  }
 }

@@ -181,7 +181,7 @@ export function Calendar({
                 h={[40, null, null]}
                 r={[8, null, null]}
                 border={['calc(1 * var(--rpx)) solid var(--gray-light)', null, null]}
-                bg={isCurrentVisibleMonth ? 'var(--primary) !important' : 'var(--background) !important'}
+                bg={isCurrentVisibleMonth ? 'var(--primary)' : 'var(--background)'}
                 onClick={() => handleMonthSelect(monthIndex)}
               >
                 <Text
@@ -224,8 +224,8 @@ export function Calendar({
                 isSelectedDay ? 'selected' : ''
               );
               const dayBackground = isSelectedDay
-                ? 'var(--primary) !important'
-                : 'var(--background) !important';
+                ? 'var(--primary)'
+                : 'var(--background)';
               const dayTextColor = isSelectedDay
                 ? 'var(--white-100)'
                 : isDisabledDay

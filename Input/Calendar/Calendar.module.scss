@@ -1,82 +1,83 @@
-.Calendar {
-    position: fixed;
-    left: var(--floating-left);
-    top: var(--floating-top);
-    visibility: hidden;
-    pointer-events: none;
-    opacity: 0;
-    transform: translateY(calc(-8 * var(--rpx)));
-    transition:
-        opacity var(--t-d-fast) var(--t-t-f-ease),
-        visibility var(--t-d-fast) var(--t-t-f-ease),
-        transform var(--t-d-fast) var(--t-t-f-ease);
-    z-index: 9998;
+@layer ui.components {
+  .Calendar {
+      position: fixed;
+      left: var(--floating-left);
+      top: var(--floating-top);
+      visibility: hidden;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(calc(-8 * var(--rpx)));
+      transition:
+          opacity var(--t-d-fast) var(--t-t-f-ease),
+          visibility var(--t-d-fast) var(--t-t-f-ease),
+          transform var(--t-d-fast) var(--t-t-f-ease);
+      z-index: 9998;
 
-    &[data-placement='top'] {
-        transform: translateY(calc(8 * var(--rpx)));
-    }
+      &[data-placement='top'] {
+          transform: translateY(calc(8 * var(--rpx)));
+      }
 
-    &[state~='active'] {
-        visibility: visible;
-        pointer-events: auto;
-        opacity: 1;
-        transform: translateY(0);
-    }
-    
-    .day {
-        cursor: pointer;
-        transition: var(--t-fast);
+      &[state~='active'] {
+          visibility: visible;
+          pointer-events: auto;
+          opacity: 1;
+          transform: translateY(0);
+      }
 
-        &[disabled],
-        &[state~='disabled'] {
-            cursor: default;
-            pointer-events: none;
-            opacity: 0.45;
-        }
-    
-        &[state~='hover']:not([state~='selected']):not([state~='active']):not([state~='disabled']) {
-            background: var(--gray-light) !important;
-        }
-    
-        &[state~='active'],
-        &[state~='selected'] {
-            background: var(--primary) !important;
-    
-            .dayText {
-                color: var(--white-100) !important;
-            }
-        }
-    }
-    
-    .dayText {
-        transition: var(--t-fast);
-    }
-    
-    .btn {
-        cursor: pointer;
-    
-        &[state~='disabled'] {
-            pointer-events: none;
-    
-            svg path {
-                stroke: var(--gray-light);
-            }
-        }
-    }
-    
-    .prev {
-        transform: scaleX(-1);
-    }
-    
-    .monthPick,
-    .yearPick {
-        cursor: pointer;
-    }
-    
-    .yearPick {
-        .btn.prev {
-            transform: scaleY(-1);
-        }
-    }
+      .day {
+          cursor: pointer;
+          transition: var(--t-fast);
+
+          &[disabled],
+          &[state~='disabled'] {
+              cursor: default;
+              pointer-events: none;
+              opacity: 0.45;
+          }
+
+          &[state~='hover']:not([state~='selected']):not([state~='active']):not([state~='disabled']) {
+              background: var(--gray-light) !important;
+          }
+
+          &[state~='active'],
+          &[state~='selected'] {
+              background: var(--primary) !important;
+
+              .dayText {
+                  color: var(--white-100) !important;
+              }
+          }
+      }
+
+      .dayText {
+          transition: var(--t-fast);
+      }
+
+      .btn {
+          cursor: pointer;
+
+          &[state~='disabled'] {
+              pointer-events: none;
+
+              svg path {
+                  stroke: var(--gray-light);
+              }
+          }
+      }
+
+      .prev {
+          transform: scaleX(-1);
+      }
+
+      .monthPick,
+      .yearPick {
+          cursor: pointer;
+      }
+
+      .yearPick {
+          .btn.prev {
+              transform: scaleY(-1);
+          }
+      }
+  }
 }
-

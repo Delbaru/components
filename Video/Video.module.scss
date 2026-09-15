@@ -1,37 +1,39 @@
-.VideoRoot {
-  position: relative;
-  --video-fit: cover;
-  --video-position: center;
-  display: block;
-  overflow: hidden;
-
-  .VideoPlayButton {
-    position: absolute;
-    inset: 0;
-    margin: auto;
-    width: fit-content;
-    height: fit-content;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    -moz-appearance: none;
-    appearance: none;
-    cursor: pointer;
-    z-index: 1;
-  }
-
-  .VideoPlayButtonIcon {
-    width: calc(96 * var(--rpx));
-    height: calc(96 * var(--rpx));
+@layer ui.components {
+  .VideoRoot {
+    position: relative;
+    --video-fit: cover;
+    --video-position: center;
     display: block;
-  }
+    overflow: hidden;
 
-  .Video {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: var(--video-fit, cover);
-    object-position: var(--video-position, center);
-    background: transparent;
+    .VideoPlayButton {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      width: fit-content;
+      height: fit-content;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      -moz-appearance: none;
+      appearance: none;
+      cursor: pointer;
+      z-index: 1;
+    }
+
+    .VideoPlayButtonIcon {
+      width: calc(96 * var(--rpx));
+      height: calc(96 * var(--rpx));
+      display: block;
+    }
+
+    .Video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: var(--video-fit, cover);
+      object-position: var(--video-position, center);
+      background: transparent;
+    }
   }
 }

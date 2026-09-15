@@ -1,59 +1,60 @@
-.SwitchButton {
-  --switch-track-height: calc(var(--rpx) * 32);
-  --switch-track-width: calc(var(--rpx) * 64);
-  --switch-thumb-size: calc(var(--rpx) * 26);
-  --switch-thumb-offset: calc(var(--rpx) * 2);
-  --switch-transition: var(--t-fast);
+@layer ui.components {
+  .SwitchButton {
+    --switch-track-height: calc(var(--rpx) * 32);
+    --switch-track-width: calc(var(--rpx) * 64);
+    --switch-thumb-size: calc(var(--rpx) * 26);
+    --switch-thumb-offset: calc(var(--rpx) * 2);
+    --switch-transition: var(--t-fast);
 
-  cursor: pointer;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 
-  .Input {
-    position: absolute;
-    width: 0;
-    height: 0;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .Track {
-    position: relative;
-    width: var(--switch-track-width);
-    height: var(--switch-track-height);
-    border-radius: calc(var(--switch-track-height) / 2);
-    border: calc(1 * var(--rpx)) solid var(--tertiary);
-    background: var(--background);
-    transition: var(--switch-transition);
-
-    .Thumb {
+    .Input {
       position: absolute;
-      left: var(--switch-thumb-offset);
-      width: var(--switch-thumb-size);
-      height: var(--switch-thumb-size);
-      border-radius: 50%;
-      background: var(--secondary-hover);
-      transition: var(--switch-transition);
-      transform: translateX(0);
+      width: 0;
+      height: 0;
+      opacity: 0;
+      pointer-events: none;
     }
-  }
 
-  .Input:checked + .Track {
-    background: var(--primary);
-    border-color: var(--primary);
-
-    .Thumb {
-      transform: translateX(calc(var(--switch-track-width) - var(--switch-thumb-size) - var(--switch-thumb-offset) - 3 * var(--rpx)));
+    .Track {
+      position: relative;
+      width: var(--switch-track-width);
+      height: var(--switch-track-height);
+      border-radius: calc(var(--switch-track-height) / 2);
+      border: calc(1 * var(--rpx)) solid var(--tertiary);
       background: var(--background);
+      transition: var(--switch-transition);
+
+      .Thumb {
+        position: absolute;
+        left: var(--switch-thumb-offset);
+        width: var(--switch-thumb-size);
+        height: var(--switch-thumb-size);
+        border-radius: 50%;
+        background: var(--secondary-hover);
+        transition: var(--switch-transition);
+        transform: translateX(0);
+      }
     }
+
+    .Input:checked + .Track {
+      background: var(--primary);
+      border-color: var(--primary);
+
+      .Thumb {
+        transform: translateX(calc(var(--switch-track-width) - var(--switch-thumb-size) - var(--switch-thumb-offset) - 3 * var(--rpx)));
+        background: var(--background);
+      }
+    }
+
+    &:not([state~='disabled']):hover .Track,
+    &[state~='hover']:not([state~='disabled']) .Track {border-color: var(--secondary-hover);}
+    &:not([state~='disabled']):hover .Input:checked + .Track,
+    &[state~='hover']:not([state~='disabled']) .Input:checked + .Track {background: var(--primary-hover);border-color: var(--primary-hover);}
+
+    &[state~='disabled'] { cursor: not-allowed; }
+    &[state~='disabled'] .Track { opacity: 0.5; }
   }
-
-  &:not([state~='disabled']):hover .Track,
-  &[state~='hover']:not([state~='disabled']) .Track {border-color: var(--secondary-hover);}
-  &:not([state~='disabled']):hover .Input:checked + .Track,
-  &[state~='hover']:not([state~='disabled']) .Input:checked + .Track {background: var(--primary-hover);border-color: var(--primary-hover);}
-
-  &[state~='disabled'] { cursor: not-allowed; }
-  &[state~='disabled'] .Track { opacity: 0.5; }
 }
-

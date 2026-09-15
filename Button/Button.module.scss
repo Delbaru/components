@@ -1,157 +1,158 @@
 @use '../core/scss-utils' as utils;
 
-@mixin variant-classes($p: '') {
-    .#{$p}variant_primary {
-        background: var(--primary);
-        color: var(--black);
-        border-radius: 999px;
-        border: calc(2 * var(--rpx)) solid var(--primary);
+@layer ui.components {
+  @mixin variant-classes($p: '') {
+      .#{$p}variant_primary {
+          background: var(--primary);
+          color: var(--black);
+          border-radius: 999px;
+          border: calc(2 * var(--rpx)) solid var(--primary);
 
-        &:hover,
-        &[state~='hover'] {
-            background: var(--white-100);
-            color: var(--black);
-            border-color: var(--black);
-        }
+          &:hover,
+          &[state~='hover'] {
+              background: var(--white-100);
+              color: var(--black);
+              border-color: var(--black);
+          }
 
-        &[disabled],
-        &[state~='disabled'] {
-            background: var(--secondary);
-            border-color: var(--secondary);
-            color: var(--black);
-            pointer-events: none;
-            opacity: 0.2;
-        }
+          &[disabled],
+          &[state~='disabled'] {
+              background: var(--secondary);
+              border-color: var(--secondary);
+              color: var(--black);
+              pointer-events: none;
+              opacity: 0.2;
+          }
 
-        @media (max-width: 767px) {
-            border-width: var(--rpx);
-        }
-    }
-    :where(.#{$p}variant_primary) {
-        padding: var(--s-12) var(--s-32);
-    }
-
-
-
-    .#{$p}variant_secondary {
-        background: transparent;
-        color: var(--text);
-        border: calc(2 * var(--rpx)) solid var(--text);
-        border-radius: 999px;
-
-        &:hover,
-        &[state~='hover'] {
-            background: var(--white-100);
-            color: var(--black);
-            border-color: var(--white-100);
-        }
-
-        @media (max-width: 767px) {
-            border-width: var(--rpx);
-        }
-    }
-    :where(.#{$p}variant_secondary) {
-        padding: 0 var(--s-64);
-    }
+          @media (max-width: 767px) {
+              border-width: var(--rpx);
+          }
+      }
+      :where(.#{$p}variant_primary) {
+          padding: var(--s-12) var(--s-32);
+      }
 
 
 
-    .#{$p}variant_secondaryFill {
-        background: var(--text);
-        color: var(--black);
-        border: calc(2 * var(--rpx)) solid var(--text);
-        border-radius: 999px;
+      .#{$p}variant_secondary {
+          background: transparent;
+          color: var(--text);
+          border: calc(2 * var(--rpx)) solid var(--text);
+          border-radius: 999px;
 
-        &:hover,
-        &[state~='hover'] {
-            background: var(--primary);
-            color: var(--black);
-            border-color: var(--black);
-        }
-    }
-    :where(.#{$p}variant_secondaryFill) {
-        padding: 0 var(--s-64);
-    }
+          &:hover,
+          &[state~='hover'] {
+              background: var(--white-100);
+              color: var(--black);
+              border-color: var(--white-100);
+          }
+
+          @media (max-width: 767px) {
+              border-width: var(--rpx);
+          }
+      }
+      :where(.#{$p}variant_secondary) {
+          padding: 0 var(--s-64);
+      }
 
 
 
-    .#{$p}variant_tertiary {
-        background: var(--tertiary);
-        color: var(--black);
-        border: calc(2 * var(--rpx)) solid var(--tertiary);
-        border-radius: 999px;
+      .#{$p}variant_secondaryFill {
+          background: var(--text);
+          color: var(--black);
+          border: calc(2 * var(--rpx)) solid var(--text);
+          border-radius: 999px;
 
-        &:hover,
-        &[state~='hover'] {
-            background: var(--text);
-            color: var(--black);
-            border-color: var(--black);
-        }
-    }
-    :where(.#{$p}variant_tertiary) {
-        padding: 0 var(--s-64);
-    }
+          &:hover,
+          &[state~='hover'] {
+              background: var(--primary);
+              color: var(--black);
+              border-color: var(--black);
+          }
+      }
+      :where(.#{$p}variant_secondaryFill) {
+          padding: 0 var(--s-64);
+      }
+
+
+
+      .#{$p}variant_tertiary {
+          background: var(--tertiary);
+          color: var(--black);
+          border: calc(2 * var(--rpx)) solid var(--tertiary);
+          border-radius: 999px;
+
+          &:hover,
+          &[state~='hover'] {
+              background: var(--text);
+              color: var(--black);
+              border-color: var(--black);
+          }
+      }
+      :where(.#{$p}variant_tertiary) {
+          padding: 0 var(--s-64);
+      }
+  }
+
+  @mixin size-classes($p: '') {
+      .#{$p}size_small {
+          @media (max-width: 767px) {
+              height: calc(var(--rpx) * 40);
+          }
+
+          @media (min-width: 768px) and (max-width: 1023px) {
+              height: calc(var(--rpx) * 48);
+          }
+
+          @media (min-width: 1024px) {
+              height: calc(var(--rpx) * 56);
+          }
+      }
+
+      .#{$p}size_medium {
+          @media (max-width: 767px) {
+              height: calc(var(--rpx) * 48);
+          }
+
+          @media (min-width: 768px) and (max-width: 1023px) {
+              height: calc(var(--rpx) * 56);
+          }
+
+          @media (min-width: 1024px) {
+              height: calc(var(--rpx) * 68);
+          }
+      }
+
+      .#{$p}size_large {
+          @media (max-width: 767px) {
+              height: calc(var(--rpx) * 64);
+          }
+
+          @media (min-width: 768px) and (max-width: 1023px) {
+              height: calc(var(--rpx) * 72);
+          }
+
+          @media (min-width: 1024px) {
+              height: calc(var(--rpx) * 80);
+          }
+      }
+  }
+
+  @mixin button-classes($bp: null) {
+      $p: '';
+
+      @if $bp !=null {
+          $p: '#{$bp}_';
+      }
+
+      @include variant-classes($p);
+      @include size-classes($p);
+
+  }
+
+  @include button-classes();
+
+  @include utils.withBreakpoints() using ($bp) {
+      @include button-classes($bp);
+  }
 }
-
-@mixin size-classes($p: '') {
-    .#{$p}size_small {
-        @media (max-width: 767px) {
-            height: calc(var(--rpx) * 40);
-        }
-
-        @media (min-width: 768px) and (max-width: 1023px) {
-            height: calc(var(--rpx) * 48);
-        }
-
-        @media (min-width: 1024px) {
-            height: calc(var(--rpx) * 56);
-        }
-    }
-
-    .#{$p}size_medium {
-        @media (max-width: 767px) {
-            height: calc(var(--rpx) * 48);
-        }
-
-        @media (min-width: 768px) and (max-width: 1023px) {
-            height: calc(var(--rpx) * 56);
-        }
-
-        @media (min-width: 1024px) {
-            height: calc(var(--rpx) * 68);
-        }
-    }
-
-    .#{$p}size_large {
-        @media (max-width: 767px) {
-            height: calc(var(--rpx) * 64);
-        }
-
-        @media (min-width: 768px) and (max-width: 1023px) {
-            height: calc(var(--rpx) * 72);
-        }
-
-        @media (min-width: 1024px) {
-            height: calc(var(--rpx) * 80);
-        }
-    }
-}
-
-@mixin button-classes($bp: null) {
-    $p: '';
-
-    @if $bp !=null {
-        $p: '#{$bp}_';
-    }
-
-    @include variant-classes($p);
-    @include size-classes($p);
-
-}
-
-@include button-classes();
-
-@include utils.withBreakpoints() using ($bp) {
-    @include button-classes($bp);
-}
-
