@@ -216,37 +216,6 @@ const PROP_ALIASES: Readonly<Record<string, string>> = {
 /** Утилита по имени пропа, поля объекта или префикса построителя (`c.value('gap', gap)`). */
 export const resolveUtility = (name: string): Utility | undefined => UTILITY_BY_NAME.get(PROP_ALIASES[name] ?? name);
 
-const SPACE_UTILITIES = new Set(['p', 'pt', 'pr', 'pb', 'pl', 'm', 'mt', 'mr', 'mb', 'ml']);
-const SIZE_UTILITIES = new Set(['w', 'minW', 'maxW', 'h', 'minH', 'maxH']);
-const SIZE_KEYWORDS = new Set(['auto', 'fit-content', 'max-content', 'min-content']);
-
-const wasInlineSpace = (entry: unknown): boolean => {
-  if (typeof entry === 'number') return entry < 0;
-  if (Array.isArray(entry)) return entry.some(wasInlineSpace);
-  if (typeof entry !== 'string') return false;
-  const value = entry.trim();
-  return !(value.includes('calc(') || value === 'auto' || /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(value));
-};
-
-const wasInlineSize = (entry: unknown): boolean =>
-  typeof entry === 'string' && !(SIZE_KEYWORDS.has(entry) || /^\d+%$/.test(entry) || /^\d+(vw|vh|dvw|dvh)$/.test(entry) || entry.includes('calc('));
-
-/**
- * Кортеж, у которого `null` на mobile/tablet НАСЛЕДУЕТ desktop, а не пропускает брейкпоинт. Так
- * вели себя значения, уходившие раньше инлайн-переменными с запасным значением
- * (`var(--m, var(--d))`): любой `grow` и `aspectRatio`, отрицательный отступ, строка размера мимо
- * классов (`'12rem'`, `min()`). Поведение сохранено, чтобы переезд на классы не менял вид экранов.
- */
-export function inheritsNull(utility: Utility, tuple: readonly unknown[]): boolean {
-  if (utility.name === 'grow' || utility.name === 'ratio') return true;
-  if (SPACE_UTILITIES.has(utility.name)) return tuple.some(wasInlineSpace);
-  if (SIZE_UTILITIES.has(utility.name)) return tuple.some(wasInlineSize);
-  return false;
-}
-
-/** Пропущенный desktop у наследующего кортежа: запасное значение прежней переменной (`flex-grow: var(--d, 0)`). */
-export const NULL_DESKTOP: Readonly<Record<string, UtilityEntry>> = { grow: 0 };
-
 /** Класс утилиты без брейкпоинта; `null` — значение не подходит. */
 export function utilityClassName(utility: Utility, value: UtilityEntry): string | null {
   if (utility.declare(value) === null) return null;

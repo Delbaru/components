@@ -279,7 +279,7 @@ export function LexicalTextareaToolbar({ hasVariables, allowLink = true }: { has
       wrap={['wrap', 'wrap', 'wrap']}
       align={['center', null, null]}
       gap={[16, null, null]}
-      grow={[1, null, null]}
+      grow={[1, 1, 1]}
     >
       {toolbarGroups.map((group, groupIndex) => (
         <Fragment key={groupIndex}>

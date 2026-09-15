@@ -1,5 +1,5 @@
 import { entryKey, type UtilityEntry } from './keys';
-import { inheritsNull, NULL_DESKTOP, utilityClassName, type Breakpoint, type Utility } from './registry';
+import { utilityClassName, type Breakpoint, type Utility } from './registry';
 
 /**
  * Значение пропа утилиты: скаляр, шорткат отступа или кортеж `[desktop, mobile, tablet]`.
@@ -34,13 +34,10 @@ export function utilitySlots(utility: Utility, value: ResponsiveUtilityValue | n
     return entry === null ? [] : [{ breakpoint: null, entry }];
   }
 
-  const tuple = value as readonly (UtilityEntry | null | undefined)[];
-  const legacy = inheritsNull(utility, tuple);
-  const [d0, m0, t0] = tuple;
-  const d = usable(utility, d0) ?? (legacy ? (NULL_DESKTOP[utility.name] ?? null) : null);
-  const inherit = (entry: UtilityEntry | null | undefined) => entry === undefined || (legacy && entry === null);
-  const m = inherit(m0) ? d : usable(utility, m0);
-  const t = inherit(t0) ? d : usable(utility, t0);
+  const [d0, m0, t0] = value as readonly (UtilityEntry | null | undefined)[];
+  const d = usable(utility, d0);
+  const m = m0 === undefined ? d : usable(utility, m0);
+  const t = t0 === undefined ? d : usable(utility, t0);
   const [kd, km, kt] = [d, m, t].map((entry) => (entry === null ? null : entryKey(entry)));
 
   const slots: UtilitySlot[] = [];

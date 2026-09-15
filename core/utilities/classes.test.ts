@@ -50,12 +50,11 @@ test('ключи: число, CSS как есть, токен по имени, �
   assert.notEqual(hashKey('calc(var(--header-height) - var(--s-container))'), hashKey('calc(var(--header-height) - var(--s-container) - 1px)'));
 });
 
-test('grow и значения, уходившие инлайном, наследуют desktop вместо пропуска — как прежние переменные', () => {
-  assert.deepEqual(utilityClasses(u('grow'), [1, null, null]), ['grow_1']);
-  assert.deepEqual(utilityClasses(u('grow'), [null, 1, 1]), ['grow_0', 'n_grow_1']);
-  assert.deepEqual(utilityClasses(u('mt'), [-8, null, null]), ['mt_-8']);
-  assert.deepEqual(utilityClasses(u('w'), ['12rem', null, null]), ['w_12rem']);
-  assert.deepEqual(utilityClasses(u('mt'), [8, null, null]), ['d_mt_8'], 'класс-значение пропускает как всегда');
+test('null — пропуск у любой утилиты: grow, отрицательный отступ и строка размера не исключение', () => {
+  assert.deepEqual(utilityClasses(u('grow'), [1, null, null]), ['d_grow_1']);
+  assert.deepEqual(utilityClasses(u('grow'), [1, 1, 1]), ['grow_1']);
+  assert.deepEqual(utilityClasses(u('mt'), [-8, null, null]), ['d_mt_-8']);
+  assert.deepEqual(utilityClasses(u('w'), ['12rem', null, null]), ['d_w_12rem']);
 });
 
 test('строка, не похожая на значение CSS, класса не даёт — таблица стилей не ломается', () => {

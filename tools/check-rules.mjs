@@ -19,7 +19,7 @@ export const RULES = {
   'off-grid-number': {
     ext: /\.tsx$/,
     count: (line) => [...line.matchAll(new RegExp(`\\b(?:${GRID_PROPS})=\\{(\\[[^\\]]*\\]|-?\\d+)\\}`, 'g'))]
-      .flatMap((m) => m[1].match(/-?\d+/g) ?? [])
+      .flatMap((m) => m[1].replace(/'[^']*'|"[^"]*"/g, '').match(/-?\d+/g) ?? [])
       .filter((n) => Math.abs(Number(n)) % 4 !== 0).length,
     hint: 'размер кратный 4',
   },
