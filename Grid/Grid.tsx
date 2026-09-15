@@ -3,7 +3,7 @@
 
 import type React from 'react';
 import styles from './Grid.module.scss';
-import { boxLayout, createLayoutClasses, cx, splitBoxLayout, stateLinkProps, tokenStyles, useMergedRefs, type AspectRatioProps, type BoxLayoutProps, type GrowProps, type LayoutSpaceProps, type ResponsiveValue, type SizeValue, type StateLinkInput, type WithRef } from '../core';
+import { boxLayout, createLayoutClasses, cx, splitBoxLayout, stateLinkProps, useMergedRefs, type AspectRatioProps, type BoxLayoutProps, type GrowProps, type LayoutSpaceProps, type ResponsiveValue, type SizeValue, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
 type Track =
@@ -37,7 +37,7 @@ type ItemAlignItemsKey =
 type AlignContentKey = 'start' | 'end' | 'center' | 'stretch' | 'space_between' | 'space_around' | 'space_evenly';
 type AutoFlowKey = 'row' | 'column' | 'dense' | 'row_dense' | 'column_dense';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 export interface GridProps extends React.HTMLAttributes<HTMLDivElement>, BoxLayoutProps, SharedMotionProps {
   children?: React.ReactNode;
@@ -95,21 +95,20 @@ export function Grid({
     {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
     className={cx(
       styles.Grid,
-      ...layout.classes,
-      ...c.num('columns', columns),
-      ...c.num('rows', rows),
-      ...c.num('gap', gap),
-      ...c.num('rowGap', rowGap),
-      ...c.num('columnGap', columnGap),
-      ...c.enum('justifyItems', justifyItems),
-      ...c.enum('alignItems', alignItems),
-      ...c.enum('alignContent', alignContent),
-      ...c.enum('autoFlow', autoFlow),
+      ...layout,
+      ...c.value('columns', columns),
+      ...c.value('rows', rows),
+      ...c.value('gap', gap),
+      ...c.value('rowGap', rowGap),
+      ...c.value('columnGap', columnGap),
+      ...c.value('justifyItems', justifyItems),
+      ...c.value('align', alignItems),
+      ...c.value('alignContent', alignContent),
+      ...c.value('autoFlow', autoFlow),
       className
     )}
     style={{
       ...(areas ? { gridTemplateAreas: areas.map((r) => `"${r}"`).join(' ') } : null),
-      ...layout.style,
       ...(motionStyle ?? null),
       ...style,
     }}
@@ -228,20 +227,19 @@ export function GridItem({
       className={cx(
         styles.GridItem,
         hasFlex && styles.GridItemFlex,
-        ...c.num('colSpan', colSpan),
-        ...c.num('rowSpan', rowSpan),
-        ...c.num('colStart', colStart),
-        ...c.num('colEnd', colEnd),
-        ...c.num('rowStart', rowStart),
-        ...c.num('rowEnd', rowEnd),
-        ...layout.classes,
-        ...c.enum('itemJustifyContent', justifyContent),
-        ...c.enum('itemAlignItems', alignItems),
+        ...c.value('colSpan', colSpan),
+        ...c.value('rowSpan', rowSpan),
+        ...c.value('colStart', colStart),
+        ...c.value('colEnd', colEnd),
+        ...c.value('rowStart', rowStart),
+        ...c.value('rowEnd', rowEnd),
+        ...layout,
+        ...c.value('justify', justifyContent),
+        ...c.value('align', alignItems),
         className
       )}
       style={{
         ...(area ? { gridArea: area } : null),
-        ...layout.style,
         ...(motionStyle ?? null),
         ...style,
       }}

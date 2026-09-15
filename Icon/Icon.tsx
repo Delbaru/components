@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useMemo, type CSSProperties, type SVGProps } from 'react';
 import type React from 'react';
 import styles from './Icon.module.scss';
-import { boxLayout, cx, createLayoutClasses, resolveRadiusInput, resolveResponsive, shouldUseNextLink, splitRootDomProps, stateProps as buildStateProps, stateLinkProps, tokenStyles, type BorderStyleProps, type ComponentStateValue, type GrowProps, type RadiusInput, type ResponsiveSpaceValue, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef, useMergedRefs } from '../core';
+import { boxLayout, cx, createLayoutClasses, resolveRadiusInput, resolveResponsive, shouldUseNextLink, splitRootDomProps, stateProps as buildStateProps, stateLinkProps, type BorderStyleProps, type ComponentStateValue, type GrowProps, type RadiusInput, type ResponsiveSpaceValue, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef, useMergedRefs } from '../core';
 import { Flex } from '../Flex';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { IconTooltipWithPortal, type IconTooltipDirection } from './IconTooltip';
@@ -12,7 +12,7 @@ import { hasIconSource, parseAspectRatio, resolveIconSource, type IconComponent,
 import { useIconSwap, componentSwapKey, type IconAnimate } from './swap';
 import { useFetchedSvg, type FetchedSvgState } from './useFetchedSvg';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 // `r` у SVG — радиус окружности; у Icon это радиус коробки (кортежем), поэтому родной убран.
 type IconBaseSvgProps = Omit<SVGProps<SVGSVGElement>, 'width' | 'height' | 'color' | 'rotate' | 'strokeWidth' | 'r'>;
@@ -361,10 +361,9 @@ export function Icon({
 
   // Коробка глифа: поля, радиус, размер. grow — у глифа, только когда нет root-обёртки (иначе он у неё).
   const glyphLayout = boxLayout(c, { m, mt, mr, mb, ml, ...resolvedRadiusProps, ...iconSizeProps, grow: needsRootWrapper ? undefined : grow });
-  const commonClasses = [...glyphLayout.classes, className];
+  const commonClasses = [...glyphLayout, className];
 
   const commonStyles = {
-    ...glyphLayout.style,
     ...(strokeWidthVars as CSSProperties),
     ...(rotateVars as CSSProperties),
     ...style,
@@ -501,7 +500,7 @@ export function Icon({
         className={cx(
           styles.IconRoot,
           resolvedRootClassName,
-          ...c.bg('bg', resolvedRootBg),
+          ...c.value('bg', resolvedRootBg),
         )}
         w={rootSizeProps.w}
         minW={rootSizeProps.minW}

@@ -3,12 +3,12 @@
 import { useEffect, useId, useRef, type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './Checkbox.module.scss';
-import { boxLayout, createLayoutClasses, cx, splitBoxLayout, splitRootDomProps, stateLinkProps, stateProps, tokenStyles, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
+import { boxLayout, createLayoutClasses, cx, splitBoxLayout, splitRootDomProps, stateLinkProps, stateProps, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
 import { Icon } from '../Icon';
 import { Flex } from '../Flex';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>, Omit<BoxLayoutProps, 'aspectRatio'>, SharedMotionProps {
     style?: CSSProperties;
@@ -83,8 +83,8 @@ export function Checkbox({
             data-point-events={rootDataPointEvents}
             {...(rootProps as React.LabelHTMLAttributes<HTMLLabelElement>)}
             {...(!isDisabled ? stateLinkProps(linkState, { onMouseEnter, onMouseLeave, onClick, onFocus, onBlur, ...motionHandlers }) : {})}
-            className={cx(styles.Checkbox, ...layout.classes, className)}
-            style={{ ...layout.style, ...(motionStyle ?? null), ...style }}
+            className={cx(styles.Checkbox, ...layout, className)}
+            style={{ ...(motionStyle ?? null), ...style }}
             {...stateProps(state, isChecked && 'active', dataError && 'error', isDisabled && 'disabled')}
         >
             {/* Ряд тянется на ширину <label>: `grow` + `minW:0`. Без них базовый размер ряда

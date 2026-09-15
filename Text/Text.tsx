@@ -7,11 +7,11 @@ import { useRef, type CSSProperties } from 'react';
 
 import styles from './Text.module.scss';
 
-import { boxLayout, buildClampStyle, createLayoutClasses, cx, normalizeComponentState, resolveLinkProps, responsiveValueHasFullClassCoverage, shouldUseNextLink, splitBoxLayout, stateLinkProps, tokenStyles, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
+import { boxLayout, buildClampStyle, createLayoutClasses, cx, normalizeComponentState, resolveLinkProps, shouldUseNextLink, splitBoxLayout, stateLinkProps, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { resolveAnimation } from './animations/resolveAnimation';
 import type { AnimationInput } from './animations/types';
-import { resolveLetterSpacing, lineHeightKey, type LineHeightValue } from './typography';
+import type { LineHeightValue } from './typography';
 import { resolveTextContent, type TextFormat } from './formatContent';
 import { bindTextContent } from './nonBreaking';
 
@@ -21,7 +21,7 @@ type FontFamilyKey = 'primary' | 'secondary' | 'inherit';
 type TextAlignValue = 'left' | 'right' | 'center' | 'justify' | 'start' | 'end';
 type WhiteSpaceValue = 'normal' | 'nowrap' | 'pre' | 'pre-wrap' | 'pre-line' | 'break-spaces';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 export interface TextProps
   extends Omit<React.HTMLAttributes<HTMLElement>, 'color'>,
@@ -112,19 +112,11 @@ export function Text({
 
   // Классы и inline-стиль host'а — коробка из ядра (boxLayout), типографика здесь. Алгоритмика (letter-spacing,
   // формат, разбор анимации) вынесена в ./typography, ./formatContent, ./animations.
-  const letterSpacingResolved = resolveLetterSpacing(c, letterSpacing);
-
   const clampStyle = buildClampStyle(rows);
   const hasRows = rows !== undefined;
   const hasSingleLineEllipsis = Boolean(ellipsis) && !hasRows;
 
-  const colorClasses = c.literal('color', color);
-  const hasColorClass = responsiveValueHasFullClassCoverage(color, colorClasses);
-
   const inline: CSSProperties = {
-    ...layout.style,
-    ...(color && !hasColorClass ? { color } : null),
-    ...letterSpacingResolved.style,
     ...clampStyle,
     ...(motionStyle ?? null),
   };
@@ -139,17 +131,17 @@ export function Text({
   const anchorProps = isAnchor ? { ...anchorRestProps, ...linkProps } : rest;
 
   const coreClasses = [
-    ...c.enum('variant', variant),
-    ...c.num('fontSize', fontSize),
-    ...c.num('fontWeight', fontWeight),
-    ...c.key('lineHeight', lineHeight, lineHeightKey),
-    ...c.enum('fontFamily', fontFamily),
-    ...c.enum('textTransform', textTransform),
-    ...letterSpacingResolved.classes,
-    ...c.enum('textAlign', textAlign),
-    ...c.enum('whiteSpace', whiteSpace),
-    ...layout.classes,
-    ...colorClasses,
+    ...c.value('text', variant),
+    ...c.value('fontSize', fontSize),
+    ...c.value('fontWeight', fontWeight),
+    ...c.value('lineHeight', lineHeight),
+    ...c.value('fontFamily', fontFamily),
+    ...c.value('textTransform', textTransform),
+    ...c.value('letterSpacing', letterSpacing),
+    ...c.value('textAlign', textAlign),
+    ...c.value('whiteSpace', whiteSpace),
+    ...layout,
+    ...c.value('color', color),
   ];
 
   // clamp/ellipsis/required не сочетаются с анимациями — добавляем их только в неанимированном пути.

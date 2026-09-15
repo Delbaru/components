@@ -7,7 +7,7 @@ import type React from 'react';
 
 import styles from './Button.module.scss';
 
-import { boxLayout, createLayoutClasses, cx, resolveLinkProps, shouldUseNextLink, splitBoxLayout, stateLinkProps, stateProps, tokenStyles, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
+import { boxLayout, createLayoutClasses, cx, resolveLinkProps, shouldUseNextLink, splitBoxLayout, stateLinkProps, stateProps, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
 import { useAnchoredFloating } from '../hooks/useAnchoredFloating';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
@@ -17,7 +17,7 @@ export type ButtonSize = 'small' | 'medium' | 'large';
 type AlignItemsKey = 'stretch' | 'center' | 'flex_start' | 'flex_end' | 'start' | 'end' | 'baseline';
 type JustifyContentKey = 'start' | 'end' | 'center' | 'space_between' | 'space_around' | 'space_evenly';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 export interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'color' | 'href' | 'target' | 'rel'>,
@@ -85,8 +85,6 @@ export function Button({
 }: WithRef<ButtonProps, HTMLElement>) {
   const { box, rest } = splitBoxLayout(props);
   const layout = boxLayout(c, box);
-  const colorClasses = c.literal('color', color);
-  const hasColorClass = Boolean(colorClasses[0]);
   const isLink = Boolean(href);
   const Comp = (isLink ? (shouldUseNextLink(href, target, download) ? Link : 'a') : 'button') as React.ElementType;
   const linkProps = resolveLinkProps({ href, target, rel, download, newTab, nofollow, noreferrer });
@@ -145,18 +143,16 @@ export function Button({
       })}
       className={cx(
         styles.Button,
-        ...c.enum('variant', variant),
-        ...c.enum('size', size),
-        ...c.enum('justifyContent', justifyContent),
-        ...c.enum('alignItems', alignItems),
-        ...c.num('gap', gap),
-        ...layout.classes,
-        ...colorClasses,
+        ...c.value('variant', variant),
+        ...c.value('size', size),
+        ...c.value('justify', justifyContent),
+        ...c.value('align', alignItems),
+        ...c.value('gap', gap),
+        ...layout,
+        ...c.value('color', color),
         className
       )}
       style={{
-        ...layout.style,
-        ...(color && !hasColorClass ? { color } : null),
         ...(motionStyle ?? null),
         ...style,
       }}

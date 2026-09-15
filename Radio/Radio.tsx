@@ -3,11 +3,11 @@
 import { useCallback, useId, type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './Radio.module.scss';
-import { cx, createLayoutClasses, growStyle, inlineGrowClassName, inlineSpaceStyle, stateProps, needsInlineGrow, layoutSpaceClasses, radiusClasses, stateLinkProps, tokenStyles, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type GrowProps, type WithRef } from '../core';
+import { cx, createLayoutClasses, stateProps, layoutSpaceClasses, radiusClasses, stateLinkProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type GrowProps, type WithRef } from '../core';
 import { Flex } from '../Flex';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 export interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>, LayoutSpaceProps, RadiusPropsShort, GrowProps, SharedMotionProps {
     style?: CSSProperties;
@@ -80,10 +80,10 @@ export function Radio({
                 styles.Radio,
                 ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
                 ...radiusClasses(c, { r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR }),
-                needsInlineGrow(grow) && inlineGrowClassName(),
+                ...c.value('grow', grow),
                 className
             )}
-            style={{ ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }), ...growStyle(grow), ...(motionStyle ?? null), ...(size != null ? { ['--radio-box']: size } : null), ...(dotSize != null ? { ['--radio-dot']: dotSize } : null), ...style }}
+            style={{ ...(motionStyle ?? null), ...(size != null ? { ['--radio-box']: size } : null), ...(dotSize != null ? { ['--radio-dot']: dotSize } : null), ...style }}
             {...stateProps(state, isDisabled && 'disabled')}
         >
             <Flex gap={gap ?? [8, null, null]} align={["center", null, null]}>

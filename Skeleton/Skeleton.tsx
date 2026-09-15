@@ -44,9 +44,7 @@ export function Skeleton({ w = ['100%', null, null], h = [16, null, null], r = [
             {Array.from({ length: rows }, (_row, index) => (
                 <Flex
                     key={index}
-                    // 70, а не «на глаз» 60: процентные классы генерятся только для значений,
-                    // попавших в сейфлист ($unit-values), и 60 там нет — класс был бы мёртвым
-                    // (§12 «Мёртвые классы»). Проверка: grep '^\$unit-values' _safelist.scss.
+                    // Последняя строка короче остальных: рваный край читается как текст (см. JSDoc).
                     w={index === rows - 1 ? ['70%', null, null] : ['100%', null, null]}
                     h={h}
                     r={r}

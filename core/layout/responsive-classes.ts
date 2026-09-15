@@ -1,48 +1,30 @@
-import { css } from '../base/cn';
 import { resolveResponsive, type ResponsiveValue } from '../base/responsive';
 
-type BpPrefix = '' | 'd_' | 'm_' | 't_';
-
-export type StyleMaps = Record<string, string> | Record<string, string>[];
-
-export const lookup = (maps: StyleMaps, key: string): string | undefined => {
-  if (Array.isArray(maps)) {
-    for (const m of maps) {
-      const v = css(m, key);
-      if (v) return v;
-    }
-    return undefined;
-  }
-  return css(maps, key);
-};
-
 /**
- * Превращает responsive-проп в список CSS-Module классов.
- *
- * Идея:
- * - value = 12              -> класс `gap_12`
- * - value = [24, 12, 16]    -> классы `d_gap_24`, `m_gap_12`, `t_gap_16`
- *
- * Важно:
- * - Если `toKey(v)` вернул `undefined`, класс не будет добавлен (это используется для inline-only значений).
+ * Классы из CSS-модуля КОМПОНЕНТА (варианты кнопки, пресеты модалки, размеры полей): модуль
+ * печатает базу и по классу на брейкпоинт — `size_md`, `d_size_md`, `m_size_md`, `t_size_md`.
+ * Утилиты раскладки сюда не ходят — у них свой глобальный слой (`core/utilities`).
  */
 export const responsiveClasses = <T,>(
-  styles: StyleMaps,
+  styles: Readonly<Record<string, string>>,
   prefix: string,
   value: ResponsiveValue<T> | undefined,
   toKey: (v: T) => string | undefined
-): Array<string | undefined> => {
+): string[] => {
   if (value === undefined) return [];
 
-  const one = (bp: BpPrefix, v: T | null) => {
+  const one = (breakpoint: '' | 'd_' | 'm_' | 't_', v: T | null): string | undefined => {
     if (v === null) return undefined;
-    const k = toKey(v);
-    return k ? lookup(styles, `${bp}${prefix}_${k}`) : undefined;
+    const key = toKey(v);
+    return key ? styles[`${breakpoint}${prefix}_${key}`] : undefined;
   };
 
-  if (!Array.isArray(value)) return [one('', value)];
+  const classes = Array.isArray(value)
+    ? (() => {
+        const [d, m, t] = resolveResponsive(value);
+        return [one('d_', d), one('m_', m), one('t_', t)];
+      })()
+    : [one('', value as T)];
 
-  const [d, m, t] = resolveResponsive(value);
-  return [one('d_', d), one('m_', m), one('t_', t)];
+  return classes.filter((name): name is string => Boolean(name));
 };
-

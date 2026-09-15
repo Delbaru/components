@@ -5,11 +5,11 @@ import { useMemo, useState, type CSSProperties } from 'react';
 import type React from 'react';
 
 import styles from './Img.module.scss';
-import { boxLayout, createLayoutClasses, cx, resolveResponsive, sizeClasses, sizeInlineStyle, splitRootDomProps, stateLinkProps, tokenStyles, useMergedRefs, type GrowProps, type RadiusInput, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef } from '../core';
+import { boxLayout, createLayoutClasses, cx, resolveResponsive, sizeClasses, splitRootDomProps, stateLinkProps, useMergedRefs, type GrowProps, type RadiusInput, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef } from '../core';
 import { useFancybox } from '../hooks/useFancybox';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 type ObjectFitKey = 'contain' | 'cover' | 'fill' | 'none' | 'scale_down';
 
@@ -213,7 +213,7 @@ export function Img({
   fancybox,
   ...props
 }: WithRef<ImgProps, HTMLSpanElement>) {
-  // Размеры обёртки — не из коробки: у них свой дефолт 100% только в инлайне (см. ниже).
+  // Размеры обёртки — не из коробки: `rootW`/`rootH` перекрывают размеры картинки.
   const layout = boxLayout(c, { r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR, bg, aspectRatio, grow });
   const [isLoaded, setIsLoaded] = useState(false);
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
@@ -282,14 +282,8 @@ export function Img({
       data-point-events={dataPointEvents}
       {...(rootProps as React.HTMLAttributes<HTMLSpanElement>)}
       {...stateLinkProps(linkState, motionHandlers)}
-      className={cx(styles.Img, ...sizeClasses(c, wrapperSizeProps), ...layout.classes, className)}
+      className={cx(styles.Img, ...sizeClasses(c, wrapperSizeProps), ...layout, className)}
       style={{
-        ...layout.style,
-        ...sizeInlineStyle({
-          ...wrapperSizeProps,
-          w: wrapperSizeProps.w ?? '100%',
-          h: wrapperSizeProps.h ?? '100%',
-        }),
         ...(motionStyle ?? null),
         ...style,
       }}
@@ -316,8 +310,8 @@ export function Img({
                 styles.Image,
                 styles.Blur,
                 isLoaded && styles.BlurHidden,
-                ...c.enum('objectFit', objectFit ?? 'cover'),
-                ...c.enum('objectPosition', objectPosition ?? 'center'),
+                ...c.value('objectFit', objectFit ?? 'cover'),
+                ...c.value('objectPosition', objectPosition ?? 'center'),
               )}
             />
           )}
@@ -330,8 +324,8 @@ export function Img({
             quality={normalizedQuality}
             className={cx(
               styles.Image,
-              ...c.enum('objectFit', objectFit ?? 'cover'),
-              ...c.enum('objectPosition', objectPosition ?? 'center'),
+              ...c.value('objectFit', objectFit ?? 'cover'),
+              ...c.value('objectPosition', objectPosition ?? 'center'),
             )}
             onLoad={handleLoad}
             onError={onError}
@@ -352,8 +346,8 @@ export function Img({
                 styles.Image,
                 styles.Blur,
                 isLoaded && styles.BlurHidden,
-                ...c.enum('objectFit', objectFit ?? 'cover'),
-                ...c.enum('objectPosition', objectPosition ?? 'center'),
+                ...c.value('objectFit', objectFit ?? 'cover'),
+                ...c.value('objectPosition', objectPosition ?? 'center'),
               )}
             />
           )}
@@ -366,8 +360,8 @@ export function Img({
             quality={normalizedQuality}
             className={cx(
               styles.Image,
-              ...c.enum('objectFit', objectFit ?? 'cover'),
-              ...c.enum('objectPosition', objectPosition ?? 'center'),
+              ...c.value('objectFit', objectFit ?? 'cover'),
+              ...c.value('objectPosition', objectPosition ?? 'center'),
             )}
             onLoad={handleLoad}
             onError={onError}

@@ -17,7 +17,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const GENERATED = new Set(['_safelist.scss', '_calc-string-map.ts']);
+const GENERATED = new Set(['_utilities.scss', '_field-sizes.scss']);
 // Заглушки в тестах — не потребители темы: их значения в договор токенов не идут.
 const TEST_FILE = /\.test\.tsx?$/;
 const SKIP_DIRS = new Set(['node_modules', '.git', '.next', 'tools', 'theme', 'public']);
@@ -59,7 +59,7 @@ export function readContract() {
     const code = stripComments(fs.readFileSync(file, 'utf8'));
     const user = path.relative(ROOT, file).split(path.sep)[0];
 
-    for (const m of code.matchAll(/var\(\s*(--[A-Za-z0-9_-]+)(#\{)?\s*(,)?/g)) {
+    for (const m of code.matchAll(/var\(\s*(--[A-Za-z0-9_-]+)(#\{|\$\{)?\s*(,)?/g)) {
       if (m[2]) add(families, m[1], user);
       else if (!m[3]) add(required, m[1], user);
     }

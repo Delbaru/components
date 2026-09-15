@@ -186,7 +186,7 @@ export function Calendar({
               >
                 <Text
                   variant={['small', 'small', 'small']}
-                  color={isCurrentVisibleMonth ? 'var(--white-100)' : '#181818'}
+                  color={isCurrentVisibleMonth ? 'var(--white-100)' : undefined}
                 >
                   {monthLabel.slice(0, 3)}
                 </Text>
@@ -230,11 +230,9 @@ export function Calendar({
                 ? 'var(--white-100)'
                 : isDisabledDay
                     ? '#C5C6CC'
-                : !isCurrentMonthDay
-                    ? '#9E9E9E'
-                    : isWeekendDay
+                    : isWeekendDay && isCurrentMonthDay
                         ? 'var(--red)'
-                        : '#181818';
+                        : undefined;
 
               return (
                 <Button

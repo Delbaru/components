@@ -1,8 +1,7 @@
-import type { CSSProperties } from 'react';
-import type { BorderStyleProps, BorderStyleSkipMap, ClassBuilder, LayoutSpaceProps, RadiusPropsShort, SizePropsShort } from './shared-props';
+import type { ClassBuilder } from '../layout/layout-classes';
+import type { ResponsiveSpaceValue, SpaceValue } from '../layout/space';
 import type { ResponsiveValue } from './responsive';
-import { layoutSpaceClasses, radiusClasses, resolveBorderClassResolution, resolveBorderStyles, resolveRadiusInput, responsiveValueHasFullClassCoverage, sizeClasses, sizeInlineStyle } from './shared-props';
-import { inlineSpaceStyle, type ResponsiveSpaceValue, type SpaceValue } from '../layout/space';
+import { borderClasses, layoutSpaceClasses, radiusClasses, sizeClasses, type BorderStyleProps, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort } from './shared-props';
 
 /**
  * Объединённый интерфейс layout-пропсов для field-компонентов
@@ -16,94 +15,19 @@ export interface FieldLayoutProps extends LayoutSpaceProps, RadiusPropsShort, Si
     placeholderColor?: string;
 }
 
-export interface FieldLayoutClassResolution {
-    classes: (string | undefined)[];
-    styleSkips: {
-        bg?: boolean;
-        color?: boolean;
-        placeholderColor?: boolean;
-        border: BorderStyleSkipMap;
-    };
-}
-
-export function resolveFieldLayoutClassResolution(
-    c: ClassBuilder,
-    props: FieldLayoutProps
-): FieldLayoutClassResolution {
-    const {
-        variant, size,
-        p, pt, pr, pb, pl, m, mt, mr, mb, ml,
-        r, tlr, trr, brr, blr,
-        borderTLR, borderTRR, borderBRR, borderBLR,
-        border, borderC, borderS, borderW, borderT, borderR, borderB, borderL,
-        w, minW, maxW, h, minH, maxH,
-        bg, color, placeholderColor,
-    } = props;
-
-    const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-    const bgClasses = c.literal('bg', bg);
-    const colorClasses = c.literal('color', color);
-    const placeholderColorClasses = c.literal('placeholderColor', placeholderColor);
-    const borderClassResolution = resolveBorderClassResolution(c, { border, borderC, borderS, borderW, borderT, borderR, borderB, borderL });
-
-    return {
-        classes: [
-            ...c.enum('variant', variant),
-            ...c.enum('size', size),
-            ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-            ...radiusClasses(c, radiusProps),
-            ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
-            ...bgClasses,
-            ...colorClasses,
-            ...placeholderColorClasses,
-            ...borderClassResolution.classes,
-        ],
-        styleSkips: {
-            bg: responsiveValueHasFullClassCoverage(bg, bgClasses),
-            color: responsiveValueHasFullClassCoverage(color, colorClasses),
-            placeholderColor: responsiveValueHasFullClassCoverage(placeholderColor, placeholderColorClasses),
-            border: borderClassResolution.styleSkips,
-        },
-    };
-}
-
-/**
- * Генерирует массив CSS Module классов для field-компонента за один вызов.
- * Заменяет 5 отдельных spread-вызовов (variant, preset, space, radius, size).
- */
-export function fieldLayoutClasses(
-    c: ClassBuilder,
-    props: FieldLayoutProps
-): (string | undefined)[] {
-    return resolveFieldLayoutClassResolution(c, props).classes;
-}
-
-/**
- * Генерирует inline-стили для field-компонента за один вызов.
- * Заменяет ручную склейку bg, color, placeholderColor, inlineSpaceStyle, sizeInlineStyle.
- */
-export function fieldLayoutStyles(
-    props: FieldLayoutProps,
-    styleSkips?: FieldLayoutClassResolution['styleSkips']
-): CSSProperties {
-    const {
-        bg, color, placeholderColor,
-        p, pt, pr, pb, pl, m, mt, mr, mb, ml,
-        border, borderC, borderS, borderW, borderT, borderR, borderB, borderL,
-        w, minW, maxW, h, minH, maxH,
-    } = props;
-    const resolvedStyleSkips = styleSkips ?? { border: {} };
-
-    return {
-        ...(bg && !resolvedStyleSkips.bg ? { background: bg } : null),
-        ...(color && !resolvedStyleSkips.color ? { color } : null),
-        ...(placeholderColor && !resolvedStyleSkips.placeholderColor
-            ? { ['--field-placeholder-color' as string]: placeholderColor } as CSSProperties
-            : null),
-        ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-        ...resolveBorderStyles({ border, borderC, borderS, borderW, borderT, borderR, borderB, borderL }, resolvedStyleSkips.border),
-        ...sizeInlineStyle({ w, minW, maxW, h, minH, maxH }),
-    };
+/** Классы поля за один вызов: вариант и размер — из модуля поля, остальное — утилиты. */
+export function fieldLayoutClasses(c: ClassBuilder, props: FieldLayoutProps): string[] {
+    return [
+        ...c.value('variant', props.variant),
+        ...c.value('size', props.size),
+        ...layoutSpaceClasses(c, props),
+        ...radiusClasses(c, props),
+        ...sizeClasses(c, props),
+        ...c.value('bg', props.bg),
+        ...c.value('color', props.color),
+        ...c.value('placeholderColor', props.placeholderColor),
+        ...borderClasses(c, props),
+    ];
 }
 
 const isSpaceToken = (value: unknown): value is number | string =>

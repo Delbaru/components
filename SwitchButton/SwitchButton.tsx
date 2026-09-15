@@ -3,11 +3,11 @@
 import { useCallback, useId, type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './SwitchButton.module.scss';
-import { cx, createLayoutClasses, growStyle, inlineGrowClassName, inlineSpaceStyle, stateProps, needsInlineGrow, layoutSpaceClasses, stateLinkProps, tokenStyles, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type ResponsiveValue, type GrowProps, type WithRef } from '../core';
+import { cx, createLayoutClasses, stateProps, layoutSpaceClasses, stateLinkProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type ResponsiveValue, type GrowProps, type WithRef } from '../core';
 import { Flex } from '../Flex';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 export interface SwitchButtonProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'>, LayoutSpaceProps, GrowProps, SharedMotionProps {
   style?: CSSProperties;
@@ -60,10 +60,10 @@ export function SwitchButton({
       className={cx(
         styles.SwitchButton,
         ...layoutSpaceClasses(c, { p, pt, pr, pb, pl, m, mt, mr, mb, ml }),
-        needsInlineGrow(grow) && inlineGrowClassName(),
+        ...c.value('grow', grow),
         className
       )}
-      style={{ ...inlineSpaceStyle({ p, pt, pr, pb, pl, m, mt, mr, mb, ml }), ...growStyle(grow), ...(motionStyle ?? null), ...style }}
+      style={{ ...(motionStyle ?? null), ...style }}
       {...stateProps(state, isDisabled && 'disabled')}
     >
       <Flex gap={gap ?? 8} align="center">

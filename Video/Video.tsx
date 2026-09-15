@@ -1,13 +1,13 @@
 "use client";
 
-import { aspectRatioStyle, cx, createLayoutClasses, growStyle, inlineAspectRatioClassName, inlineGrowClassName, needsInlineAspectRatio, needsInlineGrow, radiusClasses, resolveRadiusInput, resolveResponsive, sizeClasses, sizeInlineStyle, splitRootDomProps, stateLinkProps, tokenStyles, type GrowProps, type RadiusInput, type StateLinkInput, type ResponsiveValue, type SizeInput, type SizeValue, type WithRef, useMergedRefs } from '../core';
+import { cx, createLayoutClasses, radiusClasses, resolveRadiusInput, resolveResponsive, sizeClasses, splitRootDomProps, stateLinkProps, type GrowProps, type RadiusInput, type StateLinkInput, type ResponsiveValue, type SizeInput, type SizeValue, type WithRef, useMergedRefs } from '../core';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
 import styles from './Video.module.scss';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 type ObjectFitKey = 'contain' | 'cover' | 'fill' | 'none' | 'scale_down';
 type MediaSource = string | { src: string };
@@ -99,8 +99,6 @@ export function Video({
 }: WithRef<VideoProps, HTMLVideoElement>) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(autoPlay);
-  const bgClasses = c.literal('bg', bg);
-  const hasBgClass = Boolean(bgClasses[0]);
   const sizeProps = {
     w,
     minW,
@@ -172,20 +170,12 @@ export function Video({
         styles.VideoRoot,
         ...sizeClasses(c, wrapperSizeProps),
         ...radiusClasses(c, radiusProps),
-        ...bgClasses,
-        needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
-        needsInlineGrow(grow) && inlineGrowClassName(),
+        ...c.value('bg', bg),
+        ...c.value('ratio', aspectRatio),
+        ...c.value('grow', grow),
         className
       )}
       style={{
-        ...(bg && !hasBgClass ? { background: bg } : null),
-        ...sizeInlineStyle({
-          ...wrapperSizeProps,
-          w: wrapperSizeProps.w ?? '100%',
-          h: wrapperSizeProps.h ?? '100%',
-        }),
-        ...aspectRatioStyle(aspectRatio),
-        ...growStyle(grow),
         ...(motionStyle ?? null),
         ...(objectFitResolved ? ({ '--video-fit': objectFitResolved } as CSSProperties) : null),
         ...(objectPositionResolved ? ({ '--video-position': objectPositionResolved } as CSSProperties) : null),

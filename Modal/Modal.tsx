@@ -9,14 +9,14 @@ import {
   type KeyboardEvent,
 } from 'react';
 import styles from './Modal.module.scss';
-import { boxLayout, createLayoutClasses, cx, tokenStyles, useMergedRefs, type GrowProps, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type SizePropsShort, type SpaceValue, type StateLinkInput, type WithRef } from '../core';
+import { boxLayout, createLayoutClasses, cx, useMergedRefs, type GrowProps, type LayoutSpaceProps, type RadiusPropsShort, type ResponsiveValue, type SizePropsShort, type SpaceValue, type StateLinkInput, type WithRef } from '../core';
 import { Flex } from '../Flex';
 import { useModalRuntime } from './ModalProvider';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
 type PresetKey = 'default' | 'fullWidth';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 interface ModalSurfaceProps extends LayoutSpaceProps, RadiusPropsShort, SizePropsShort, GrowProps, SharedMotionProps {
   id?: string;
@@ -111,8 +111,6 @@ function ModalSurface({
   // Коробка делится на две: отступы root* и grow — у слоя-подложки, остальное — у панели диалога.
   const root = boxLayout(c, { p: rootP, pt: rootPt, pr: rootPr, pb: rootPb, pl: rootPl, m: rootM, mt: rootMt, mr: rootMr, mb: rootMb, ml: rootMl, grow });
   const panel = boxLayout(c, panelBox);
-  const colorClasses = c.literal('color', color);
-  const hasColorClass = Boolean(colorClasses[0]);
   const panelRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
   const [entered, setEntered] = useState(false);
@@ -159,14 +157,14 @@ function ModalSurface({
       ref={ref}
       linkState={linkState}
       data-point-events={dataPointEvents}
-      className={cx(styles.Modal, rootClassName, ...c.enum('animation', animation), ...root.classes)}
+      className={cx(styles.Modal, rootClassName, ...c.value('animation', animation), ...root)}
       data-open={open}
       data-entered={entered}
       role="presentation"
       aria-hidden={!open}
       align={alignItems ?? 'center'}
       justify={justifyContent ?? 'center'}
-      style={{ ...root.style, ...rootStyle }}
+      style={rootStyle}
     >
       <div
         className={cx(styles.Overlay, overlayClassName)}
@@ -189,14 +187,12 @@ function ModalSurface({
         className={cx(
           styles.Panel,
           overflowVisible && styles.overflowVisible,
-          ...c.enum('preset', preset),
-          ...panel.classes,
-          ...colorClasses,
+          ...c.value('preset', preset),
+          ...panel,
+          ...c.value('color', color),
           className
         )}
         style={{
-          ...panel.style,
-          ...(color && !hasColorClass ? { color } : null),
           ...(motionStyle ?? null),
           ...panelStyle,
         }}

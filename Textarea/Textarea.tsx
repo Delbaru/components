@@ -9,7 +9,7 @@ import {
 } from 'react';
 import type React from 'react';
 import styles from './Textarea.module.scss';
-import { cx, createLayoutClasses, inlineGrowClassName, growStyle, needsInlineGrow, stateProps, stateLinkProps, tokenStyles, useFieldControl, fieldLayoutStyles, resolveFieldLayoutClassResolution, fieldHelperPaddingLeft, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps, type WithRef } from '../core';
+import { cx, createLayoutClasses, stateProps, stateLinkProps, useFieldControl, fieldHelperPaddingLeft, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps, type WithRef, fieldLayoutClasses } from '../core';
 import { Text } from '../Text';
 import { Flex } from '../Flex';
 import { Skeleton } from '../Skeleton';
@@ -18,7 +18,7 @@ import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotio
 type VariantKey = 'primary' | 'secondary';
 type SizeKey = 'default' | 'fullWidth';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles, { local: { h: 'height' } });
 
 const DEFAULT_MIN_LENGTH_MESSAGE = (min: number) => `Минимум ${min} символов`;
 const DEFAULT_MAX_LENGTH_MESSAGE = (max: number) => `Максимум ${max} символов`;
@@ -263,15 +263,15 @@ export function Textarea({
         w, minW, maxW, h, minH, maxH,
         bg, color, placeholderColor,
     };
-    const fieldLayoutResolution = resolveFieldLayoutClassResolution(c, layoutProps);
+    const fieldClasses = fieldLayoutClasses(c, layoutProps);
 
     return (
         <Flex
             ref={setWrapperRef}
             dir={["column", null, null]}
             gap={[8, 4, 8]}
-            className={cx(styles.TextareaWrapper, needsInlineGrow(grow) && inlineGrowClassName(), className)}
-            style={{ ...growStyle(grow), ...(motionStyle ?? null), ...style }}
+            className={cx(styles.TextareaWrapper, ...c.value('grow', grow), className)}
+            style={{ ...(motionStyle ?? null), ...style }}
             data-point-events={dataPointEvents}
             {...stateLinkProps(linkState, { ...motionHandlers })}
         >
@@ -284,8 +284,7 @@ export function Textarea({
                 </Flex>
             )}
             <div
-                className={cx(styles.Textarea, ...fieldLayoutResolution.classes, needsInlineGrow(grow) && inlineGrowClassName(), fieldClassName)}
-                style={fieldLayoutStyles(layoutProps, fieldLayoutResolution.styleSkips)}
+                className={cx(styles.Textarea, ...fieldClasses, ...c.value('grow', grow), fieldClassName)}
                 data-has-counter={(showCounter && countPlacement === 'inside') || undefined}
                 data-inline-error={inlineError ? 'true' : undefined}
                 {...stateProps(state, displayError && 'error', isFieldFocused && 'active', hasValue && 'filled')}

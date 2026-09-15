@@ -4,11 +4,11 @@ import styles from './RichText.module.scss';
 
 import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { cx, createLayoutClasses, getBreakpointIndex, resolveResponsiveAtBreakpoint, buildClampStyle, decodeHtmlEntities, growStyle, inlineGrowClassName, needsInlineGrow, radiusClasses, responsiveValueHasFullClassCoverage, sanitizeRichTextHtml, stripHtmlTags, sizeClasses, sizeInlineStyle, stateLinkProps, tokenStyles, resolveRadiusInput, type GrowProps, type RadiusPropsShort, type StateLinkInput, type ResponsiveValue, type SizeValue } from '../core';
+import { cx, createLayoutClasses, getBreakpointIndex, resolveResponsiveAtBreakpoint, buildClampStyle, decodeHtmlEntities, radiusClasses, sanitizeRichTextHtml, stripHtmlTags, sizeClasses, stateLinkProps, resolveRadiusInput, type GrowProps, type RadiusPropsShort, type StateLinkInput, type ResponsiveValue, type SizeValue } from '../core';
 import { renderLexicalContent } from './LexicalRenderer';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 type Block =
@@ -231,10 +231,6 @@ export interface LexicalTextProps extends Omit<HTMLAttributes<HTMLDivElement>, '
 export function LexicalText({ content, variant = 'default', w, h, animation, rows, ellipsis, bg, color, r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR, grow, perspective3d, parallax, className = '', style, linkState, onMouseEnter, onMouseLeave, ...props }: LexicalTextProps) {
   const { motionHandlers, motionStyle, setMotionNode } = useSharedMotion({ perspective3d, parallax });
   const radiusProps = resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR });
-  const bgClasses = c.literal('bg', bg);
-  const colorClasses = c.literal('color', color);
-  const hasBgClass = responsiveValueHasFullClassCoverage(bg, bgClasses);
-  const hasColorClass = responsiveValueHasFullClassCoverage(color, colorClasses);
   const setRootRef = useCallback((node: HTMLDivElement | null) => {
     setMotionNode(node);
   }, [setMotionNode]);
@@ -247,16 +243,12 @@ export function LexicalText({ content, variant = 'default', w, h, animation, row
     styles.RichText,
     ...radiusClasses(c, radiusProps),
     ...sizeClasses(c, { w, h }),
-    ...bgClasses,
-    ...colorClasses,
-    needsInlineGrow(grow) && inlineGrowClassName(),
+    ...c.value('bg', bg),
+    ...c.value('color', color),
+    ...c.value('grow', grow),
     className
   );
   const rootStyle = {
-    ...(bg && !hasBgClass ? { background: bg } : null),
-    ...(color && !hasColorClass ? { color } : null),
-    ...sizeInlineStyle({ w, h }),
-    ...growStyle(grow),
     ...(motionStyle ?? null),
     ...style,
   } satisfies CSSProperties;

@@ -10,30 +10,10 @@
   }
 }
 
-@mixin flex-classes($bp: null) {
-  $p: "";
-  @if $bp != null {
-    $p: "#{$bp}_";
-  }
-
-  @include utils.enum(#{$p}flexDirection, flex-direction, utils.$flexDirections);
-  @include utils.enum(#{$p}flexWrap, flex-wrap, utils.$flexWraps);
-  @include utils.enum(#{$p}alignItems, align-items, utils.$alignItems);
-  @include utils.enum(#{$p}justifyContent, justify-content, utils.$justifyContent);
-}
-
 .container {
   padding-left: var(--s-container);
   padding-right: var(--s-container);
   max-width: var(--width-container);
-}
-
-// base (all breakpoints)
-@include flex-classes();
-
-// responsive (order: desktop / mobile / tablet)
-@include utils.withBreakpoints() using ($bp) {
-  @include flex-classes($bp);
 }
 
 // Опт-ин сворачивание (проп collapse у Flex). grid-template 0fr↔1fr + отступ (--collapse-gap)

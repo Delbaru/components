@@ -4,7 +4,7 @@ import styles from './Select.module.scss';
 
 import { type CSSProperties } from 'react';
 import type React from 'react';
-import { cx, createLayoutClasses, inlineGrowClassName, growStyle, needsInlineGrow, stateProps, stateLinkProps, tokenStyles, fieldLayoutStyles, resolveFieldLayoutClassResolution, fieldHelperPaddingLeft, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps, type WithRef } from '../core';
+import { cx, createLayoutClasses, stateProps, stateLinkProps, fieldHelperPaddingLeft, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps, type WithRef, fieldLayoutClasses } from '../core';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { Skeleton } from '../Skeleton';
@@ -16,7 +16,7 @@ import { useSelect, type SelectRenderValuePayload } from './useSelect';
 type VariantKey = 'primary' | 'primaryFill' | 'secondary';
 type SizeKey = 'default' | 'fullWidth';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles, { local: { h: 'height' } });
 
 const DEFAULT_PLACEHOLDER = 'Выберите значение';
 const DEFAULT_EMPTY_MESSAGE = 'Выберите значение';
@@ -255,15 +255,15 @@ export function Select({
         placeholderColor,
     };
 
-    const fieldLayoutResolution = resolveFieldLayoutClassResolution(c, layoutProps);
+    const fieldClasses = fieldLayoutClasses(c, layoutProps);
 
     return (
         <Flex
             href={undefined}
             dir={['column', 'column', 'column']}
             gap={[8, 8, 8]}
-            className={cx(styles.SelectWrapper, needsInlineGrow(grow) && inlineGrowClassName(), className)}
-            style={{ ...growStyle(grow), ...(motionStyle ?? null), ...style }}
+            className={cx(styles.SelectWrapper, ...c.value('grow', grow), className)}
+            style={{ ...(motionStyle ?? null), ...style }}
             ref={setWrapperRef}
             data-point-events={dataPointEvents}
             {...stateLinkProps(linkState, { ...motionHandlers })}
@@ -284,10 +284,9 @@ export function Select({
             )}
 
             <Flex
-                className={cx(styles.Select, ...fieldLayoutResolution.classes, fieldClassName)}
+                className={cx(styles.Select, ...fieldClasses, fieldClassName)}
                 style={
                     {
-                        ...fieldLayoutStyles(layoutProps, fieldLayoutResolution.styleSkips),
                         ['--select-visible-options' as string]: String(normalizedVisibleOptions),
                     } as CSSProperties
                 }

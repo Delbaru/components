@@ -1,29 +1,16 @@
-import type { CSSProperties } from 'react';
-
 import {
-  aspectRatioStyle,
-  growStyle,
-  inlineAspectRatioClassName,
-  inlineGrowClassName,
+  borderClasses,
   layoutSpaceClasses,
-  needsInlineAspectRatio,
-  needsInlineGrow,
   radiusClasses,
-  resolveBorderClassResolution,
-  resolveBorderStyles,
-  resolveRadiusInput,
-  responsiveValueHasFullClassCoverage,
   sizeClasses,
-  sizeInlineStyle,
   type AspectRatioProps,
   type BorderStyleProps,
-  type ClassBuilder,
   type GrowProps,
   type LayoutSpaceProps,
   type RadiusPropsShort,
   type SizePropsShort,
 } from '../base/shared-props';
-import { inlineSpaceStyle } from './space';
+import type { ClassBuilder } from './layout-classes';
 
 /** Пропсы «коробки», которые одинаково понимает корень любого компонента. */
 export interface BoxLayoutProps
@@ -66,42 +53,15 @@ export function splitBoxLayout<P extends BoxLayoutProps>(props: P): { box: BoxLa
   return { box: box as BoxLayoutProps, rest: rest as Omit<P, BoxLayoutKey> };
 }
 
-export interface BoxLayout {
-  classes: (string | false | undefined)[];
-  style: CSSProperties;
-}
-
-/** Классы и инлайн-стиль корня из пропсов коробки. Не заданный проп ничего не добавляет. */
-export function boxLayout(c: ClassBuilder, box: BoxLayoutProps): BoxLayout {
-  const space = { p: box.p, pt: box.pt, pr: box.pr, pb: box.pb, pl: box.pl, m: box.m, mt: box.mt, mr: box.mr, mb: box.mb, ml: box.ml };
-  const size = { w: box.w, minW: box.minW, maxW: box.maxW, h: box.h, minH: box.minH, maxH: box.maxH };
-  const border = {
-    border: box.border, borderC: box.borderC, borderS: box.borderS, borderW: box.borderW,
-    borderT: box.borderT, borderR: box.borderR, borderB: box.borderB, borderL: box.borderL,
-  };
-
-  const bgClasses = c.literal('bg', box.bg);
-  // Фон без класса хотя бы на одном брейкпоинте уходит инлайном целиком.
-  const hasBgClass = responsiveValueHasFullClassCoverage(box.bg, bgClasses);
-  const borderResolution = resolveBorderClassResolution(c, border);
-
-  return {
-    classes: [
-      ...layoutSpaceClasses(c, space),
-      ...radiusClasses(c, resolveRadiusInput(box)),
-      ...sizeClasses(c, size),
-      ...bgClasses,
-      ...borderResolution.classes,
-      needsInlineAspectRatio(box.aspectRatio) && inlineAspectRatioClassName(),
-      needsInlineGrow(box.grow) && inlineGrowClassName(),
-    ],
-    style: {
-      ...(box.bg && !hasBgClass ? { background: box.bg } : null),
-      ...inlineSpaceStyle(space),
-      ...sizeInlineStyle(size),
-      ...aspectRatioStyle(box.aspectRatio),
-      ...growStyle(box.grow),
-      ...resolveBorderStyles(border, borderResolution.styleSkips),
-    },
-  };
+/** Классы утилит корня из пропсов коробки. Не заданный проп ничего не добавляет. */
+export function boxLayout(c: ClassBuilder, box: BoxLayoutProps): string[] {
+  return [
+    ...layoutSpaceClasses(c, box),
+    ...radiusClasses(c, box),
+    ...sizeClasses(c, box),
+    ...c.value('bg', box.bg),
+    ...borderClasses(c, box),
+    ...c.value('ratio', box.aspectRatio),
+    ...c.value('grow', box.grow),
+  ];
 }

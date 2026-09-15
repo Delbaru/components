@@ -4,7 +4,7 @@ import { useCallback, useRef, useState, type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './Input.module.scss';
 import { Skeleton } from '../Skeleton';
-import { cx, createLayoutClasses, inlineGrowClassName, growStyle, needsInlineGrow, stateProps, stateLinkProps, tokenStyles, fieldLayoutStyles, resolveFieldLayoutClassResolution, fieldHelperPaddingLeft, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps, type WithRef } from '../core';
+import { cx, createLayoutClasses, stateProps, stateLinkProps, fieldHelperPaddingLeft, type BorderStyleProps, type ComponentStateValue, type StateLinkInput, type LayoutSpaceProps, type RadiusPropsShort, type SizePropsShort, type ResponsiveValue, type GrowProps, type WithRef, fieldLayoutClasses } from '../core';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { Flex } from '../Flex';
@@ -22,7 +22,7 @@ type SizeKey = 'default' | 'fullWidth';
 // Типографика поля ввода по токену дизайн-системы (--font-*). По умолчанию поле — `p`.
 type FontKey = 'h1' | 'h2' | 'h3' | 'subtitle' | 'title' | 'p' | 'small' | 'dop';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles, { local: { h: 'height' } });
 
 export interface InputProps
     extends Omit<
@@ -298,7 +298,7 @@ export function Input({
         w, minW, maxW, h, minH, maxH,
         bg, color, placeholderColor,
     };
-    const fieldLayoutResolution = resolveFieldLayoutClassResolution(c, layoutProps);
+    const fieldClasses = fieldLayoutClasses(c, layoutProps);
     const typeClassName = inputType || undefined;
     // Класс кегля садится на РЯД, а не на `<input>`: его читают ещё маска телефона и префикс
     // «+7», а они полю не потомки, а соседи (см. `--field-font` в модуле).
@@ -310,8 +310,8 @@ export function Input({
             ref={setWrapperRef}
             dir={['column', 'column', 'column']}
             gap={[8, 8, 8]}
-            className={cx(styles.wrapper, needsInlineGrow(grow) && inlineGrowClassName(), typeClassName, styles[inputType], className)}
-            style={{ ...growStyle(grow), ...(motionStyle ?? null), ...style }}
+            className={cx(styles.wrapper, ...c.value('grow', grow), typeClassName, styles[inputType], className)}
+            style={{ ...(motionStyle ?? null), ...style }}
             data-point-events={dataPointEvents}
             {...stateProps(isFieldActive && 'active')}
             {...stateLinkProps(linkState, { ...motionHandlers })}
@@ -326,8 +326,7 @@ export function Input({
                 ref={setFieldRowRef}
                 dir={['row', 'row', 'row']}
                 align={['center', 'center', 'center']}
-                className={cx(styles.input, fontClassName, ...fieldLayoutResolution.classes, rowClassName)}
-                style={fieldLayoutStyles(layoutProps, fieldLayoutResolution.styleSkips)}
+                className={cx(styles.input, fontClassName, ...fieldClasses, rowClassName)}
                 {...stateProps(state, hasError && 'error', isFieldActive && 'active', hasValue && 'filled', isReadOnly && 'readonly')}
                 data-phone-prefix={isPhone || undefined}
                 data-inline-error={inlineError ? 'true' : undefined}

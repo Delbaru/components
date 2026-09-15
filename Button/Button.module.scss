@@ -1,8 +1,4 @@
 @use '../core/scss-utils' as utils;
-@use '../core/safelist' as safe;
-
-$sizes: safe.$size-values;
-
 :where(.Button) {
     cursor: pointer;
     display: inline-flex;
@@ -168,22 +164,6 @@ $sizes: safe.$size-values;
     @include variant-classes($p);
     @include size-classes($p);
 
-    @include utils.enum(#{$p}alignItems, align-items, utils.$alignItems);
-    @include utils.enum(#{$p}justifyContent, justify-content, utils.$justifyContent);
-
-    @each $t in $sizes {
-        .#{$p}height_#{$t} {
-            height: calc(var(--rpx) * #{$t});
-        }
-
-        .#{$p}width_#{$t} {
-            width: calc(var(--rpx) * #{$t});
-        }
-
-        .#{$p}minWidth_#{$t} {
-            min-width: calc(var(--rpx) * #{$t});
-        }
-    }
 }
 
 @include button-classes();

@@ -3,13 +3,13 @@
 import { Swiper as SwiperRoot, SwiperSlide } from 'swiper/react';
 
 import styles from './Carousel.module.scss';
-import { aspectRatioStyle, createLayoutClasses, cx, growStyle, inlineAspectRatioClassName, inlineGrowClassName, inlineSizeStyle, needsInlineAspectRatio, needsInlineGrow, stateLinkProps, tokenStyles, type ResponsiveValue, type WithRef } from '../core';
+import { createLayoutClasses, cx, stateLinkProps, type ResponsiveValue, type WithRef } from '../core';
 import type { CarouselProps } from './types';
 import { useCarousel } from './useCarousel';
 
 const DRAG_START_THRESHOLD_PX = 6;
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 /**
  * Swiper adapter that preserves the current shared Carousel API and markup hooks.
@@ -98,27 +98,20 @@ export function Carousel({
       {...stateLinkProps(linkState, { onMouseEnter, onMouseLeave, ...motionHandlers })}
       className={cx(
         styles.Root,
-        ...c.num('gap', gap),
-        ...c.num('padding', padding),
-        ...c.size('width', w),
-        ...c.size('minWidth', minW),
-        ...c.size('maxWidth', maxW),
+        ...c.value('gap', gap),
+        ...c.value('p', padding),
+        ...c.value('w', w),
+        ...c.value('minW', minW),
+        ...c.value('maxW', maxW),
+        ...c.value('h', h),
+        ...c.value('minH', minH),
+        ...c.value('maxH', maxH),
+        ...c.value('ratio', aspectRatio),
+        ...c.value('grow', grow),
         ...slidesPerViewClasses,
-        needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
-        needsInlineGrow(grow) && inlineGrowClassName(),
         className
       )}
       style={{
-        ...inlineSizeStyle({
-          width: w,
-          minWidth: minW,
-          maxWidth: maxW,
-          height: h,
-          minHeight: minH,
-          maxHeight: maxH,
-        }),
-        ...aspectRatioStyle(aspectRatio),
-        ...growStyle(grow),
         ...(motionStyle ?? null),
         ...style,
       }}
@@ -172,8 +165,8 @@ export function Carousel({
             key={`slide-${index}`}
             className={cx(
               styles.slide,
-              ...c.enum('justifyContent', justify),
-              ...c.enum('alignItems', align),
+              ...c.value('justify', justify),
+              ...c.value('align', align),
               slideClassName
             )}
           >

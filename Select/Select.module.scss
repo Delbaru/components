@@ -1,7 +1,7 @@
 ﻿@use '../core/scss-utils' as utils;
-@use '../core/safelist' as safe;
+@use '../core/field-sizes' as fields;
 
-$sizes: safe.$size-values;
+$sizes: fields.$height-values;
 
 .SelectWrapper {
     position: relative;

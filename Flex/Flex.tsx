@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState, type CSSProperties } from 'react';
 import type React from 'react';
 import styles from './Flex.module.scss';
-import { boxLayout, createLayoutClasses, cx, resolveLinkProps, shouldUseNextLink, splitBoxLayout, stateLinkProps, stateProps, tokenStyles, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
+import { boxLayout, createLayoutClasses, cx, resolveLinkProps, shouldUseNextLink, splitBoxLayout, stateLinkProps, stateProps, useMergedRefs, type BoxLayoutProps, type ComponentStateValue, type ResponsiveValue, type StateLinkInput, type WithRef } from '../core';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { usePresence } from '../hooks/usePresence';
 import { useSwapTransition } from '../hooks/useSwapTransition';
@@ -17,7 +17,7 @@ type JustifyContentKey = 'start' | 'end' | 'center' | 'space_between' | 'space_a
 export type FlexEnterAnimation = 'fadeIn' | 'fadeInUp' | 'fadeInDown' | 'fadeInScale';
 export type FlexAnimation = FlexEnterAnimation | 'fadeOut' | 'fadeOutUp' | 'fadeOutDown' | 'fadeOutScale';
 
-const c = createLayoutClasses([styles, tokenStyles]);
+const c = createLayoutClasses(styles);
 
 // Реестр анимаций (CSS-keyframes в Flex.module.scss). Явная мапа вместо вычисляемого
 // доступа к styles — типобезопасно и не зависит от того, как затипизирован CSS-модуль.
@@ -141,20 +141,19 @@ export function Flex({
       className={cx(
         styles.Flex,
         container && styles.container,
-        ...layout.classes,
-        ...c.num('gap', gap),
-        ...c.num('rowGap', rowGap),
-        ...c.num('columnGap', columnGap),
-        ...c.enum('flexDirection', dir),
-        ...c.enum('justifyContent', justify),
-        ...c.enum('alignItems', align),
-        ...c.enum('flexWrap', wrap),
+        ...layout,
+        ...c.value('gap', gap),
+        ...c.value('rowGap', rowGap),
+        ...c.value('columnGap', columnGap),
+        ...c.value('dir', dir),
+        ...c.value('justify', justify),
+        ...c.value('align', align),
+        ...c.value('wrap', wrap),
         scrollFade && (scrollFade === 'x' ? 'scrollFadeX' : 'scrollFadeY'),
         activeAnimation && animationClasses[activeAnimation],
         className
       )}
       style={{
-        ...layout.style,
         ...(motionStyle ?? null),
         ...style,
       }}

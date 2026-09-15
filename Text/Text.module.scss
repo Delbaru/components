@@ -1,7 +1,3 @@
-@use 'sass:math';
-@use 'sass:list';
-@use '../core/scss-utils' as utils;
-
 :where(.Text) {
   margin: 0;
 }
@@ -51,102 +47,8 @@
   white-space: nowrap;
 }
 
-// scss-name → css-name (globals.scss is the single source of truth for all values)
-$variantMeta: (
-  numbers: numbers,
-  numbersPlus: numbers-plus,
-  h1: h1,
-  h2: h2,
-  h3: h3,
-  h4: h4,
-  p1: p1,
-  p2: p2,
-  p3: p3,
-  subtitle: subtitle,
-  title: title,
-  p: p,
-  small: small,
-  dop: dop
-);
-
-$fontFamilies: (
-  primary: var(--font-primary),
-  secondary: var(--font-secondary),
-  inherit: inherit
-);
-
-$textAligns: (
-  left: left,
-  right: right,
-  center: center,
-  justify: justify,
-  start: start,
-  end: end,
-);
-
-$whiteSpaces: (
-  normal: normal,
-  nowrap: nowrap,
-  pre: pre,
-  pre-wrap: pre-wrap,
-  pre-line: pre-line,
-  break-spaces: break-spaces,
-);
-
-$textTransforms: (
-  none: none,
-  uppercase: uppercase,
-  lowercase: lowercase,
-  capitalize: capitalize
-);
-
-$fontSizes: utils.range(6, 282, 1);
-$weights: utils.range(100, 900, 100);
-$lineHeights: utils.range(0, 250, 1);
-
-@mixin fontWeightTokens($p) {
-  @each $w in $weights {
-    .#{$p}fontWeight_#{$w} { font-weight: #{$w}; }
-  }
-}
-
-@mixin lineHeightTokens($p) {
-  .#{$p}lineHeight_normal { line-height: normal; }
-  @each $lh in $lineHeights {
-    .#{$p}lineHeight_#{$lh} { line-height: math.div($lh, 100); }
-  }
-}
-
-@mixin emitVariants($p: '') {
-  @each $scss-name, $css-name in $variantMeta {
-    .#{$p}variant_#{$scss-name} {
-      font: var(--font-#{$css-name});
-      text-transform: var(--tt-#{$css-name});
-      letter-spacing: var(--ls-#{$css-name});
-    }
-  }
-}
-
-// variant='inherit' — Text внутри Text (цветные куски заголовка): не навязываем свою типографику,
-// наследуем шрифт родителя. Без него вложенный Text кладёт variant по умолчанию (p) и перебивает
-// шрифт, заданный на родителе. Стоит рядом с остальными вариантами, поэтому fontSize/lineHeight
-// у самого куска по-прежнему могут его переопределить.
-@mixin inheritVariant($p: '') {
-  .#{$p}variant_inherit {
-    font: inherit;
-    text-transform: inherit;
-    letter-spacing: inherit;
-  }
-}
-
-@include emitVariants();
-@include inheritVariant();
-@include utils.token(fontSize, font-size, $fontSizes);
-@include fontWeightTokens('');
-@include lineHeightTokens('');
-@include utils.token(letterSpacing, letter-spacing, utils.$spaceScale);
-
-// Анимации (textSlide/textClip/textReveal/counter) живут в своих плагинах: ./animations/<key>/*.module.scss.
+// Типографика (вариант, кегль, насыщенность, высота строки, трекинг…) — утилиты общего слоя
+// (core/utilities). Анимации (textSlide/textClip/textReveal/counter) — в своих плагинах.
 
 @media (max-width: 767px) {
   .clamp {
@@ -159,47 +61,5 @@ $lineHeights: utils.range(0, 250, 1);
   .clamp {
     line-clamp: var(--text-rows-t, var(--text-rows-d, 1));
     -webkit-line-clamp: var(--text-rows-t, var(--text-rows-d, 1));
-  }
-}
-
-@include utils.enum(fontFamily, font-family, $fontFamilies);
-@include utils.enum(textTransform, text-transform, $textTransforms);
-@include utils.enum(textAlign, text-align, $textAligns);
-@include utils.enum(whiteSpace, white-space, $whiteSpaces);
-
-@include utils.withBreakpoints() using ($bp) {
-  $p: 't_';
-  @if $bp == 'd' {
-    $p: 'd_';
-  } @else if $bp == 'm' {
-    $p: 'm_';
-  }
-  @include emitVariants($p);
-  @include inheritVariant($p);
-  @include utils.token(#{$p}fontSize, font-size, $fontSizes);
-  @include fontWeightTokens($p);
-  @include lineHeightTokens($p);
-  @include utils.enum(#{$p}fontFamily, font-family, $fontFamilies);
-  @include utils.enum(#{$p}textTransform, text-transform, $textTransforms);
-  @include utils.enum(#{$p}textAlign, text-align, $textAligns);
-  @include utils.enum(#{$p}whiteSpace, white-space, $whiteSpaces);
-  @include utils.token(#{$p}letterSpacing, letter-spacing, utils.$spaceScale);
-}
-
-@media (max-width: 767px) {
-  .inlineLetterSpacingM {
-    letter-spacing: var(--inline-letter-spacing-m);
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-  .inlineLetterSpacingT {
-    letter-spacing: var(--inline-letter-spacing-t);
-  }
-}
-
-@media (min-width: 1024px) {
-  .inlineLetterSpacingD {
-    letter-spacing: var(--inline-letter-spacing-d);
   }
 }

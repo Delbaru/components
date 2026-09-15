@@ -14,7 +14,7 @@ import {
 import styles from './VideoPlayer.module.scss';
 
 import { clamp01 } from '../core/utils';
-import { aspectRatioStyle, createLayoutClasses, cx, growStyle, inlineAspectRatioClassName, inlineGrowClassName, needsInlineAspectRatio, needsInlineGrow, radiusClasses, resolveRadiusInput, sizeClasses, sizeInlineStyle, tokenStyles, type WithRef, useMergedRefs } from '../core';
+import { createLayoutClasses, cx, radiusClasses, resolveRadiusInput, sizeClasses, type WithRef, useMergedRefs } from '../core';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 import { Video } from '../Video';
@@ -23,7 +23,7 @@ import { usePointerRatio } from './usePointerRatio';
 import { useVideoPlayer } from './useVideoPlayer';
 import type { MediaSource, VideoPlayerApi, VideoPlayerApiRef, VideoPlayerControlKey, VideoPlayerProps } from './types';
 
-const c = createLayoutClasses([tokenStyles, styles]);
+const c = createLayoutClasses(styles);
 
 const DEFAULT_CONTROLS: VideoPlayerControlKey[] = ['play', 'timeline', 'time', 'volume', 'fullscreen'];
 
@@ -403,15 +403,12 @@ export function VideoPlayer({
         !controlsVisible && interactive && styles.hidden,
         ...sizeClasses(c, { w, minW, maxW, h, minH, maxH }),
         ...radiusClasses(c, resolveRadiusInput({ r, tlr, trr, brr, blr, borderTLR, borderTRR, borderBRR, borderBLR })),
-        needsInlineAspectRatio(aspectRatio) && inlineAspectRatioClassName(),
-        needsInlineGrow(grow) && inlineGrowClassName(),
+        ...c.value('ratio', aspectRatio),
+        ...c.value('grow', grow),
         className
     );
 
     const rootStyle: CSSProperties = {
-        ...sizeInlineStyle({ w: w ?? '100%', minW, maxW, h, minH, maxH }),
-        ...aspectRatioStyle(aspectRatio),
-        ...growStyle(grow),
         ...style,
     };
 
