@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"console.log('[components-guard] Library shared by several projects: a change here reaches all of them. Route BEFORE the first line of code: any file of this library -> Skill(ui-component). Before you say done -> Skill(ui-verify). docs/Library.md is the navigator: read it to find files, never expect rules in it. Rules live in docs/authoring.md and docs/core.md, past mistakes in docs/lessons/*.md - search them with grep -rn, do not read a whole file. Never import outside this folder, never rename or delete public API without a BREAKING commit, never delete a component just because one project does not use it. After the work: lesson into docs/lessons/*.md.')\""
+          }
+        ]
+      }
+    ]
+  }
+}
