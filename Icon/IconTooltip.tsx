@@ -29,6 +29,8 @@ export function IconTooltipWithPortal({ children, tooltip, direction, gap }: Ico
     align: 'center',
     gap,
     viewportPadding: 8,
+    // Без этого всплывашка на mouseleave мгновенно уезжает за экран, и уход не виден вовсе.
+    keepPositionWhenInactive: true,
   });
 
   useEffect(() => {

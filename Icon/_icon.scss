@@ -104,6 +104,27 @@ button:disabled .ui-icon-root[data-icon-root='true'] {
         visibility: visible;
         transform: translate3d(0, 0, 0);
     }
+
+    // Пружинка отдана СОДЕРЖИМОМУ, а не самой всплывашке: её коробку меряет
+    // useAnchoredFloating, и масштаб на ней увёл бы центрирование на пару пикселей —
+    // трансформ потомка на раскладку родителя не влияет.
+    > * {
+        transform: scale(0.96);
+        transform-origin: center;
+        transition: transform var(--t-d-fast) var(--t-t-f-ease);
+    }
+
+    &[state~='active'] > * {
+        transform: scale(1);
+        transition: transform var(--t-d-fast) var(--t-t-f-back);
+    }
+}
+
+@include m.reduced-motion {
+    .ui-icon-tooltip > *,
+    .ui-icon-tooltip[state~='active'] > * {
+        transform: none;
+    }
 }
 
 // Стили для обычной иконки (без wrapper). Дефолт цвета — в компоненте, не в SVG.
