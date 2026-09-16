@@ -25,7 +25,7 @@ node <путь>/UI/tools/check-boundary.mjs
 ## Подключение
 
 ```bash
-git submodule add -b main git@github.com:Delbaru/components.git <путь>/UI
+git submodule add -b main https://github.com/Delbaru/components.git <путь>/UI
 npm run ui:build
 ```
 
