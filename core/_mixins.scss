@@ -1,0 +1,78 @@
+// Рецепты, которые повторялись по файлам дословно. Каждый — про НЕпропсовое (пропсом такое не
+// выражается), поэтому живут миксинами, а не утилитами.
+
+// Пользователь просит меньше движения. Строка запроса одна на репозиторий: раньше её писали руками
+// в 25 файлах, и любая правка означала 25 правок.
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+// Одна строка с многоточием. `min-width: 0` НЕ включён: он нужен только внутри flex-ряда и там
+// ставится рядом осознанно.
+@mixin truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/// Обрезка на N строк.
+@mixin line-clamp($lines) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Слой во всю коробку родителя: подложки, оверлеи, декоративные картинки.
+@mixin fill {
+  position: absolute;
+  inset: 0;
+}
+
+// Родное поле формы, которое рисует собой соседний узел: убрать с глаз, оставить в фокусной цепочке.
+@mixin hidden-control {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+// Тонкий скроллбар: тёмный thumb на светлом треке.
+@mixin thin-scrollbar-track($thumb, $track, $width) {
+  &::-webkit-scrollbar-thumb {
+    background: $thumb;
+    width: $width;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $track;
+  }
+}
+
+// Тонкий скроллбар: пилюля со сменой цвета на наведении.
+@mixin thin-scrollbar-hover($thumb, $thumb-hover, $width, $radius: 999px) {
+  &::-webkit-scrollbar {
+    width: $width;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $thumb;
+    border-radius: $radius;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: $thumb-hover;
+  }
+}
+
+// Скроллбар не нужен вовсе, а прокрутка — нужна.
+@mixin hide-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

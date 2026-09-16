@@ -5,6 +5,7 @@ import styles from './MediaDropDown.module.scss';
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent } from 'react';
 import { cx, stateProps, type WithRef, useMergedRefs } from '../core';
 import { resolveSvgAssetSource } from '../core/base/svg-asset';
+import { useOutsideDismiss } from '../hooks/useOutsideDismiss';
 import { Flex } from '../Flex';
 import { Text } from '../Text';
 import { Icon } from '../Icon';
@@ -263,18 +264,8 @@ export function MediaDropDown({
         setLink(linkValue);
     }, [linkValue]);
 
-    useEffect(() => {
-        if (!open) return;
-
-        const handleClickOutside = (e: MouseEvent) => {
-            if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-                handleClose();
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [open, handleClose]);
+    // Escape не слушаем: до этой правки его здесь не было, и добавлять поведение молча нельзя.
+    useOutsideDismiss(rootRef, handleClose, { enabled: open, escape: false });
 
     const selectedMedia = MEDIA_TYPES.find((m) => m.type === value) ?? MEDIA_TYPES[0];
     const triggerLabel = selectedItem?.label ?? 'Добавить медиа';

@@ -1,3 +1,5 @@
+import { BREAKPOINT } from './breakpoints';
+
 // Респонсив-значение.
 // Порядок массива ВАЖЕН: [desktop, mobile, tablet]
 // (мы сознательно используем этот порядок во всём layout-ядре).
@@ -49,8 +51,8 @@ export const resolveResponsive = <T,>(value: ResponsiveInput<T>): [T | null, T |
 
 /** Индекс брейкпоинта по ширине окна: 0 — desktop (≥1024), 1 — mobile (≤767), 2 — tablet. */
 export const getBreakpointIndex = (viewportWidth: number): 0 | 1 | 2 => {
-  if (viewportWidth <= 767) return 1;
-  if (viewportWidth <= 1023) return 2;
+  if (viewportWidth <= BREAKPOINT.mobileMax) return 1;
+  if (viewportWidth <= BREAKPOINT.tabletMax) return 2;
   return 0;
 };
 

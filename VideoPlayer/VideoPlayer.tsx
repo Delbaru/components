@@ -13,7 +13,7 @@ import {
 
 import styles from './VideoPlayer.module.scss';
 
-import { clamp01 } from '../core/utils';
+import { clamp01, pad } from '../core';
 import { createLayoutClasses, cx, radiusClasses, resolveRadiusInput, sizeClasses, type WithRef, useMergedRefs } from '../core';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
@@ -47,7 +47,6 @@ const WHEEL_VOLUME_STEP = 0.05;
 // Часы записи HH:MM:SS с ведущими нулями (нижний бар: «00:32:12 / 01:32:23»).
 function formatClock(totalSeconds: number): string {
     const safe = Number.isFinite(totalSeconds) && totalSeconds > 0 ? Math.floor(totalSeconds) : 0;
-    const pad = (value: number) => String(value).padStart(2, '0');
 
     return `${pad(Math.floor(safe / 3600))}:${pad(Math.floor((safe % 3600) / 60))}:${pad(safe % 60)}`;
 }

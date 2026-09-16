@@ -1,3 +1,4 @@
+@use '../../../core/mixins' as m;
 // Слайд-сцена: единый Flex-бокс (высота пропом h) — клипует (overflow), держит контекст для absolute-шагов
 // (position) и анимирует высоту + сдвиг. Длительность приходит CSS-переменной --slide-dur (дефолт — токен).
 .ui-slide {
@@ -147,7 +148,7 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@include m.reduced-motion {
   .ui-slide {
     transition: none;
   }

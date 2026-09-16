@@ -11,7 +11,7 @@
           opacity var(--t-d-fast) var(--t-t-f-ease),
           visibility var(--t-d-fast) var(--t-t-f-ease),
           transform var(--t-d-fast) var(--t-t-f-ease);
-      z-index: 9998;
+      z-index: var(--z-under-floating);
 
       &[data-placement='top'] {
           transform: translateY(calc(8 * var(--rpx)));

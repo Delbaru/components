@@ -3,6 +3,8 @@
 import { useRef } from 'react';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 
+import { clamp01 } from '../core/utils';
+
 interface UsePointerRatioOptions {
     // 'x' — слева-направо (таймлайн); 'y' — снизу-вверх (вертикальная громкость).
     orientation?: 'x' | 'y';
@@ -14,10 +16,6 @@ interface UsePointerRatioOptions {
     onLeave?: () => void;
 }
 
-function clampRatio(value: number): number {
-    return Math.min(Math.max(value, 0), 1);
-}
-
 // Драг по треку → доля 0..1. Общий механизм для таймлайна и слайдера громкости. isDragging отдаём
 // наружу, чтобы rAF-обновление таймлайна не перебивало позицию курсора во время перетаскивания.
 export function usePointerRatio({ orientation = 'x', onChange, onStart, onEnd, onHover, onLeave }: UsePointerRatioOptions) {
@@ -27,10 +25,10 @@ export function usePointerRatio({ orientation = 'x', onChange, onStart, onEnd, o
         const rect = event.currentTarget.getBoundingClientRect();
 
         if (orientation === 'y') {
-            return clampRatio(1 - (event.clientY - rect.top) / rect.height);
+            return clamp01(1 - (event.clientY - rect.top) / rect.height);
         }
 
-        return clampRatio((event.clientX - rect.left) / rect.width);
+        return clamp01((event.clientX - rect.left) / rect.width);
     }
 
     const bind = {

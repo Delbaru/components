@@ -53,6 +53,13 @@
   --s-40: calc(var(--rpx) * 40);
   --s-48: calc(var(--rpx) * 48);
   --s-64: calc(var(--rpx) * 64);
+
+  --z-modal: 1000;
+  --z-toast: 1100;
+  --z-tour: 1200;
+  --z-under-floating: 9998;
+  --z-floating: 9999;
+  --z-top: 10000;
 }
 
 @mixin typography {

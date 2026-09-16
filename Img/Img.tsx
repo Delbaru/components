@@ -4,7 +4,7 @@ import Image, { type ImageProps } from 'next/image';
 import { useMemo, useState, type CSSProperties } from 'react';
 import type React from 'react';
 
-import { boxLayout, createLayoutClasses, cx, resolveResponsive, sizeClasses, splitRootDomProps, stateLinkProps, useMergedRefs, type GrowProps, type RadiusInput, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef } from '../core';
+import { BREAKPOINT, boxLayout, createLayoutClasses, cx, resolveResponsive, sizeClasses, splitRootDomProps, stateLinkProps, useMergedRefs, type GrowProps, type RadiusInput, type ResponsiveValue, type SizeInput, type SizeValue, type StateLinkInput, type WithRef } from '../core';
 import { useFancybox } from '../hooks/useFancybox';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 
@@ -76,8 +76,8 @@ export interface ImgProps extends ImgBaseProps, SizeInput, RadiusInput, ImgRootS
   fancybox?: string;
 }
 
-const MOBILE_MAX = 767;
-const TABLET_MAX = 1023;
+const MOBILE_MAX = BREAKPOINT.mobileMax;
+const TABLET_MAX = BREAKPOINT.tabletMax;
 
 const parseAspect = (value?: string | null): number | null => {
   if (!value) return null;

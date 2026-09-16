@@ -5,6 +5,8 @@ import { LenisScrollProvider, LenisScrollProviderNative } from './LenisScrollCon
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 
+import { BREAKPOINT, MEDIA_QUERY } from '../core';
+
 const LENIS_OPTIONS = {
   orientation: 'vertical' as const,
   autoRaf: true,
@@ -83,15 +85,15 @@ type LenisScrollProps = {
 // раскладку, но экран у него ВЫШЕ композиции, и одноэкранный режим превращал каждую секцию в
 // 1366px пустоты вокруг 309px контента. В портрете блоки идут натуральной высотой обычным потоком,
 // поэтому и пружина фулпейджа там не нужна.
-const DESKTOP_QUERY = '(min-width: 1024px) and (orientation: landscape)';
+const DESKTOP_QUERY = `${MEDIA_QUERY.desktop} and (orientation: landscape)`;
 // Вечный rAF и smooth-lerp Lenis — ровно то, что reduced-motion просит выключить.
-const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+const REDUCED_MOTION_QUERY = MEDIA_QUERY.reducedMotion;
 
 function shouldUseLenis(): boolean {
   if (typeof window === 'undefined') return false;
   // Фолбэк для окружений без matchMedia: там нет и подписки, поведение остаётся прежним — один
   // замер на монтировании.
-  if (typeof window.matchMedia !== 'function') return window.innerWidth >= 1024 && window.innerWidth > window.innerHeight;
+  if (typeof window.matchMedia !== 'function') return window.innerWidth >= BREAKPOINT.desktopMin && window.innerWidth > window.innerHeight;
 
   return window.matchMedia(DESKTOP_QUERY).matches && !window.matchMedia(REDUCED_MOTION_QUERY).matches;
 }

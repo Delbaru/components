@@ -3,6 +3,11 @@
 
 // base (общие утилиты — пригодятся любым компонентам)
 export { getBreakpointIndex, resolveResponsive, resolveResponsiveAtBreakpoint } from './base/responsive';
+export { BREAKPOINT, MEDIA_QUERY } from './base/breakpoints';
+export { MOTION_END_BUFFER_MS, prefersReducedMotion, readMotionMs } from './base/motion';
+export { clamp, clamp01 } from './utils';
+export { pad, pluralize } from './base/text-format';
+export type { PluralForms } from './base/text-format';
 export type { WithRef } from './base/with-ref';
 export { assignRef, useMergedRefs } from './useMergedRefs';
 export { boxLayout, splitBoxLayout } from './layout/box';

@@ -1,3 +1,4 @@
+@use '../core/mixins' as m;
 @layer ui.components {
   // Плеер: примитив Video как абсолютная подложка, поверх — слой захвата кликов и в колонку
   // (space-between) лейбл источника сверху + бар управления снизу. Токена под полупрозрачную тёмную
@@ -304,7 +305,7 @@
   }
 
   // Уважаем reduce-motion: без плавных переходов.
-  @media (prefers-reduced-motion: reduce) {
+  @include m.reduced-motion {
       .Root .overlay,
       .Root .button,
       .Root .iconSwapItem,

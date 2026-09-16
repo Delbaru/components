@@ -2,9 +2,9 @@
 
 import { useLayoutEffect, useMemo, useRef, type CSSProperties } from 'react';
 
-import { cx } from '../../../core';
+import { cx, MOTION_END_BUFFER_MS, prefersReducedMotion } from '../../../core';
 import { flattenAnimatableText } from '../flattenText';
-import { useTextSwap, prefersReducedMotion, commonAffixes } from './useTextSwap';
+import { useTextSwap, commonAffixes } from './useTextSwap';
 import type { TextAnimationContext } from '../types';
 import type { TextRevealOptions } from './types';
 
@@ -272,7 +272,7 @@ export function TextReveal({ content, options }: TextAnimationContext<TextReveal
     // По завершении волны (с учётом отложенного ресайза и сдвига входящего слоя) РЕЛИЗИМ размер и перенос в
     // auto/inherit — в покое вёрстка снова нативная. size-delay ставим на элемент ЗДЕСЬ (до глайда, где знаем
     // collapsing): при схлопывании откладываем старт ресайза, чтобы уходящий текст успел погаснуть.
-    const releaseMs = (Math.max(sizeDelay, duration * IN_DELAY_FACTOR) + duration + span) * 1000 + 80;
+    const releaseMs = (Math.max(sizeDelay, duration * IN_DELAY_FACTOR) + duration + span) * 1000 + MOTION_END_BUFFER_MS;
     const timer = window.setTimeout(() => {
       vp.style.transition = 'none';
       vp.style.width = '';

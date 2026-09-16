@@ -2,29 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState, type AnimationEvent, type ReactNode } from 'react';
 
+import { MOTION_END_BUFFER_MS, prefersReducedMotion, readMotionMs } from '../core';
+
 type TransitionKey = string | number | undefined;
 type Slot = { key: TransitionKey; children: ReactNode };
-
-/** Складывает длительность+задержку animation узла в мс (берём максимум по списку). */
-function readAnimationMs(node: HTMLElement): number {
-  const style = getComputedStyle(node);
-
-  const parse = (value: string): number =>
-    value.split(',').reduce((max, part) => {
-      const token = part.trim();
-      const ms = token.endsWith('ms') ? parseFloat(token) : parseFloat(token) * 1000;
-
-      return Number.isFinite(ms) ? Math.max(max, ms) : max;
-    }, 0);
-
-  return parse(style.animationDuration) + parse(style.animationDelay);
-}
-
-function prefersReducedMotion(): boolean {
-  return typeof window !== 'undefined'
-    && typeof window.matchMedia === 'function'
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
 
 /**
  * Своп контента в стиле AnimatePresence mode='wait': при смене `key` старый контент проигрывает
@@ -77,8 +58,8 @@ export function useSwapTransition(key: TransitionKey, children: ReactNode) {
   // Страховка на случай, когда animationend не сработает (пропущен / нет анимации).
   useEffect(() => {
     if (!exiting) return undefined;
-    const ms = nodeRef.current ? readAnimationMs(nodeRef.current) : 0;
-    const timer = window.setTimeout(finishExit, ms + 50);
+    const ms = nodeRef.current ? readMotionMs(nodeRef.current, 'animation') : 0;
+    const timer = window.setTimeout(finishExit, ms + MOTION_END_BUFFER_MS);
 
     return () => clearTimeout(timer);
   }, [exiting, finishExit]);

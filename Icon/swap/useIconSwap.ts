@@ -2,7 +2,7 @@
 
 import { createElement, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
-import { cx } from '../../core';
+import { cx, MOTION_END_BUFFER_MS, prefersReducedMotion } from '../../core';
 import type { IconAnimate, IconSwapOptions } from './types';
 
 // Дефолты по стилю. 'spin' — быстрее и с доворотом: глиф уходит вращаясь+сжимаясь, новый
@@ -32,12 +32,6 @@ function swapKindOf(animate: IconAnimate | undefined): 'swap' | 'spin' | null {
 
 function swapOptionsOf(animate: IconAnimate | undefined): IconSwapOptions | undefined {
   return Array.isArray(animate) && animate.length >= 2 ? animate[1] : undefined;
-}
-
-function prefersReducedMotion(): boolean {
-  return typeof window !== 'undefined'
-    && typeof window.matchMedia === 'function'
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 interface SwapState {
@@ -104,7 +98,7 @@ export function useIconSwap(
 
     const timer = window.setTimeout(() => {
       setSwap((s) => (s.outgoing == null ? s : { ...s, outgoing: null, entering: true }));
-    }, duration * 1000 + 40);
+    }, duration * 1000 + MOTION_END_BUFFER_MS);
 
     return () => clearTimeout(timer);
   }, [swap.generation, swap.outgoing, duration]);

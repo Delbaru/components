@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 
+import { useOutsideDismiss } from '../../hooks/useOutsideDismiss';
 import * as datePicker from './date-picker';
 
 interface UseDatePickerOptions {
@@ -69,23 +70,11 @@ export function useDatePicker({
     return false;
   }, [maxDate, minDate]);
 
-  useEffect(() => {
-    if (!enabled || !isActive) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      const targetNode = event.target as Node;
-      const isInsideRoot = Boolean(rootRef.current?.contains(targetNode));
-      const isInsideFloating = Boolean(floatingRef.current?.contains(targetNode));
-
-      if (!isInsideRoot && !isInsideFloating) {
-        setIsActive(false);
-        setInternalError(validateValue(value ?? ''));
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [enabled, isActive, rootRef, setInternalError, validateValue, value]);
+  // Escape выключен: его уже слушает само поле (use-input-behavior).
+  useOutsideDismiss([rootRef, floatingRef], () => {
+    setIsActive(false);
+    setInternalError(validateValue(value ?? ''));
+  }, { enabled: enabled && isActive, escape: false });
 
   const deactivateDatePicker = useCallback((shouldValidate = true) => {
     setIsActive(false);

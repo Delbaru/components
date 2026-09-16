@@ -1,3 +1,4 @@
+@use '../core/mixins' as m;
 .ui-icon-root {
     display: inline-flex;
 }
@@ -79,7 +80,7 @@ button:disabled .ui-icon-root[data-icon-root='true'] {
         visibility var(--t-d-fast) var(--t-t-f-ease),
         transform var(--t-d-fast) var(--t-t-f-ease);
     white-space: nowrap;
-    z-index: 10000;
+    z-index: var(--z-top);
     transform: translate3d(0, 0, 0);
 
     &[data-placement='right'] {
@@ -135,7 +136,7 @@ button:disabled .ui-icon-root[data-icon-root='true'] {
     }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@include m.reduced-motion {
     .ui-icon[data-icon-loading='true'] {
         opacity: 1;
     }

@@ -31,4 +31,6 @@ export * from './Tooltip';
 export * from './treePath';
 export * from './Video';
 export * from './VideoPlayer';
-export { cx } from './core';
+export { cx, BREAKPOINT, MEDIA_QUERY, MOTION_END_BUFFER_MS, prefersReducedMotion } from './core';
+export { clamp, clamp01 } from './core/utils';
+export { pad, pluralize, type PluralForms } from './core/base/text-format';

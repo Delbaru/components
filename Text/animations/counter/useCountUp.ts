@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import { prefersReducedMotion } from '../../../core';
+
 export interface UseCountUpOptions {
   duration?: number;
   start?: number;
@@ -9,14 +11,6 @@ export interface UseCountUpOptions {
 
 function easeOutQuart(t: number): number {
   return 1 - (1 - t) ** 4;
-}
-
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
 }
 
 export function useCountUp(

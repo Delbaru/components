@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { useLenisScrollOptional } from '../LenisScroll/LenisScrollContext';
+import { clamp } from '../core/utils';
 
 export type FloatingPlacement = 'top' | 'right' | 'bottom' | 'left';
 export type FloatingAlign = 'start' | 'center' | 'end';
@@ -36,7 +37,6 @@ type FloatingSnapshot = {
 
 type FloatingPosition = Omit<FloatingSnapshot, 'isPositioned'>;
 
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 const HIDDEN_POSITION = -9999;
 
 function resolvePlacement(

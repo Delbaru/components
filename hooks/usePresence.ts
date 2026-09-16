@@ -2,20 +2,7 @@
 
 import { useEffect, useRef, useState, type RefObject, type TransitionEvent } from 'react';
 
-/** Складывает все длительности+задержки transition узла в мс (берём максимум по списку свойств). */
-function readTransitionMs(node: HTMLElement): number {
-  const style = getComputedStyle(node);
-
-  const parse = (value: string): number =>
-    value.split(',').reduce((max, part) => {
-      const token = part.trim();
-      const ms = token.endsWith('ms') ? parseFloat(token) : parseFloat(token) * 1000;
-
-      return Number.isFinite(ms) ? Math.max(max, ms) : max;
-    }, 0);
-
-  return parse(style.transitionDuration) + parse(style.transitionDelay);
-}
+import { MOTION_END_BUFFER_MS, readMotionMs } from '../core';
 
 /**
  * Presence-анимация монтирования/размонтирования (A+B+C):
@@ -63,8 +50,8 @@ export function usePresence<T extends HTMLElement = HTMLElement>(show: boolean, 
   useEffect(() => {
     if (show || !mounted || open) return undefined;
 
-    const durationMs = nodeRef.current ? readTransitionMs(nodeRef.current) : 0;
-    const timer = window.setTimeout(() => setMounted(false), durationMs + 50);
+    const durationMs = nodeRef.current ? readMotionMs(nodeRef.current) : 0;
+    const timer = window.setTimeout(() => setMounted(false), durationMs + MOTION_END_BUFFER_MS);
 
     return () => clearTimeout(timer);
   }, [show, mounted, open]);

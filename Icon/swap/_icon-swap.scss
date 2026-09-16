@@ -1,3 +1,4 @@
+@use '../../core/mixins' as m;
 // Последовательная смена (wait): в любой момент один центрированный слой — старая уходит, потом новая
 // въезжает. Наложения нет, поэтому позиционирование простое: центрирование + анимация opacity/scale.
 .ui-swap {
@@ -52,7 +53,7 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@include m.reduced-motion {
   .ui-swap-in,
   .ui-swap-out {
     animation: none;

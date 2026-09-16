@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, 
 import type React from 'react';
 
 import { useFieldControl, useMergedRefs } from '../core';
+import { useOutsideDismiss } from '../hooks/useOutsideDismiss';
 import { useSharedMotion, type SharedMotionProps } from '../hooks/useSharedMotion';
 import { defaultEqual, flattenSelectItems, getFocusedOptionIndex, isValueArray, visibleDropdownItems, type SelectItem, type SelectOption } from './options';
 
@@ -189,21 +190,9 @@ export function useSelect(ref: Ref<HTMLDivElement> | undefined, config: SelectCo
         [onChange, setInternalError, validateValue, valueProp]
     );
 
-    useEffect(() => {
-        if (!open) return;
-
-        const handleClickOutside = (e: MouseEvent) => {
-            if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-                closeDropdown();
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [open, closeDropdown]);
+    // Escape выключен: у списка свой обработчик клавиш, и два закрытия подряд гасили бы заодно
+    // модалку, в которой список открыт.
+    useOutsideDismiss(rootRef, closeDropdown, { enabled: open, escape: false });
 
     useEffect(() => {
         if (!open || focusedIndex < 0) return;

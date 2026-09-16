@@ -1,3 +1,4 @@
+@use '../../../core/mixins' as m;
 // Стек двух текстовых слоёв (уходящий + въезжающий) в одной grid-ячейке: высоту/ширину держит grid
 // автоматически (без JS-измерений), оба слоя лежат друг на друге и анимируются одновременно.
 .ui-reveal {
@@ -122,7 +123,7 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@include m.reduced-motion {
   .ui-reveal {
     transition: none;
 

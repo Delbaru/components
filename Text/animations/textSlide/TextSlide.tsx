@@ -3,10 +3,10 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
-import { cx } from '../../../core';
+import { cx, MOTION_END_BUFFER_MS, prefersReducedMotion } from '../../../core';
 import { Flex } from '../../../Flex';
 import { flattenAnimatableText } from '../flattenText';
-import { useTextSwap, prefersReducedMotion, commonAffixes } from '../textReveal/useTextSwap';
+import { useTextSwap, commonAffixes } from '../textReveal/useTextSwap';
 import type { TextAnimationContext } from '../types';
 import type { TextSlideOptions } from './types';
 
@@ -148,7 +148,7 @@ function TextSlideSwap({ content, options }: TextAnimationContext<TextSlideOptio
       void vp.offsetWidth;
       plan.forEach((p) => { p.cell.style.transition = ''; });
       vp.style.transition = '';
-    }, duration * 1000 + 60);
+    }, duration * 1000 + MOTION_END_BUFFER_MS);
 
     return () => window.clearTimeout(timer);
   }, [current, previous, duration]);

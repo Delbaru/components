@@ -8,7 +8,7 @@
       bottom: calc(32 * var(--rpx));
       left: 0;
       // Выше модалки (у неё 1000): подтверждение действия, начатого в диалоге, обязано быть видно.
-      z-index: 1100;
+      z-index: var(--z-toast);
       pointer-events: none;
   }
 

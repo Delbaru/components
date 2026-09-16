@@ -25,7 +25,7 @@
     opacity: 0;
     visibility: hidden;
     white-space: nowrap;
-    z-index: 10000;
+    z-index: var(--z-top);
     transform: translate3d(0, 0, 0);
     transition:
         opacity var(--t-d-fast) var(--t-t-f-ease),

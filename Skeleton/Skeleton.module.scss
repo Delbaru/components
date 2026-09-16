@@ -1,3 +1,4 @@
+@use '../core/mixins' as m;
 @layer ui.components {
   //
   // Скелетон: серая полоса с бегущим бликом.
@@ -34,7 +35,7 @@
 
       // Бесконечное движение обязано выключаться настройкой ОС — это тот самый «конкретный случай»,
       // ради которого §9.5 разрешает медиа-запрос.
-      @media (prefers-reduced-motion: reduce) {
+      @include m.reduced-motion {
           &::after {
               animation: none;
               opacity: 0.3;

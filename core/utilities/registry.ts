@@ -1,3 +1,4 @@
+import { MEDIA_QUERY } from '../base/breakpoints';
 import { entryKey, expandShorthand, type UtilityEntry, type UtilityScalar } from './keys';
 
 /**
@@ -11,10 +12,10 @@ export type Breakpoint = 'd' | 'n' | 'm' | 't';
 
 /** `n` — «ниже 1024», одним классом вместо пары одинаковых mobile + tablet. */
 export const MEDIA: Readonly<Record<Breakpoint, string>> = {
-  d: '(min-width: 1024px)',
-  n: '(max-width: 1023px)',
-  m: '(max-width: 767px)',
-  t: '(min-width: 768px) and (max-width: 1023px)',
+  d: MEDIA_QUERY.desktop,
+  n: MEDIA_QUERY.below,
+  m: MEDIA_QUERY.mobile,
+  t: MEDIA_QUERY.tablet,
 };
 
 /** Внутри одной утилиты `n` идёт раньше `m` и `t`: у элемента они вместе не встречаются. */

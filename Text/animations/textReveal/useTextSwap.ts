@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+import { MOTION_END_BUFFER_MS, prefersReducedMotion } from '../../../core';
+
 export interface TextSwapState {
   /** Актуальная строка (въезжающий слой). */
   current: string;
@@ -16,12 +18,6 @@ export interface UseTextSwapOptions {
   durationMs: number;
   /** Задержка между соседними буквами (волна), мс. */
   staggerMs: number;
-}
-
-export function prefersReducedMotion(): boolean {
-  return typeof window !== 'undefined'
-    && typeof window.matchMedia === 'function'
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 /**
@@ -69,7 +65,7 @@ export function useTextSwap(value: string, { durationMs, staggerMs }: UseTextSwa
     if (state.previous === null) return undefined;
 
     const chars = Math.max(state.current.length, state.previous.length);
-    const totalMs = durationMs + Math.max(0, chars - 1) * staggerMs + 60;
+    const totalMs = durationMs + Math.max(0, chars - 1) * staggerMs + MOTION_END_BUFFER_MS;
     const timer = window.setTimeout(() => {
       setState((s) => (s.previous === null ? s : { ...s, previous: null }));
     }, totalMs);

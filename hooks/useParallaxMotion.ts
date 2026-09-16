@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, type CSSProperties } from 'react';
 
 import { useLenisScrollOptional } from '../LenisScroll';
+import { MEDIA_QUERY } from '../core/base/breakpoints';
 import { clamp } from '../core/utils';
 
 const PARALLAX_STYLE_PROPS = [
@@ -112,7 +113,7 @@ export function useParallaxMotion(parallax: ParallaxInput | undefined) {
       return undefined;
     }
 
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mediaQuery = window.matchMedia(MEDIA_QUERY.reducedMotion);
     const updatePreference = () => {
       reducedMotionRef.current = mediaQuery.matches;
     };
