@@ -1,0 +1,62 @@
+// Бегунок лежит ПОД пилюлями, но над подложкой дорожки: `isolation` делает дорожку контекстом
+// наложения, и отрицательный z-index рисуется сразу после её фона, раньше содержимого. Так подпись
+// пилюли остаётся поверх бегунка, а сам он — поверх серого.
+.TabTrack {
+    position: relative;
+    isolation: isolate;
+
+    .thumb {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    // Едут только трансформы — их ведёт композитор (почему не `width` — см. TabTrack.tsx).
+    .part {
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform-origin: 0 0;
+        transition: transform var(--t-d-fast) var(--t-t-f-ease);
+    }
+
+    &[data-thumb='line'] {
+        .cap {
+            display: none;
+        }
+
+        .body::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: calc(2 * var(--rpx));
+            background: var(--black);
+        }
+    }
+
+    &[data-thumb-instant] .part {
+        transition: none;
+    }
+
+    // Заливку выбора отдаём бегунку, только когда он встал: до этого её держит сама пилюля.
+    // Специфичность (0,3,0) — выше состояния скина `.skin-x[state~='active']` (0,2,0).
+    &[data-thumb-ready] {
+        .thumb {
+            opacity: 1;
+        }
+
+        [state~='active'] {
+            background: transparent;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .TabTrack .part {
+        transition: none;
+    }
+}

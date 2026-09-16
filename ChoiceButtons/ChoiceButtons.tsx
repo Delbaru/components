@@ -6,6 +6,7 @@ import { Button } from '../Button';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
 import { Select } from '../Select';
+import { TabTrack } from '../TabTrack';
 import { Text } from '../Text';
 import { Tooltip } from '../Tooltip';
 import { cx } from '../core';
@@ -152,7 +153,9 @@ export function ChoiceButtons({
 
     return (
         <>
-            <Flex
+            <TabTrack
+                value={selectedValue}
+                thumb='primary'
                 dir={['row', null, null]}
                 align={['center', null, null]}
                 p={[4, null, null]}
@@ -212,7 +215,7 @@ export function ChoiceButtons({
                         </Flex>
                     );
                 })}
-            </Flex>
+            </TabTrack>
 
             <Select
                 multiple={false}

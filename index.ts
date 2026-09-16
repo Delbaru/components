@@ -25,6 +25,7 @@ export * from './Section';
 export * from './Skeleton';
 export * from './Select';
 export * from './SwitchButton';
+export * from './TabTrack';
 export * from './Text';
 export * from './Textarea';
 export * from './Tooltip';

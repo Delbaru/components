@@ -14,7 +14,8 @@ import type { CounterOptions } from './types';
  * inView наблюдается на собственном span'е плагина — Text про это ничего не знает.
  *
  * `to`/`suffix`/`grouped` можно не задавать: их достанет parseCountContent из текстового контента
- * (`70%` → 70 + «%»). Явные опции имеют приоритет над разбором.
+ * (`70%` → 70 + «%», `до 50%` → «до» + 50 + «%»). Явные опции имеют приоритет над разбором; префикс
+ * бывает только из разбора, так что при явном `to` текст перед числом не рисуется.
  *
  * Ширину коробки держит НЕВИДИМЫЙ близнец с ИТОГОВЫМ значением: он один остаётся в потоке (значит
  * и базовая линия, и перенос — его), а бегущее число лежит поверх абсолютом. Поэтому сосед справа
@@ -26,6 +27,7 @@ export function Counter({ options, content }: TextAnimationContext<CounterOption
 
   const parsed = options?.to == null ? parseCountContent(content) : null;
   const to = options?.to ?? parsed?.to ?? 0;
+  const prefix = parsed?.prefix ?? '';
   const suffix = options?.suffix ?? parsed?.suffix ?? '';
   const grouped = options?.grouped ?? parsed?.grouped ?? false;
   const trigger = options?.trigger ?? 'onView';
@@ -43,11 +45,13 @@ export function Counter({ options, content }: TextAnimationContext<CounterOption
   return (
     <span ref={ref} className={'ui-counter'}>
       <span aria-hidden className={'ui-counter-reserve'}>
+        {prefix}
         {format(to)}
         {suffix}
       </span>
 
       <span className={'ui-counter-value'}>
+        {prefix}
         {format(count)}
         {suffix}
       </span>
