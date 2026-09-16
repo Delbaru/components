@@ -8,7 +8,10 @@
     border: 0;
     transition: var(--t-fast);
     -webkit-tap-highlight-color: transparent;
-    outline: none !important;
+    // Без !important: слой ui.components слабее стилей проекта, и своё кольцо фокуса
+    // ставится обычным правилом. С !important оно не доезжало — кнопка оставалась без
+    // видимого фокуса, что бы проект ни написал.
+    outline: none;
     user-select: none;
 }
 

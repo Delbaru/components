@@ -7,7 +7,8 @@
   &[href] {
     color: inherit;
     text-decoration: none;
-    outline: none !important;
+    // Без !important — см. Button/_button.scss: кольцо фокуса рисует проект.
+    outline: none;
   }
 }
 

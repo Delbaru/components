@@ -5,7 +5,8 @@
 .ui-text {
   &[href] {
     text-decoration: none;
-    outline: none !important;
+    // Без !important — см. Button/_button.scss: кольцо фокуса рисует проект.
+    outline: none;
   }
 
   font-variant-numeric: lining-nums proportional-nums !important;
