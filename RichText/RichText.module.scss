@@ -1,3 +1,6 @@
+@use 'sass:map';
+@use '../core/scss-utils' as utils;
+
 @layer ui.components {
   .animation_textSlide {
     overflow: hidden;
@@ -578,6 +581,50 @@
           &:not(:last-child) { margin-bottom: var(--s-16); }
         }
       }
+    }
+  }
+}
+
+// ─── Роли блока ─────────────────────────────────────────────────────────────
+// Роль — выбранный в редакторе стиль блока («Крупный», «Подзаголовок»…), развязанный с его
+// тегом (см. `roles.ts`). Класс получает ТОЛЬКО блок, у которого роль задана в данных.
+//
+// Слой утилит, а не покоя: роль — это «проп» блока, пришедший из данных, и обязана выиграть
+// у варианта текста при любой специфичности. В одном слое с вариантом она проигрывала бы
+// ему: `.RichText.default p` весит (0,2,1), класс роли — (0,1,0).
+$rich-roles: h1, h2, h3, title, subtitle, p, small, dop;
+
+// У роли `p` токены регистра и трекинга в договоре темы названы `--tt-p1` / `--ls-p1`
+// (шрифт при этом `--font-p`). Суффикс сводится здесь, договор темы не трогается.
+@function rich-role-suffix($role) {
+  @if $role == p {
+    @return p1;
+  }
+  @return $role;
+}
+
+@mixin rich-role($role) {
+  font: var(--font-#{$role});
+  text-transform: var(--tt-#{rich-role-suffix($role)});
+  letter-spacing: var(--ls-#{rich-role-suffix($role)});
+}
+
+@layer ui.utilities {
+  @each $role in $rich-roles {
+    .role-#{$role} { @include rich-role($role); }
+  }
+
+  // Переопределения по ширине — после базовых: полосы не пересекаются, специфичность у
+  // всех одна, и порядок решает в пользу нужной ширины.
+  @media #{map.get(utils.$breakpoints, t)} {
+    @each $role in $rich-roles {
+      .role-t-#{$role} { @include rich-role($role); }
+    }
+  }
+
+  @media #{map.get(utils.$breakpoints, m)} {
+    @each $role in $rich-roles {
+      .role-m-#{$role} { @include rich-role($role); }
     }
   }
 }
