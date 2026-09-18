@@ -205,12 +205,6 @@
           }
 
           &[state~='open'] {
-              // Нижние углы триггера в раскрытом виде: по умолчанию их СРЕЗАЕТ в ноль, чтобы поле и
-              // список читались одной коробкой. Пилюле это не годится — она обязана остаться пилюлей,
-              // поэтому значение приходит переменной со скина, а не правится здесь.
-              border-bottom-left-radius: var(--select-open-radius, 0);
-              border-bottom-right-radius: var(--select-open-radius, 0);
-
               .Chevron {
                   transform: rotate(180deg);
               }
@@ -378,5 +372,16 @@
 
   @include utils.withBreakpoints() using ($bp) {
       @include select-classes($bp);
+  }
+}
+
+// Радиус триггера задаёт проп `r` (утилита), поэтому срез нижних углов раскрытого поля — слоем выше
+// утилит: в покое он проигрывал, и под скруглёнными углами поля висел прямой верх списка.
+// Срез в ноль нужен, чтобы поле и список читались одной коробкой; пилюля остаётся пилюлей через
+// `--select-open-radius` со скина.
+@layer ui.states {
+  .SelectWrapper .Select[state~='open'] {
+      border-bottom-left-radius: var(--select-open-radius, 0);
+      border-bottom-right-radius: var(--select-open-radius, 0);
   }
 }

@@ -19,12 +19,13 @@ import { Icon } from '../Icon';
 import { Text } from '../Text';
 
 /** Тон — это ГЛИФ и цвет его кружка, больше ничего: карточка у тоста одна. */
-export type ToastTone = 'success' | 'error';
+export type ToastTone = 'success' | 'warning' | 'error';
 
 export type ToastOptions = {
   title: string;
   /** Вторая строка — подробность («кому отправлено», «почему не подошёл»), а не пересказ. */
   description?: string;
+  /** `success` — сделано (по умолчанию), `warning` — ход принят, но ничего не сделал, `error` — отказ. */
   tone?: ToastTone;
   /** Сколько висит до самоуборки. Меняют это редко, поэтому проп, а не ось. */
   durationMs?: number;
@@ -32,6 +33,9 @@ export type ToastOptions = {
 
 const TONE: Record<ToastTone, { glyph: string; fill: string }> = {
   success: { glyph: '/icons/ui/check/style-3/check.svg', fill: 'var(--green)' },
+  // Жёлтый — ход принят, но ничего не сделал (действие ещё не подключено, недоступно на тарифе).
+  // Зелёный чек на таком ходе врёт: человек читает его как выполненное.
+  warning: { glyph: '/icons/ui/exclamation/style-1/exclamation.svg', fill: 'var(--yellow)' },
   // Красный тон — для отказа В ОТВЕТ НА ДЕЙСТВИЕ, у которого нет своего места для ошибки
   // (файл не прошёл проверку при загрузке). Ошибке ФОРМЫ место в поле, а не здесь.
   error: { glyph: '/icons/ui/cross/style-7/cross.svg', fill: 'var(--red)' },
@@ -51,11 +55,17 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 
 const DEFAULT_DURATION_MS = 4000;
 
+// Больше пяти тостов разом не читается, а частые клики иначе строят стопку до верха окна.
+const MAX_VISIBLE = 5;
+
 /**
  * Тост — короткий ответ на действие, у которого НЕТ своего экрана: «приглашение отправлено
- * повторно», «снимок не подошёл». Два тона (`success` по умолчанию и `error`) — это РОВНО глиф
- * и цвет его кружка; ошибке ФОРМЫ здесь по-прежнему не место: её показывает поле, где её и
- * исправляют.
+ * повторно», «снимок не подошёл». Три тона (`success` по умолчанию, `warning` и `error`) — это
+ * РОВНО глиф и цвет его кружка; ошибке ФОРМЫ здесь по-прежнему не место: её показывает поле, где
+ * её и исправляют.
+ *
+ * Одновременно открыто не больше пяти: шестой уводит самый старый (верхний), не дожидаясь его
+ * таймера.
  *
  * Провайдер поднимается в корневом layout рядом с `ModalProvider` и снаружи него: диалог тоже
  * вправе поднять тост, а портал модалки живёт внутри её провайдера.
@@ -91,11 +101,22 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const show = useCallback((options: ToastOptions) => {
     const id = `${baseId}-${(idRef.current += 1)}`;
 
-    setItems((prev) => [...prev, { ...options, id, open: true }]);
+    setItems((prev) => {
+      const next = [...prev, { ...options, id, open: true }];
+      const open = next.filter((item) => item.open);
+      const evicted = new Set(open.slice(0, Math.max(0, open.length - MAX_VISIBLE)).map((item) => item.id));
+
+      return evicted.size > 0
+        ? next.map((item) => (evicted.has(item.id) ? { ...item, open: false } : item))
+        : next;
+    });
     timers.current.set(id, setTimeout(() => hide(id), options.durationMs ?? DEFAULT_DURATION_MS));
   }, [baseId, hide]);
 
   const remove = useCallback((id: string) => {
+    // Тост, уведённый лимитом, уходит раньше своего таймера — таймер гасится вместе с ним.
+    clearTimeout(timers.current.get(id));
+    timers.current.delete(id);
     setItems((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
