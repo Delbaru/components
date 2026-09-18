@@ -1,6 +1,9 @@
 import type { CSSProperties, ReactNode } from 'react';
 
+import { cx } from '../core';
+
 import styles from './RichText.module.scss';
+import { roleClassKeys } from './roles';
 
 type LexicalTextNode = {
   type: 'text';
@@ -25,8 +28,23 @@ type LexicalVariableNode = {
   version?: number;
 };
 
-type LexicalParagraphNode = {
-  type: 'paragraph';
+/**
+ * Визуальная роль блока, развязанная с его тегом (см. `roles.ts`). Пишет её редактор CMS
+ * в свои узлы `rich-paragraph` / `rich-heading`; у обычных узлов Lexical её нет.
+ */
+type LexicalRoleFields = {
+  role?: string;
+  roleM?: string;
+  roleT?: string;
+};
+
+type LexicalParagraphNode = LexicalRoleFields & {
+  /**
+   * `rich-paragraph` — абзац редактора CMS: тот же абзац, плюс роль. Пока рендер знал только
+   * `paragraph`, всё, что человек набирал в админке, на сайте выходило пустым местом:
+   * незнакомый узел молча отдаёт `null`.
+   */
+  type: 'paragraph' | 'rich-paragraph';
   children: LexicalNode[];
   format?: string;
   indent?: number;
@@ -36,8 +54,8 @@ type LexicalParagraphNode = {
   textFormat?: number;
 };
 
-type LexicalHeadingNode = {
-  type: 'heading';
+type LexicalHeadingNode = LexicalRoleFields & {
+  type: 'heading' | 'rich-heading';
   tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   children: LexicalNode[];
   format?: string;
@@ -93,8 +111,15 @@ type LexicalLinkNode = {
   version?: number;
 };
 
+/** Мягкий перенос строки (Shift+Enter): без него соседние куски текста слипаются. */
+type LexicalLineBreakNode = {
+  type: 'linebreak';
+  version?: number;
+};
+
 type LexicalNode =
   | LexicalTextNode
+  | LexicalLineBreakNode
   | LexicalVariableNode
   | LexicalParagraphNode
   | LexicalHeadingNode
@@ -194,6 +219,12 @@ function resolveLinkHref(node: LexicalLinkNode): string | undefined {
   return node.fields?.url || node.url;
 }
 
+/** Классы роли блока — только те, что заданы в данных; блок без роли красит вариант текста. */
+function roleClass(node: LexicalRoleFields): string | undefined {
+  const keys = roleClassKeys(node.role, node.roleM, node.roleT);
+  return keys.length > 0 ? cx(...keys.map((key) => styles[key])) : undefined;
+}
+
 function renderNode(node: LexicalNode, index: number): ReactNode {
   const key = `node-${index}`;
 
@@ -205,18 +236,22 @@ function renderNode(node: LexicalNode, index: number): ReactNode {
     return renderTextNode(node, key);
   }
 
-  if (node.type === 'paragraph') {
+  if (node.type === 'linebreak') {
+    return <br key={key} />;
+  }
+
+  if (node.type === 'paragraph' || node.type === 'rich-paragraph') {
     return (
-      <p key={key}>
+      <p key={key} className={roleClass(node)}>
         {node.children?.map((child, i) => renderNode(child, i))}
       </p>
     );
   }
 
-  if (node.type === 'heading') {
+  if (node.type === 'heading' || node.type === 'rich-heading') {
     const Tag = node.tag || 'h2';
     return (
-      <Tag key={key}>
+      <Tag key={key} className={roleClass(node)}>
         {node.children?.map((child, i) => renderNode(child, i))}
       </Tag>
     );
