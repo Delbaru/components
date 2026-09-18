@@ -39,7 +39,7 @@
 | Хук | Что делает |
 |---|---|
 | `useMediaQuery(query)` | подписка на медиазапрос, безопасная на сервере |
-| `useOutsideDismiss(refs, onDismiss, { enabled, escape })` | закрытие по клику вне и по Escape |
+| `useOutsideDismiss(refs, onDismiss, { enabled, escape })` | закрытие по клику вне и по Escape; возвращает `{ onMouseDownCapture }` для корня панели, из которой открываются вложенные слои в своих порталах, и не закрывает по Escape, который уже погасил внутренний слой |
 | `usePresence(show, axis, appear)` | монтирование и размонтирование с анимацией |
 | `useSwapTransition(key, children)` | подмена контента: exit старого, затем enter нового |
 | `useAnchoredFloating` | позиционирование панели относительно якоря |

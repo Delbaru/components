@@ -102,6 +102,25 @@ export const isBeforeDay = (a: Date, b: Date): boolean => compareDays(a, b) < 0;
 
 export const isAfterDay = (a: Date, b: Date): boolean => compareDays(a, b) > 0;
 
+/**
+ * Месяц, на котором календарь ОТКРЫВАЕТСЯ: месяц выбранного дня, а без него — сегодняшний, но не
+ * раньше `min` и не позже `max`. Иначе «Дата окончания» при начале периода в декабре открывалась на
+ * текущем месяце, где выбрать нельзя ни одного дня. Пустая строка — это «не выбрано», а не значение:
+ * через `??` она проходила и заслоняла собой `min`.
+ */
+export const resolveOpeningMonth = (raw?: string, minRaw?: string, maxRaw?: string, today = new Date()): Date => {
+  const selected = parseValue(raw ?? '');
+  if (selected) return getMonthStart(selected);
+
+  const min = parseValue(minRaw ?? '');
+  if (min && isBeforeDay(today, min)) return getMonthStart(min);
+
+  const max = parseValue(maxRaw ?? '');
+  if (max && isAfterDay(today, max)) return getMonthStart(max);
+
+  return getMonthStart(today);
+};
+
 export const isWeekend = (value: Date): boolean => {
   const day = value.getDay();
   return day === 0 || day === 6;

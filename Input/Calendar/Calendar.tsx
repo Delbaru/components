@@ -48,6 +48,9 @@ export function Calendar({
     align: 'start',
     gap: 8,
     viewportPadding: 8,
+    // Без этого на закрытии календарь в тот же кадр уезжал за экран, и его угасание не было видно:
+    // открывался плавно, а пропадал рывком (та же причина, что у поповера и тултипа).
+    keepPositionWhenInactive: true,
   });
   const visibleMonthIndex = visibleMonth.getMonth();
   const visibleMonthLabel = datePicker.MONTH_LABELS[visibleMonthIndex];
@@ -131,11 +134,13 @@ export function Calendar({
           <Flex dir={['row', 'row', 'row']} align={['center', 'center', 'center']} gap={[4, null, null]} className={styles.yearPick}>
             <Text variant={['subtitle', null, null]}>{visibleYear}</Text>
 
-            <Flex dir={['column', 'column', 'column']} align={['center', 'center', 'center']} gap={[4, null, null]}>
+            {/* Глиф прежний, растёт только зона попадания: при корне 12×8 в стрелку года целились
+                мишенью 10×7 пикселей. Зазор между ними теперь внутри корней. */}
+            <Flex dir={['column', 'column', 'column']} align={['center', 'center', 'center']}>
               <Icon
                 src='/icons/ui/arrows/style-3/arrow.svg'
-                rootW={[12, null, null]}
-                rootH={[8, null, null]}
+                rootW={[20, null, null]}
+                rootH={[16, null, null]}
                 w={[16, null, null]}
                 h={['auto', null, null]}
                 rootClassName={cx(styles.btn, styles.prev)}
@@ -144,8 +149,8 @@ export function Calendar({
 
               <Icon
                 src='/icons/ui/arrows/style-3/arrow.svg'
-                rootW={[12, null, null]}
-                rootH={[8, null, null]}
+                rootW={[20, null, null]}
+                rootH={[16, null, null]}
                 w={[16, null, null]}
                 h={['auto', null, null]}
                 rootClassName={cx(styles.btn, styles.next)}
@@ -169,102 +174,114 @@ export function Calendar({
         />
       </Flex>
 
-      {isMonthPickerActive ? (
-        <Grid columns={[3, 3, 3]} gap={[8, 8, 8]}>
-          {datePicker.MONTH_LABELS.map((monthLabel, monthIndex) => {
-            const isCurrentVisibleMonth = monthIndex === visibleMonthIndex;
-
-            return (
-              <Button
-                key={monthLabel}
-                type='button'
-                h={[40, null, null]}
-                r={[8, null, null]}
-                border={['calc(1 * var(--rpx)) solid var(--gray-light)', null, null]}
-                bg={isCurrentVisibleMonth ? 'var(--primary)' : 'var(--background)'}
-                onClick={() => handleMonthSelect(monthIndex)}
-              >
-                <Text
-                  variant={['small', 'small', 'small']}
-                  color={isCurrentVisibleMonth ? 'var(--white-100)' : undefined}
-                >
-                  {monthLabel.slice(0, 3)}
-                </Text>
-              </Button>
-            );
-          })}
-        </Grid>
-      ) : (
-        <>
-          <Grid columns={[7, 7, 7]}>
-            {datePicker.WEEKDAY_LABELS.map((weekday) => (
-              <Flex
-                key={weekday}
-                align={['center', 'center', 'center']}
-                justify={['center', 'center', 'center']}
-                w={[40, null, null]}
-                h={[40, null, null]}
-              >
-                <Text variant={['small', 'small', 'small']} color='#AAA'>{weekday}</Text>
-              </Flex>
-            ))}
-          </Grid>
-
-          <Grid columns={[7, 7, 7]} gap={[4, 4, 4]}>
-            {calendarDays.map((day) => {
-              const isCurrentMonthDay = day.getMonth() === visibleMonth.getMonth();
-              const isDisabledDay = isDateDisabled(day);
-              const isSelectedDay = !isDisabledDay && datePicker.isSameDay(selectedDate, day);
-              const isWeekendDay = datePicker.isWeekend(day);
-              const dayButtonId = `${id}-day-${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`;
-              const dayState = cx(
-                isCurrentMonthDay ? '' : 'muted',
-                isWeekendDay ? 'weekend' : '',
-                isDisabledDay ? 'disabled' : '',
-                isSelectedDay ? 'selected' : ''
-              );
-              const dayBackground = isSelectedDay
-                ? 'var(--primary)'
-                : 'var(--background)';
-              const dayTextColor = isSelectedDay
-                ? 'var(--white-100)'
-                : isDisabledDay
-                    ? '#C5C6CC'
-                    : isWeekendDay && isCurrentMonthDay
-                        ? 'var(--red)'
-                        : undefined;
+      {/* Сетка месяцев и сетка дней — подмена на одном месте, поэтому своп, а не голое условие.
+          Высота места — ровно блок дней (строка дней недели 40 + 8 + шесть недель по 40 через 4):
+          иначе карточка прыгала бы на 124 при каждом входе в выбор месяца, а месяцы растягиваются
+          на ту же высоту и становятся крупными плитками. */}
+      <Flex
+        transitionKey={isMonthPickerActive ? 'months' : 'days'}
+        animation='fadeIn'
+        dir={['column', 'column', 'column']}
+        gap={[8, null, null]}
+        h={[308, null, null]}
+      >
+        {isMonthPickerActive ? (
+          <Grid columns={[3, 3, 3]} rows={[4, 4, 4]} gap={[8, 8, 8]} h={['100%', null, null]}>
+            {datePicker.MONTH_LABELS.map((monthLabel, monthIndex) => {
+              const isCurrentVisibleMonth = monthIndex === visibleMonthIndex;
 
               return (
                 <Button
-                  id={dayButtonId}
-                  key={`${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`}
+                  key={monthLabel}
                   type='button'
-                  w={[40, null, null]}
-                  h={[40, null, null]}
+                  h={['100%', null, null]}
                   r={[8, null, null]}
-                  className={styles.day}
-                  bg={dayBackground}
-                  state={dayState}
-                  disabled={isDisabledDay}
-                  linkState={[
-                    { target: dayButtonId, on: 'hover', set: 'hover' },
-                    { target: dayButtonId, on: 'active', set: 'active' },
-                  ]}
-                  onClick={() => onDateSelect(day)}
+                  border={['calc(1 * var(--rpx)) solid var(--gray-light)', null, null]}
+                  bg={isCurrentVisibleMonth ? 'var(--primary)' : 'var(--background)'}
+                  onClick={() => handleMonthSelect(monthIndex)}
                 >
                   <Text
-                    className={styles.dayText}
                     variant={['small', 'small', 'small']}
-                    color={dayTextColor}
+                    color={isCurrentVisibleMonth ? 'var(--white-100)' : undefined}
                   >
-                    {day.getDate()}
+                    {monthLabel.slice(0, 3)}
                   </Text>
                 </Button>
               );
             })}
           </Grid>
-        </>
-      )}
+        ) : (
+          <>
+            <Grid columns={[7, 7, 7]}>
+              {datePicker.WEEKDAY_LABELS.map((weekday) => (
+                <Flex
+                  key={weekday}
+                  align={['center', 'center', 'center']}
+                  justify={['center', 'center', 'center']}
+                  w={[40, null, null]}
+                  h={[40, null, null]}
+                >
+                  <Text variant={['small', 'small', 'small']} color='#AAA'>{weekday}</Text>
+                </Flex>
+              ))}
+            </Grid>
+
+            <Grid columns={[7, 7, 7]} gap={[4, 4, 4]}>
+              {calendarDays.map((day) => {
+                const isCurrentMonthDay = day.getMonth() === visibleMonth.getMonth();
+                const isDisabledDay = isDateDisabled(day);
+                const isSelectedDay = !isDisabledDay && datePicker.isSameDay(selectedDate, day);
+                const isWeekendDay = datePicker.isWeekend(day);
+                const dayButtonId = `${id}-day-${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`;
+                const dayState = cx(
+                  isCurrentMonthDay ? '' : 'muted',
+                  isWeekendDay ? 'weekend' : '',
+                  isDisabledDay ? 'disabled' : '',
+                  isSelectedDay ? 'selected' : ''
+                );
+                const dayBackground = isSelectedDay
+                  ? 'var(--primary)'
+                  : 'var(--background)';
+                const dayTextColor = isSelectedDay
+                  ? 'var(--white-100)'
+                  : isDisabledDay
+                      ? '#C5C6CC'
+                      : isWeekendDay && isCurrentMonthDay
+                          ? 'var(--red)'
+                          : undefined;
+
+                return (
+                  <Button
+                    id={dayButtonId}
+                    key={`${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`}
+                    type='button'
+                    w={[40, null, null]}
+                    h={[40, null, null]}
+                    r={[8, null, null]}
+                    className={styles.day}
+                    bg={dayBackground}
+                    state={dayState}
+                    disabled={isDisabledDay}
+                    linkState={[
+                      { target: dayButtonId, on: 'hover', set: 'hover' },
+                      { target: dayButtonId, on: 'active', set: 'active' },
+                    ]}
+                    onClick={() => onDateSelect(day)}
+                  >
+                    <Text
+                      className={styles.dayText}
+                      variant={['small', 'small', 'small']}
+                      color={dayTextColor}
+                    >
+                      {day.getDate()}
+                    </Text>
+                  </Button>
+                );
+              })}
+            </Grid>
+          </>
+        )}
+      </Flex>
     </Flex>
   );
 

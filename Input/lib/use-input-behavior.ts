@@ -489,12 +489,14 @@ export function useInputBehavior({
         return;
       }
 
-      if (event.key === 'Escape') {
+      // Escape гасит только ОТКРЫТЫЙ календарь и забирает клавишу себе: закрытый отпускает её
+      // наружу — поповеру или окну, внутри которых стоит поле (как у Select).
+      if (event.key === 'Escape' && isDatePickerActive) {
         event.preventDefault();
         deactivateDatePicker(false);
       }
     },
-    [activateDatePicker, deactivateDatePicker, disabled, isDate, isNumber, onInputKeyDown, restInputProps.min]
+    [activateDatePicker, deactivateDatePicker, disabled, isDate, isDatePickerActive, isNumber, onInputKeyDown, restInputProps.min]
   );
 
   const handleNumberStep = useCallback(

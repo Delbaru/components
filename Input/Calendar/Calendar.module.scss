@@ -69,8 +69,8 @@
           transform: scaleX(-1);
       }
 
-      .monthPick,
-      .yearPick {
+      // У года кликабельны только стрелки: «рука» над самой цифрой обещала действие, которого нет.
+      .monthPick {
           cursor: pointer;
       }
 

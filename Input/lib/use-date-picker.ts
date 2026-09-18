@@ -34,7 +34,7 @@ export function useDatePicker({
   const floatingRef = useRef<HTMLElement | null>(null);
   const [visibleMonth, setVisibleMonth] = useState(() => (
     enabled
-      ? datePicker.resolveVisibleMonth(value ?? minValue ?? maxValue)
+      ? datePicker.resolveOpeningMonth(value, minValue, maxValue)
       : datePicker.getMonthStart(new Date())
   ));
 
@@ -84,7 +84,7 @@ export function useDatePicker({
   const activateDatePicker = useCallback(() => {
     if (disabled || !enabled) return;
 
-    setVisibleMonth(datePicker.resolveVisibleMonth(value ?? minValue ?? maxValue));
+    setVisibleMonth(datePicker.resolveOpeningMonth(value, minValue, maxValue));
     setIsActive(true);
     focusField();
   }, [disabled, enabled, focusField, maxValue, minValue, value]);
