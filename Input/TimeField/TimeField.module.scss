@@ -1,6 +1,7 @@
 @layer ui.components {
   .root {
       position: relative;
+      display: flex;
       flex: 1;
       min-width: 0;
       font: var(--font-p);
